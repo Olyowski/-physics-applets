@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CER Feedback Tool - Volcanic Landscapes</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 50%, #ffa500 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+    
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 15px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+      padding: 40px;
+    }
+    
+    h1 {
+      text-align: center;
+      color: #d63031;
+      font-size: 2.5em;
+      margin-bottom: 10px;
+      text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+    }
+    
+    .subtitle {
+      text-align: center;
+      color: #666;
+      margin-bottom: 30px;
+      font-size: 1.1em;
+    }
+    
+    .instruction {
+      background: #f5f5f5;
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 30px;
+      border-left: 4px solid #ffa500;
+      line-height: 1.6;
+    }
+    
+    .input-section {
+      margin-bottom: 25px;
+    }
+    
+    .input-label {
+      display: flex;
+      align-items: center;
+      margin-bottom: 10px;
+      font-weight: 700;
+      font-size: 1.1em;
+    }
+    
+    .color-box {
+      width: 30px;
+      height: 30px;
+      border-radius: 6px;
+      margin-right: 12px;
+    }
+    
+    .claim-color { background: #ff6b6b; }
+    .evidence-color { background: #ffa500; }
+    .reasoning-color { background: #ffd93d; }
+    
+    .hint {
+      font-size: 0.9em;
+      color: #666;
+      margin-bottom: 8px;
+      font-style: italic;
+      padding: 8px;
+      background: #f9f9f9;
+      border-radius: 4px;
+    }
+    
+    textarea {
+      width: 100%;
+      min-height: 100px;
+      padding: 12px;
+      border: 2px solid #ddd;
+      border-radius: 8px;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      font-size: 1em;
+      resize: vertical;
+      transition: border-color 0.2s;
+    }
+    
+    textarea:focus {
+      outline: none;
+      border-color: #ffa500;
+    }
+    
+    textarea:disabled {
+      background: #f5f5f5;
+      color: #666;
+    }
+    
+    .button-group {
+      display: flex;
+      gap: 10px;
+      margin-top: 30px;
+      justify-content: center;
+    }
+    
+    button {
+      padding: 12px 30px;
+      font-size: 1em;
+      font-weight: 600;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .get-feedback-btn {
+      background: #ff6b6b;
+      color: white;
+      flex: 1;
+      max-width: 300px;
+    }
+    
+    .get-feedback-btn:hover {
+      background: #d63031;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(214, 48, 49, 0.3);
+    }
+    
+    .reset-btn {
+      background: #888;
+      color: white;
+      max-width: 150px;
+    }
+    
+    .reset-btn:hover {
+      background: #666;
+    }
+    
+    .feedback-section {
+      margin-top: 40px;
+      padding: 20px;
+      background: #f9f9f9;
+      border-radius: 10px;
+      display: none;
+    }
+    
+    .feedback-section.active {
+      display: block;
+    }
+    
+    .feedback-box {
+      margin-bottom: 20px;
+      padding: 15px;
+      border-radius: 8px;
+      border-left: 4px solid;
+    }
+    
+    .claim-feedback { 
+      background: #ffe0e0;
+      border-left-color: #ff6b6b;
+    }
+    
+    .evidence-feedback { 
+      background: #ffe8cc;
+      border-left-color: #ffa500;
+    }
+    
+    .reasoning-feedback { 
+      background: #fffacd;
+      border-left-color: #ffd93d;
+    }
+    
+    .feedback-box h3 {
+      font-size: 1.1em;
+      margin-bottom: 10px;
+    }
+    
+    .feedback-item {
+      margin-bottom: 8px;
+      line-height: 1.5;
+      display: flex;
+      gap: 10px;
+    }
+    
+    .feedback-item.correct {
+      color: #27ae60;
+    }
+    
+    .feedback-item.needs-work {
+      color: #333;
+    }
+    
+    .checkmark {
+      color: #27ae60;
+      font-weight: bold;
+      flex-shrink: 0;
+    }
+    
+    .arrow {
+      color: #999;
+      flex-shrink: 0;
+    }
+    
+    .mastery-message {
+      margin-top: 20px;
+      padding: 15px;
+      border-radius: 8px;
+      font-weight: 600;
+      text-align: center;
+    }
+    
+    .mastery-complete {
+      background: #d5f4e6;
+      color: #27ae60;
+      border: 2px solid #27ae60;
+    }
+    
+    .needs-revision {
+      background: #fff3cd;
+      color: #856404;
+      border: 2px solid #ffc107;
+    }
+    
+    .attempt-counter {
+      text-align: right;
+      color: #999;
+      font-size: 0.9em;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🌋 Volcanic Landscapes: CER Feedback</h1>
+    <div class="subtitle">VH 1-8: Volcanic or Not</div>
+    
+    <div class="instruction">
+      <strong>Instructions:</strong> Write your CER response about which locations are volcanoes and how their landscapes formed. Use your rock observations and model to explain the scales, energy, and matter cycling involved! Get feedback at least twice before submitting to Google Classroom.
+    </div>
+    
+    <!-- CLAIM SECTION -->
+    <div class="input-section">
+      <div class="input-label">
+        <div class="color-box claim-color"></div>
+        <span>Claim</span>
+      </div>
+      <div class="hint">Which locations ARE or ARE NOT volcanoes? How were their landscapes formed?</div>
+      <textarea id="claimInput" placeholder="Write your claim here..."></textarea>
+    </div>
+    
+    <!-- EVIDENCE SECTION -->
+    <div class="input-section">
+      <div class="input-label">
+        <div class="color-box evidence-color"></div>
+        <span>Evidence</span>
+      </div>
+      <div class="hint">What rock observations support your claim? Include specific colors, textures, crystals, and rock types.</div>
+      <textarea id="evidenceInput" placeholder="Describe your observations here..."></textarea>
+    </div>
+    
+    <!-- REASONING SECTION -->
+    <div class="input-section">
+      <div class="input-label">
+        <div class="color-box reasoning-color"></div>
+        <span>Reasoning</span>
+      </div>
+      <div class="hint">Explain HOW the landscape formed using: (1) scale changes (atomic to large), (2) energy involvement, and (3) matter cycling.</div>
+      <textarea id="reasoningInput" placeholder="Explain your reasoning here..."></textarea>
+    </div>
+    
+    <!-- BUTTONS -->
+    <div class="button-group">
+      <button class="get-feedback-btn" onclick="checkFeedback()">Get Feedback</button>
+      <button class="reset-btn" onclick="resetForm()">Reset</button>
+    </div>
+    
+    <div class="attempt-counter">Attempts: <span id="attemptCount">0</span></div>
+    
+    <!-- FEEDBACK SECTION -->
+    <div id="feedbackSection" class="feedback-section">
+      <div id="claimFeedback" class="feedback-box claim-feedback">
+        <h3>📍 About Your Claim:</h3>
+        <div id="claimItems"></div>
+      </div>
+      
+      <div id="evidenceFeedback" class="feedback-box evidence-feedback">
+        <h3>🔬 About Your Evidence:</h3>
+        <div id="evidenceItems"></div>
+      </div>
+      
+      <div id="reasoningFeedback" class="feedback-box reasoning-feedback">
+        <h3>💡 About Your Reasoning:</h3>
+        <div id="reasoningItems"></div>
+      </div>
+      
+      <div id="masteryStatus"></div>
+    </div>
+  </div>
+
+  <script>
+    let attempts = 0;
+
+    function checkFeedback() {
+      const claim = document.getElementById('claimInput').value.trim();
+      const evidence = document.getElementById('evidenceInput').value.trim();
+      const reasoning = document.getElementById('reasoningInput').value.trim();
+      
+      if (!claim || !evidence || !reasoning) {
+        alert('Please fill in all three sections before requesting feedback.');
+        return;
+      }
+
+      attempts++;
+      document.getElementById('attemptCount').textContent = attempts;
+
+      const claimFeedback = evaluateClaim(claim);
+      const evidenceFeedback = evaluateEvidence(evidence);
+      const reasoningFeedback = evaluateReasoning(reasoning);
+
+      displayFeedback(claimFeedback, evidenceFeedback, reasoningFeedback);
+      
+      // Disable textareas after first feedback
+      document.getElementById('claimInput').disabled = true;
+      document.getElementById('evidenceInput').disabled = true;
+      document.getElementById('reasoningInput').disabled = true;
+    }
+
+    function evaluateClaim(claimText) {
+      const feedback = [];
+      const lower = claimText.toLowerCase();
+      
+      const identifiesVolcanoes = /volcano|volcanic|volcan/.test(lower);
+      const mentionsFormation = /form|created|made|built|landscape|shaped|structure|develop|erupt/.test(lower);
+      const isComplete = claimText.split(' ').length >= 8;
+      const noOpinion = !/i think|i believe|probably|might|i guess|seems/.test(lower);
+
+      if (identifiesVolcanoes && mentionsFormation && isComplete && noOpinion) {
+        feedback.push({ correct: true, text: 'You clearly identify which locations are volcanoes and explain landscape formation.' });
+      } else {
+        if (!identifiesVolcanoes) {
+          feedback.push({ correct: false, text: 'Name which locations ARE or ARE NOT volcanoes.' });
+        }
+        if (!mentionsFormation) {
+          feedback.push({ correct: false, text: 'Explain HOW the landscapes were formed, not just what they are.' });
+        }
+        if (!isComplete) {
+          feedback.push({ correct: false, text: 'Write a complete claim with enough detail to answer the question.' });
+        }
+        if (!noOpinion) {
+          feedback.push({ correct: false, text: 'Use factual language, not opinions.' });
+        }
+      }
+
+      return feedback;
+    }
+
+    function evaluateEvidence(evidenceText) {
+      const feedback = [];
+      const lower = evidenceText.toLowerCase();
+      
+      const hasObservations = /color|texture|crystal|grain|mineral|composition|smooth|rough|dark|light|red|black|gray/.test(lower);
+      const hasRockTypes = /basalt|andesite|granite|rock|pumice|obsidian|lava|magma/.test(lower);
+      const hasLocation = /location|place|where|found|observed/.test(lower);
+      const isDetailed = evidenceText.split(' ').length >= 30;
+
+      if (hasObservations && hasRockTypes && hasLocation && isDetailed) {
+        feedback.push({ correct: true, text: 'Excellent! You provide specific rock observations and connect them to locations.' });
+      } else {
+        if (!hasObservations) {
+          feedback.push({ correct: false, text: 'Describe specific rock properties (color, texture, crystals, composition).' });
+        }
+        if (!hasRockTypes) {
+          feedback.push({ correct: false, text: 'Identify specific rock types from your observations.' });
+        }
+        if (!hasLocation) {
+          feedback.push({ correct: false, text: 'Reference the specific locations you observed.' });
+        }
+        if (!isDetailed) {
+          feedback.push({ correct: false, text: 'Provide more detailed observations to support your evidence.' });
+        }
+      }
+
+      return feedback;
+    }
+
+    function evaluateReasoning(reasoningText) {
+      const feedback = [];
+      const lower = reasoningText.toLowerCase();
+      
+      const hasScale = /scale|atomic|molecule|large|small|size|increase|decrease|zoom/.test(lower);
+      const hasEnergy = /energy|heat|temperature|hot|cool|thermal|friction|force|pressure/.test(lower);
+      const hasMatter = /matter|cycle|element|atoms|particles|move|flow|transfer|material/.test(lower);
+      const usesConnectors = /because|therefore|as a result|this shows|this explains|caused|resulted/.test(lower);
+
+      if (hasScale && hasEnergy && hasMatter && usesConnectors) {
+        feedback.push({ correct: true, text: 'Perfect! You explain the processes using scales, energy, and matter cycling.' });
+      } else {
+        if (!hasScale) {
+          feedback.push({ correct: false, text: 'Explain how the landscape changed at different scales (from atomic particles to large landforms).' });
+        }
+        if (!hasEnergy) {
+          feedback.push({ correct: false, text: 'Describe the energy involved in forming the landscape.' });
+        }
+        if (!hasMatter) {
+          feedback.push({ correct: false, text: 'Explain how matter cycled through the process.' });
+        }
+        if (!usesConnectors) {
+          feedback.push({ correct: false, text: 'Use connecting words like "because," "therefore," and "this explains" to link ideas.' });
+        }
+      }
+
+      return feedback;
+    }
+
+    function displayFeedback(claimFb, evidenceFb, reasoningFb) {
+      document.getElementById('feedbackSection').classList.add('active');
+
+      // Display claim feedback
+      const claimDiv = document.getElementById('claimItems');
+      claimDiv.innerHTML = claimFb.map(item => 
+        `<div class="feedback-item ${item.correct ? 'correct' : 'needs-work'}">
+          <span class="${item.correct ? 'checkmark' : 'arrow'}">${item.correct ? '✓' : '→'}</span>
+          <span>${item.text}</span>
+        </div>`
+      ).join('');
+
+      // Display evidence feedback
+      const evidenceDiv = document.getElementById('evidenceItems');
+      evidenceDiv.innerHTML = evidenceFb.map(item => 
+        `<div class="feedback-item ${item.correct ? 'correct' : 'needs-work'}">
+          <span class="${item.correct ? 'checkmark' : 'arrow'}">${item.correct ? '✓' : '→'}</span>
+          <span>${item.text}</span>
+        </div>`
+      ).join('');
+
+      // Display reasoning feedback
+      const reasoningDiv = document.getElementById('reasoningItems');
+      reasoningDiv.innerHTML = reasoningFb.map(item => 
+        `<div class="feedback-item ${item.correct ? 'correct' : 'needs-work'}">
+          <span class="${item.correct ? 'checkmark' : 'arrow'}">${item.correct ? '✓' : '→'}</span>
+          <span>${item.text}</span>
+        </div>`
+      ).join('');
+
+      // Check for mastery
+      const allCorrect = claimFb.every(f => f.correct) && 
+                        evidenceFb.every(f => f.correct) && 
+                        reasoningFb.every(f => f.correct);
+
+      const masteryDiv = document.getElementById('masteryStatus');
+      if (allCorrect) {
+        masteryDiv.innerHTML = `
+          <div class="mastery-message mastery-complete">
+            ✓ Perfect! All sections meet the criteria! You're ready to copy and paste your response into Google Classroom.
+          </div>
+        `;
+      } else {
+        masteryDiv.innerHTML = `
+          <div class="mastery-message needs-revision">
+            📝 Great effort! Make the changes suggested above and request feedback again.
+          </div>
+        `;
+      }
+    }
+
+    function resetForm() {
+      document.getElementById('claimInput').value = '';
+      document.getElementById('evidenceInput').value = '';
+      document.getElementById('reasoningInput').value = '';
+      document.getElementById('claimInput').disabled = false;
+      document.getElementById('evidenceInput').disabled = false;
+      document.getElementById('reasoningInput').disabled = false;
+      document.getElementById('feedbackSection').classList.remove('active');
+      document.getElementById('attemptCount').textContent = '0';
+      attempts = 0;
+    }
+  </script>
+</body>
+</html>

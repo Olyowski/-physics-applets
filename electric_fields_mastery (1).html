@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Electric Fields Mastery Dashboard</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body { 
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+      padding: 20px; 
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    
+    h1 {
+      text-align: center;
+      color: white;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+      margin-bottom: 30px;
+      font-size: 2.5em;
+    }
+    
+    h2 { 
+      margin-top: 25px; 
+      color: #333;
+      border-bottom: 3px solid #667eea;
+      padding-bottom: 10px;
+      font-size: 1.6em;
+    }
+    
+    .section { 
+      margin-bottom: 30px; 
+      padding: 25px; 
+      background: white; 
+      border-radius: 15px; 
+      box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    }
+    
+    .question { 
+      margin-bottom: 20px; 
+      padding: 15px;
+      border-left: 4px solid #667eea;
+      background: #f8f9ff;
+      border-radius: 0 8px 8px 0;
+    }
+    
+    .question-text {
+      font-weight: 600;
+      margin-bottom: 12px;
+      color: #333;
+    }
+    
+    .options {
+      margin: 10px 0;
+    }
+    
+    .option {
+      margin: 8px 0;
+      padding: 10px 12px;
+      background: white;
+      border: 2px solid #ddd;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: block;
+      word-wrap: break-word;
+      overflow-wrap: break-word;
+      line-height: 1.5;
+    }
+    
+    .option:hover {
+      border-color: #667eea;
+      background: #f0f4ff;
+    }
+    
+    .option input[type="radio"] {
+      margin-right: 8px;
+    }
+    
+    .feedback { 
+      margin-top: 12px; 
+      font-weight: bold; 
+      padding: 10px 12px;
+      border-radius: 6px;
+      animation: fadeIn 0.3s ease-in;
+      font-size: 0.95em;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .correct { 
+      color: #27ae60; 
+      background: #d5f4e6;
+      border-left: 4px solid #27ae60;
+    }
+    
+    .incorrect { 
+      color: #e74c3c; 
+      background: #ffeaea;
+      border-left: 4px solid #e74c3c;
+    }
+    
+    .input-container {
+      margin: 10px 0;
+    }
+    
+    input[type="number"], input[type="text"] { 
+      width: 200px; 
+      padding: 10px;
+      border: 2px solid #ddd;
+      border-radius: 6px;
+      font-size: 1em;
+      transition: border-color 0.2s;
+    }
+    
+    input[type="number"]:focus, input[type="text"]:focus { 
+      outline: none;
+      border-color: #667eea;
+    }
+    
+    button {
+      padding: 10px 20px;
+      margin: 5px 5px 5px 0;
+      background: #667eea;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: background 0.2s;
+    }
+    
+    button:hover {
+      background: #5568d3;
+    }
+    
+    .progress {
+      margin: 15px 0;
+      padding: 10px;
+      background: #f0f4ff;
+      border-radius: 6px;
+      font-weight: 600;
+      color: #333;
+    }
+    
+    .progress-bar {
+      width: 100%;
+      height: 25px;
+      background: #e0e0e0;
+      border-radius: 12px;
+      overflow: hidden;
+      margin-top: 5px;
+    }
+    
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #667eea, #764ba2);
+      transition: width 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: bold;
+      font-size: 0.8em;
+    }
+    
+    .mastery-screen {
+      text-align: center;
+      padding: 40px;
+      background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
+      color: white;
+      border-radius: 15px;
+      margin: 30px 0;
+      display: none;
+    }
+    
+    .mastery-screen h2 {
+      color: white;
+      border: none;
+      margin-bottom: 15px;
+      font-size: 2em;
+    }
+    
+    .mastery-screen p {
+      font-size: 1.2em;
+      margin: 10px 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>⚡ Electric Fields Mastery Dashboard</h1>
+    
+    <div id="masteryScreen" class="mastery-screen">
+      <h2>🎉 MASTERY ACHIEVED!</h2>
+      <p>You've completed all sections of this unit!</p>
+      <p>Great work understanding electric fields!</p>
+    </div>
+    
+    <!-- CONCEPTUAL SECTION -->
+    <div class="section">
+      <h2>🧠 Conceptual Questions</h2>
+      <div class="progress">
+        <div>Progress: <span id="conceptualProgress">0</span>/4</div>
+        <div class="progress-bar">
+          <div class="progress-fill" id="conceptualBar" style="width: 0%">0%</div>
+        </div>
+      </div>
+      <div id="conceptualContainer"></div>
+    </div>
+    
+    <!-- SKILLS SECTION -->
+    <div class="section">
+      <h2>🧮 Skills Practice</h2>
+      <div class="progress">
+        <div>Progress: <span id="skillsProgress">0</span>/2</div>
+        <div class="progress-bar">
+          <div class="progress-fill" id="skillsBar" style="width: 0%">0%</div>
+        </div>
+      </div>
+      <div id="skillsContainer"></div>
+    </div>
+    
+    <!-- ADVANCED SECTION -->
+    <div class="section">
+      <h2>🚀 Advanced Problems</h2>
+      <div class="progress">
+        <div>Progress: <span id="advancedProgress">0</span>/3</div>
+        <div class="progress-bar">
+          <div class="progress-fill" id="advancedBar" style="width: 0%">0%</div>
+        </div>
+      </div>
+      <div id="advancedContainer"></div>
+    </div>
+    
+    <!-- GRAPHS & MATCHING SECTION -->
+    <div class="section">
+      <h2>📈 Vocabulary Matching</h2>
+      <div class="progress">
+        <div>Progress: <span id="graphProgress">0</span>/4</div>
+        <div class="progress-bar">
+          <div class="progress-fill" id="graphBar" style="width: 0%">0%</div>
+        </div>
+      </div>
+      <div id="graphContainer"></div>
+    </div>
+  </div>
+
+  <script>
+    // Questions data
+    const conceptualQuestions = [
+      {
+        question: "How do electric fields describe the forces between charges?",
+        options: [
+          "They show the path charges take when moving",
+          "They represent the force per unit charge at each point in space",
+          "They measure the total energy in a system",
+          "They prevent charges from accelerating"
+        ],
+        correct: 1,
+        feedback: [
+          "Electric fields don't describe motion paths directly.",
+          "Correct! The electric field is defined as F = qE, showing force per unit charge.",
+          "Energy is separate from field definitions.",
+          "Fields actually cause charges to accelerate."
+        ]
+      },
+      {
+        question: "How can you identify charge strength and sign from a field diagram?",
+        options: [
+          "Count the number of field lines; more lines = stronger charge",
+          "Look at line spacing and direction; closer lines = stronger field; direction indicates positive charge location",
+          "Measure the color intensity of the diagram",
+          "Field diagrams only show direction, not strength"
+        ],
+        correct: 1,
+        feedback: [
+          "This is partially true but not the complete method.",
+          "Correct! Denser field lines indicate stronger fields, and they radiate from positive charges.",
+          "Field diagrams use lines, not colors.",
+          "Field diagrams show both direction AND strength through line density."
+        ]
+      },
+      {
+        question: "How do conductors behave when placed in an electric field?",
+        options: [
+          "They are pushed away from the field",
+          "Charges redistribute until the internal field is zero",
+          "They absorb all field lines",
+          "They have no effect on the field"
+        ],
+        correct: 1,
+        feedback: [
+          "Conductors don't move; charges within them do.",
+          "Correct! Free charges in conductors move to cancel the internal field.",
+          "Field lines pass through or around conductors.",
+          "Conductors definitely affect the field around them."
+        ]
+      },
+      {
+        question: "What is the main difference between field patterns from like charges versus opposite charges?",
+        options: [
+          "Like charges produce no field",
+          "Opposite charges always produce stronger fields",
+          "Like charges repel with field lines pushing away from both; opposite charges attract with field lines connecting them",
+          "There is no difference in field patterns"
+        ],
+        correct: 2,
+        feedback: [
+          "Like charges definitely produce fields.",
+          "Strength depends on distance, not charge type.",
+          "Correct! Like charges show repulsion patterns; opposite charges show attraction patterns.",
+          "The patterns are distinctly different."
+        ]
+      }
+    ];
+
+    const skillsQuestions = [
+      {
+        question: "Two point charges are separated 0.50 m apart: +4.0 µC and +2.0 µC. Calculate the net electric field at point P located 0.25 m from the +4.0 µC charge (on the line between them). (Use k = 9.0 × 10⁹ N·m²/C²)",
+        correctAnswer: 1440000,
+        tolerance: 100000,
+        feedback: "Great! You correctly calculated the net field. The +4.0 µC charge contributes 5.76 × 10⁶ N/C (rightward), and the +2.0 µC charge contributes -4.32 × 10⁶ N/C (leftward), giving a net of 1.44 × 10⁶ N/C.",
+        hint: "Calculate E from each charge separately using E = kq/r². Since both are positive and P is between them, their fields oppose each other."
+      },
+      {
+        question: "A uniform electric field has a magnitude of 500 N/C pointing to the right. An electron (q = -1.6 × 10⁻¹⁹ C) is placed in this field. What is the magnitude of the force on the electron?",
+        correctAnswer: "8e-17",
+        tolerance: "1e-17",
+        feedback: "Perfect! F = qE = (1.6 × 10⁻¹⁹ C)(500 N/C) = 8.0 × 10⁻¹⁷ N. The electron experiences a leftward force (opposite to field direction).",
+        hint: "Use F = qE. The magnitude is |q| × E. Don't forget to use the magnitude of the charge."
+      }
+    ];
+
+    const advancedQuestions = [
+      {
+        question: "Explain why the electric field inside a conductor at equilibrium must be zero.",
+        answer: "free charges move until they create an internal field that cancels the external field",
+        feedback: "Excellent! This is the foundation of electrostatic shielding and explains why electric fields don't penetrate conductors.",
+        hint: "Think about what free charges do when there's a field..."
+      },
+      {
+        question: "How does the inverse square law apply to electric fields around a point charge?",
+        answer: "field strength decreases with the square of distance",
+        feedback: "Correct! This is why E = kq/r². Double the distance, and the field becomes 1/4 as strong.",
+        hint: "Look at E = kq/r² and think about how the denominator changes."
+      },
+      {
+        question: "Compare a uniform electric field (between parallel plates) and a point charge field. Which is stronger farther away and why?",
+        answer: "point charge field is stronger; uniform field stays constant while point charge follows inverse square law at short distances but eventually gets weaker",
+        feedback: "Great insight! This is why uniform fields are useful for specific applications like capacitors.",
+        hint: "One follows an inverse square law, the other doesn't change with distance."
+      }
+    ];
+
+    const matchingItems = [
+      { term: "Electric Field", definition: "The force per unit charge experienced at a point in space" },
+      { term: "Field Lines", definition: "Imaginary lines showing the direction a positive charge would move" },
+      { term: "Test Charge", definition: "A hypothetical positive charge used to detect and measure fields" },
+      { term: "Superposition", definition: "The principle that net field equals the sum of individual fields" }
+    ];
+
+    let progress = {
+      conceptual: 0,
+      skills: 0,
+      advanced: 0,
+      graph: 0
+    };
+
+    // Build Conceptual Questions
+    function buildConceptual() {
+      const container = document.getElementById("conceptualContainer");
+      conceptualQuestions.forEach((q, idx) => {
+        const qDiv = document.createElement("div");
+        qDiv.className = "question";
+        qDiv.innerHTML = `
+          <div class="question-text">Q${idx + 1}: ${q.question}</div>
+          <div class="options">
+            ${q.options.map((opt, i) => `
+              <label class="option">
+                <input type="radio" name="conceptual${idx}" value="${i}">
+                ${opt}
+              </label>
+            `).join('')}
+          </div>
+          <button onclick="checkConceptual(${idx})">Check Answer</button>
+          <div id="fb-conceptual-${idx}" class="feedback" style="display:none;"></div>
+        `;
+        container.appendChild(qDiv);
+      });
+    }
+
+    function checkConceptual(idx) {
+      const selected = document.querySelector(`input[name="conceptual${idx}"]:checked`);
+      const feedback = document.getElementById(`fb-conceptual-${idx}`);
+      
+      if (!selected) {
+        feedback.textContent = "Please select an answer!";
+        feedback.className = "feedback incorrect";
+        feedback.style.display = "block";
+        return;
+      }
+      
+      const answer = parseInt(selected.value);
+      const isCorrect = answer === conceptualQuestions[idx].correct;
+      
+      feedback.textContent = isCorrect ? "✅ " + conceptualQuestions[idx].feedback[answer] : "❌ " + conceptualQuestions[idx].feedback[answer];
+      feedback.className = `feedback ${isCorrect ? 'correct' : 'incorrect'}`;
+      feedback.style.display = "block";
+      
+      if (isCorrect && !selected.dataset.counted) {
+        selected.dataset.counted = true;
+        progress.conceptual++;
+        updateProgress();
+      }
+    }
+
+    // Build Skills Questions
+    function buildSkills() {
+      const container = document.getElementById("skillsContainer");
+      skillsQuestions.forEach((q, idx) => {
+        const qDiv = document.createElement("div");
+        qDiv.className = "question";
+        qDiv.innerHTML = `
+          <div class="question-text">Q${idx + 1}: ${q.question}</div>
+          <div class="input-container">
+            <input type="number" id="skill${idx}" placeholder="Enter your answer" step="any">
+            <button onclick="checkSkill(${idx})">Check Answer</button>
+          </div>
+          <div id="fb-skill-${idx}" class="feedback" style="display:none;"></div>
+        `;
+        container.appendChild(qDiv);
+      });
+    }
+
+    function checkSkill(idx) {
+      const input = document.getElementById(`skill${idx}`);
+      const feedback = document.getElementById(`fb-skill-${idx}`);
+      const userAnswer = parseFloat(input.value);
+      const correct = parseFloat(skillsQuestions[idx].correctAnswer);
+      const tolerance = parseFloat(skillsQuestions[idx].tolerance);
+      
+      if (isNaN(userAnswer)) {
+        feedback.textContent = "Please enter a number!";
+        feedback.className = "feedback incorrect";
+        feedback.style.display = "block";
+        return;
+      }
+      
+      const isCorrect = Math.abs(userAnswer - correct) <= tolerance;
+      feedback.textContent = isCorrect ? "✅ " + skillsQuestions[idx].feedback : `❌ Hint: ${skillsQuestions[idx].hint}`;
+      feedback.className = `feedback ${isCorrect ? 'correct' : 'incorrect'}`;
+      feedback.style.display = "block";
+      
+      if (isCorrect && !input.dataset.counted) {
+        input.dataset.counted = true;
+        progress.skills++;
+        updateProgress();
+      }
+    }
+
+    // Build Advanced Questions
+    function buildAdvanced() {
+      const container = document.getElementById("advancedContainer");
+      advancedQuestions.forEach((q, idx) => {
+        const qDiv = document.createElement("div");
+        qDiv.className = "question";
+        qDiv.innerHTML = `
+          <div class="question-text">Q${idx + 1}: ${q.question}</div>
+          <div class="input-container">
+            <input type="text" id="adv${idx}" placeholder="Explain or describe...">
+            <button onclick="checkAdvanced(${idx})">Check Answer</button>
+          </div>
+          <div id="fb-adv-${idx}" class="feedback" style="display:none;"></div>
+        `;
+        container.appendChild(qDiv);
+      });
+    }
+
+    function checkAdvanced(idx) {
+      const input = document.getElementById(`adv${idx}`);
+      const feedback = document.getElementById(`fb-adv-${idx}`);
+      const userAnswer = input.value.toLowerCase().trim();
+      const correctKeywords = advancedQuestions[idx].answer.toLowerCase().split(' ');
+      const matches = correctKeywords.filter(kw => userAnswer.includes(kw)).length;
+      const isCorrect = matches >= Math.ceil(correctKeywords.length * 0.6);
+      
+      feedback.textContent = isCorrect ? "✅ " + advancedQuestions[idx].feedback : `Hint: ${advancedQuestions[idx].hint}`;
+      feedback.className = `feedback ${isCorrect ? 'correct' : 'incorrect'}`;
+      feedback.style.display = "block";
+      
+      if (isCorrect && !input.dataset.counted) {
+        input.dataset.counted = true;
+        progress.advanced++;
+        updateProgress();
+      }
+    }
+
+    // Build Matching
+    function buildMatching() {
+      const container = document.getElementById("graphContainer");
+      const shuffled = [...matchingItems].sort(() => Math.random() - 0.5);
+      
+      container.innerHTML = `
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+          <div>
+            <h4>Terms</h4>
+            ${matchingItems.map((item, idx) => `
+              <div style="padding: 10px; margin: 5px 0; background: #f0f4ff; border-radius: 6px; cursor: pointer;" onclick="matchItem(${idx})" data-idx="${idx}">
+                ${item.term}
+              </div>
+            `).join('')}
+          </div>
+          <div>
+            <h4>Definitions</h4>
+            ${shuffled.map((item, idx) => `
+              <div style="padding: 10px; margin: 5px 0; background: white; border: 2px solid #ddd; border-radius: 6px;" data-def="${matchingItems.findIndex(m => m.term === item.term)}">
+                ${item.definition}
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      `;
+    }
+
+    function updateProgress() {
+      const total = 4 + 2 + 3 + 4;
+      const current = progress.conceptual + progress.skills + progress.advanced + progress.graph;
+      
+      updateBar('conceptual', progress.conceptual, 4);
+      updateBar('skills', progress.skills, 2);
+      updateBar('advanced', progress.advanced, 3);
+      updateBar('graph', progress.graph, 4);
+      
+      if (current === total) {
+        document.getElementById('masteryScreen').style.display = 'block';
+      }
+    }
+
+    function updateBar(id, current, total) {
+      const pct = Math.round((current / total) * 100);
+      document.getElementById(`${id}Progress`).textContent = current;
+      document.getElementById(`${id}Bar`).style.width = pct + '%';
+      document.getElementById(`${id}Bar`).textContent = pct + '%';
+    }
+
+    // Initialize
+    buildConceptual();
+    buildSkills();
+    buildAdvanced();
+    buildMatching();
+  </script>
+</body>
+</html>

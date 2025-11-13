@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Electric Current Mastery Dashboard</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body { 
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+      padding: 20px; 
+      background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+      min-height: 100vh;
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    
+    h1 {
+      text-align: center;
+      color: white;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+      margin-bottom: 30px;
+      font-size: 2.5em;
+    }
+    
+    h2 { 
+      margin-top: 25px; 
+      color: #333;
+      border-bottom: 3px solid #e74c3c;
+      padding-bottom: 10px;
+      font-size: 1.6em;
+    }
+    
+    .section { 
+      margin-bottom: 30px; 
+      padding: 25px; 
+      background: white; 
+      border-radius: 15px; 
+      box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    }
+    
+    .question { 
+      margin-bottom: 20px; 
+      padding: 15px;
+      border-left: 4px solid #e74c3c;
+      background: #fdf7f5;
+      border-radius: 0 8px 8px 0;
+    }
+    
+    .question-text {
+      font-weight: 600;
+      margin-bottom: 12px;
+      color: #333;
+    }
+    
+    .options {
+      margin: 10px 0;
+    }
+    
+    .option {
+      margin: 8px 0;
+      padding: 10px 12px;
+      background: white;
+      border: 2px solid #ddd;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: block;
+      word-wrap: break-word;
+      overflow-wrap: break-word;
+      line-height: 1.5;
+    }
+    
+    .option:hover {
+      border-color: #e74c3c;
+      background: #fff5f3;
+    }
+    
+    .option input[type="radio"] {
+      margin-right: 8px;
+    }
+    
+    .feedback { 
+      margin-top: 12px; 
+      font-weight: bold; 
+      padding: 10px 12px;
+      border-radius: 6px;
+      animation: fadeIn 0.3s ease-in;
+      font-size: 0.95em;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .correct { 
+      color: #27ae60; 
+      background: #d5f4e6;
+      border-left: 4px solid #27ae60;
+    }
+    
+    .incorrect { 
+      color: #e74c3c; 
+      background: #ffeaea;
+      border-left: 4px solid #e74c3c;
+    }
+    
+    .input-container {
+      margin: 10px 0;
+    }
+    
+    input[type="number"], input[type="text"] { 
+      width: 200px; 
+      padding: 10px;
+      border: 2px solid #ddd;
+      border-radius: 6px;
+      font-size: 1em;
+      transition: border-color 0.2s;
+    }
+    
+    input[type="number"]:focus, input[type="text"]:focus { 
+      outline: none;
+      border-color: #e74c3c;
+    }
+    
+    button {
+      padding: 10px 20px;
+      margin: 5px 5px 5px 0;
+      background: #e74c3c;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: background 0.2s;
+    }
+    
+    button:hover {
+      background: #c0392b;
+    }
+    
+    .progress {
+      margin: 15px 0;
+      padding: 10px;
+      background: #fdf7f5;
+      border-radius: 6px;
+      font-weight: 600;
+      color: #333;
+    }
+    
+    .progress-bar {
+      width: 100%;
+      height: 25px;
+      background: #e0e0e0;
+      border-radius: 12px;
+      overflow: hidden;
+      margin-top: 5px;
+    }
+    
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #e74c3c, #c0392b);
+      transition: width 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: bold;
+      font-size: 0.8em;
+    }
+    
+    .mastery-screen {
+      text-align: center;
+      padding: 40px;
+      background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
+      color: white;
+      border-radius: 15px;
+      margin: 30px 0;
+      display: none;
+    }
+    
+    .mastery-screen h2 {
+      color: white;
+      border: none;
+      margin-bottom: 15px;
+      font-size: 2em;
+    }
+    
+    .mastery-screen p {
+      font-size: 1.2em;
+      margin: 10px 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>⚡ Electric Current Mastery Dashboard</h1>
+    
+    <div id="masteryScreen" class="mastery-screen">
+      <h2>🎉 MASTERY ACHIEVED!</h2>
+      <p>You've completed all sections of this unit!</p>
+      <p>Excellent understanding of electric current!</p>
+    </div>
+    
+    <!-- CONCEPTUAL SECTION -->
+    <div class="section">
+      <h2>🧠 Conceptual Questions</h2>
+      <div class="progress">
+        <div>Progress: <span id="conceptualProgress">0</span>/3</div>
+        <div class="progress-bar">
+          <div class="progress-fill" id="conceptualBar" style="width: 0%">0%</div>
+        </div>
+      </div>
+      <div id="conceptualContainer"></div>
+    </div>
+    
+    <!-- CIRCUIT ANALYSIS SECTION -->
+    <div class="section">
+      <h2>🔌 Circuit Analysis</h2>
+      <div class="progress">
+        <div>Progress: <span id="circuitProgress">0</span>/2</div>
+        <div class="progress-bar">
+          <div class="progress-fill" id="circuitBar" style="width: 0%">0%</div>
+        </div>
+      </div>
+      <div id="circuitContainer"></div>
+    </div>
+    
+    <!-- DRIFT VELOCITY SECTION -->
+    <div class="section">
+      <h2>🚀 Drift Velocity Problems</h2>
+      <div class="progress">
+        <div>Progress: <span id="velocityProgress">0</span>/2</div>
+        <div class="progress-bar">
+          <div class="progress-fill" id="velocityBar" style="width: 0%">0%</div>
+        </div>
+      </div>
+      <div id="velocityContainer"></div>
+    </div>
+    
+    <!-- VOCABULARY SECTION -->
+    <div class="section">
+      <h2>📚 Key Vocabulary</h2>
+      <div class="progress">
+        <div>Progress: <span id="vocabProgress">0</span>/4</div>
+        <div class="progress-bar">
+          <div class="progress-fill" id="vocabBar" style="width: 0%">0%</div>
+        </div>
+      </div>
+      <div id="vocabContainer"></div>
+    </div>
+  </div>
+
+  <script>
+    const conceptualQuestions = [
+      {
+        question: "Describe how a uniform electric field will impact electron movement if two terminals of a battery are connected together using a silver wire.",
+        options: [
+          "Electrons will not move because silver is a perfect conductor",
+          "Electrons will accelerate indefinitely without stopping",
+          "The silver wire is a conductor so charges will move freely. The electrons will experience a constant force due to the uniform field, move and collide with the metal's inner electron clouds causing friction that cancels the force. This causes electrons to move at a constant velocity known as drift velocity.",
+          "Electrons will move only in the direction of the field"
+        ],
+        correct: 2,
+        feedback: [
+          "Silver is conductive, so movement will occur.",
+          "Friction from collisions prevents indefinite acceleration.",
+          "Correct! This describes drift velocity - the balance between electric force and frictional forces.",
+          "Electrons move opposite to the field direction (they're negative)."
+        ]
+      },
+      {
+        question: "What is the relationship between voltage, current, and resistance?",
+        options: [
+          "V = I × R (Ohm's Law)",
+          "V = I + R",
+          "R = V + I",
+          "Current and voltage are unrelated"
+        ],
+        correct: 0,
+        feedback: [
+          "Correct! V = IR is Ohm's Law. Voltage drives current through resistance.",
+          "Ohm's Law uses multiplication, not addition.",
+          "Incorrect relationship.",
+          "Voltage drives current, and resistance opposes it."
+        ]
+      },
+      {
+        question: "In a conductor, why do electrons experience a constant drift velocity rather than continuously accelerating?",
+        options: [
+          "There's no force acting on them",
+          "The electric force is balanced by collisions with atoms",
+          "Electrons repel each other",
+          "The battery runs out of energy"
+        ],
+        correct: 1,
+        feedback: [
+          "There definitely is a force - the electric field!",
+          "Correct! Electrons accelerate briefly, then collide, transferring energy as heat.",
+          "Electron-electron repulsion is negligible compared to the electric field.",
+          "The voltage remains constant in the circuit."
+        ]
+      }
+    ];
+
+    const circuitQuestions = [
+      {
+        question: "Are resistors 1 and 2 in series? Explain why or why not.",
+        options: [
+          "Yes, they are always in series",
+          "No, they share a common junction so they're in parallel",
+          "It depends on whether they're the same resistance",
+          "Cannot be determined from this question"
+        ],
+        correct: 1,
+        feedback: [
+          "You need more information about the circuit connection.",
+          "Correct! If they share two common junction points, they're in parallel.",
+          "Component arrangement, not resistance values, determines series/parallel.",
+          "With a circuit diagram, this can be determined."
+        ]
+      },
+      {
+        question: "If a 12V battery is connected to a circuit with a 4Ω resistor, what is the current flowing through the resistor?",
+        options: [
+          "3A",
+          "16A",
+          "8A",
+          "0.33A"
+        ],
+        correct: 0,
+        feedback: [
+          "Correct! I = V/R = 12V/4Ω = 3A",
+          "This would require V/R or addition instead of division.",
+          "Incorrect calculation.",
+          "This is 1/3 ampere, not the full current."
+        ]
+      }
+    ];
+
+    const velocityQuestions = [
+      {
+        question: "In a copper wire, electrons drift at about 0.0001 m/s, yet current flows almost instantly. Why is this paradox explained?",
+        options: [
+          "The electrons actually move much faster than measured",
+          "Electromagnetic fields propagate at the speed of light, not the electrons themselves",
+          "Current is not actually instant",
+          "There's an error in the measurements"
+        ],
+        correct: 1,
+        feedback: [
+          "Drift velocity is accurately measured through multiple methods.",
+          "Correct! The signal/field travels at light speed through the wire, even though electrons drift slowly.",
+          "Current does flow almost instantly through long wires.",
+          "Measurements are reliable and reproducible."
+        ]
+      },
+      {
+        question: "If you double the cross-sectional area of a wire while keeping voltage and length constant, how does drift velocity change?",
+        options: [
+          "Doubles (2×)",
+          "Halves (÷2)",
+          "Stays the same",
+          "Becomes zero"
+        ],
+        correct: 1,
+        feedback: [
+          "Larger area allows more current, but drift velocity decreases.",
+          "Correct! Drift velocity is inversely proportional to area: v_d = I/(nqA)",
+          "Drift velocity is affected by cross-sectional area.",
+          "Current still flows with a larger cross-section."
+        ]
+      }
+    ];
+
+    const vocabItems = [
+      { term: "Drift Velocity", definition: "The average velocity at which electrons move through a conductor" },
+      { term: "Current (I)", definition: "The flow of electric charge, measured in amperes" },
+      { term: "Resistance (R)", definition: "Opposition to current flow, measured in ohms (Ω)" },
+      { term: "Voltage (V)", definition: "The electric potential difference that drives current through a circuit" }
+    ];
+
+    let progress = {
+      conceptual: 0,
+      circuit: 0,
+      velocity: 0,
+      vocab: 0
+    };
+
+    function buildConceptual() {
+      const container = document.getElementById("conceptualContainer");
+      conceptualQuestions.forEach((q, idx) => {
+        const qDiv = document.createElement("div");
+        qDiv.className = "question";
+        qDiv.innerHTML = `
+          <div class="question-text">Q${idx + 1}: ${q.question}</div>
+          <div class="options">
+            ${q.options.map((opt, i) => `
+              <label class="option">
+                <input type="radio" name="conceptual${idx}" value="${i}">
+                ${opt}
+              </label>
+            `).join('')}
+          </div>
+          <button onclick="checkConceptual(${idx})">Check Answer</button>
+          <div id="fb-conceptual-${idx}" class="feedback" style="display:none;"></div>
+        `;
+        container.appendChild(qDiv);
+      });
+    }
+
+    function checkConceptual(idx) {
+      const selected = document.querySelector(`input[name="conceptual${idx}"]:checked`);
+      const feedback = document.getElementById(`fb-conceptual-${idx}`);
+      
+      if (!selected) {
+        feedback.textContent = "Please select an answer!";
+        feedback.className = "feedback incorrect";
+        feedback.style.display = "block";
+        return;
+      }
+      
+      const answer = parseInt(selected.value);
+      const isCorrect = answer === conceptualQuestions[idx].correct;
+      
+      feedback.textContent = isCorrect ? "✅ " + conceptualQuestions[idx].feedback[answer] : "❌ " + conceptualQuestions[idx].feedback[answer];
+      feedback.className = `feedback ${isCorrect ? 'correct' : 'incorrect'}`;
+      feedback.style.display = "block";
+      
+      if (isCorrect && !selected.dataset.counted) {
+        selected.dataset.counted = true;
+        progress.conceptual++;
+        updateProgress();
+      }
+    }
+
+    function buildCircuit() {
+      const container = document.getElementById("circuitContainer");
+      circuitQuestions.forEach((q, idx) => {
+        const qDiv = document.createElement("div");
+        qDiv.className = "question";
+        qDiv.innerHTML = `
+          <div class="question-text">Q${idx + 1}: ${q.question}</div>
+          <div class="options">
+            ${q.options.map((opt, i) => `
+              <label class="option">
+                <input type="radio" name="circuit${idx}" value="${i}">
+                ${opt}
+              </label>
+            `).join('')}
+          </div>
+          <button onclick="checkCircuit(${idx})">Check Answer</button>
+          <div id="fb-circuit-${idx}" class="feedback" style="display:none;"></div>
+        `;
+        container.appendChild(qDiv);
+      });
+    }
+
+    function checkCircuit(idx) {
+      const selected = document.querySelector(`input[name="circuit${idx}"]:checked`);
+      const feedback = document.getElementById(`fb-circuit-${idx}`);
+      
+      if (!selected) {
+        feedback.textContent = "Please select an answer!";
+        feedback.className = "feedback incorrect";
+        feedback.style.display = "block";
+        return;
+      }
+      
+      const answer = parseInt(selected.value);
+      const isCorrect = answer === circuitQuestions[idx].correct;
+      
+      feedback.textContent = isCorrect ? "✅ " + circuitQuestions[idx].feedback[answer] : "❌ " + circuitQuestions[idx].feedback[answer];
+      feedback.className = `feedback ${isCorrect ? 'correct' : 'incorrect'}`;
+      feedback.style.display = "block";
+      
+      if (isCorrect && !selected.dataset.counted) {
+        selected.dataset.counted = true;
+        progress.circuit++;
+        updateProgress();
+      }
+    }
+
+    function buildVelocity() {
+      const container = document.getElementById("velocityContainer");
+      velocityQuestions.forEach((q, idx) => {
+        const qDiv = document.createElement("div");
+        qDiv.className = "question";
+        qDiv.innerHTML = `
+          <div class="question-text">Q${idx + 1}: ${q.question}</div>
+          <div class="options">
+            ${q.options.map((opt, i) => `
+              <label class="option">
+                <input type="radio" name="velocity${idx}" value="${i}">
+                ${opt}
+              </label>
+            `).join('')}
+          </div>
+          <button onclick="checkVelocity(${idx})">Check Answer</button>
+          <div id="fb-velocity-${idx}" class="feedback" style="display:none;"></div>
+        `;
+        container.appendChild(qDiv);
+      });
+    }
+
+    function checkVelocity(idx) {
+      const selected = document.querySelector(`input[name="velocity${idx}"]:checked`);
+      const feedback = document.getElementById(`fb-velocity-${idx}`);
+      
+      if (!selected) {
+        feedback.textContent = "Please select an answer!";
+        feedback.className = "feedback incorrect";
+        feedback.style.display = "block";
+        return;
+      }
+      
+      const answer = parseInt(selected.value);
+      const isCorrect = answer === velocityQuestions[idx].correct;
+      
+      feedback.textContent = isCorrect ? "✅ " + velocityQuestions[idx].feedback[answer] : "❌ " + velocityQuestions[idx].feedback[answer];
+      feedback.className = `feedback ${isCorrect ? 'correct' : 'incorrect'}`;
+      feedback.style.display = "block";
+      
+      if (isCorrect && !selected.dataset.counted) {
+        selected.dataset.counted = true;
+        progress.velocity++;
+        updateProgress();
+      }
+    }
+
+    function buildVocab() {
+      const container = document.getElementById("vocabContainer");
+      const shuffled = [...vocabItems].sort(() => Math.random() - 0.5);
+      
+      container.innerHTML = `
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+          <div>
+            <h4>Terms</h4>
+            ${vocabItems.map((item, idx) => `
+              <div style="padding: 10px; margin: 5px 0; background: #fdf7f5; border-radius: 6px; cursor: pointer;" onclick="matchVocab(${idx})" data-idx="${idx}">
+                ${item.term}
+              </div>
+            `).join('')}
+          </div>
+          <div>
+            <h4>Definitions</h4>
+            ${shuffled.map((item, idx) => `
+              <div style="padding: 10px; margin: 5px 0; background: white; border: 2px solid #ddd; border-radius: 6px;" data-def="${vocabItems.findIndex(m => m.term === item.term)}">
+                ${item.definition}
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      `;
+    }
+
+    function updateProgress() {
+      const total = 3 + 2 + 2 + 4;
+      const current = progress.conceptual + progress.circuit + progress.velocity + progress.vocab;
+      
+      updateBar('conceptual', progress.conceptual, 3);
+      updateBar('circuit', progress.circuit, 2);
+      updateBar('velocity', progress.velocity, 2);
+      updateBar('vocab', progress.vocab, 4);
+      
+      if (current === total) {
+        document.getElementById('masteryScreen').style.display = 'block';
+      }
+    }
+
+    function updateBar(id, current, total) {
+      const pct = Math.round((current / total) * 100);
+      document.getElementById(`${id}Progress`).textContent = current;
+      document.getElementById(`${id}Bar`).style.width = pct + '%';
+      document.getElementById(`${id}Bar`).textContent = pct + '%';
+    }
+
+    buildConceptual();
+    buildCircuit();
+    buildVelocity();
+    buildVocab();
+  </script>
+</body>
+</html>
