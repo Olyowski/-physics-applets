@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Ion Thruster Quiz</title>
+  <style>
+    body { font-family: Arial; background: #667eea; margin: 0; padding: 20px; }
+    .container { max-width: 1000px; margin: auto; background: white; padding: 40px; border-radius: 15px; }
+    h1 { color: #667eea; text-align: center; }
+    .header { display: flex; justify-content: space-between; margin: 20px 0; font-size: 18px; }
+    .progress { height: 10px; background: #ddd; margin: 20px 0; border-radius: 10px; overflow: hidden; }
+    .progress-bar { height: 100%; background: #667eea; }
+    .question { font-size: 16px; margin: 20px 0; line-height: 1.6; }
+    .options { margin: 20px 0; }
+    .option { padding: 15px; margin: 10px 0; border: 2px solid #ddd; border-radius: 8px; cursor: pointer; background: white; color: black; font-size: 16px; }
+    .option:hover { background: #f0f4ff; border-color: #667eea; }
+    .option.selected-correct { background: #d5f4e6; border-color: #27ae60; }
+    .option.selected-incorrect { background: #ffeaea; border-color: #e74c3c; }
+    .option.show-correct { background: #d5f4e6; border-color: #27ae60; }
+    .option:disabled { cursor: not-allowed; }
+    .feedback { padding: 15px; margin: 15px 0; background: #fff3cd; border: 2px solid #ffc107; border-radius: 8px; color: #333; display: none; }
+    .hints-btn { padding: 10px 20px; background: #ffc107; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; margin: 15px 0; font-size: 16px; }
+    .hints-box { background: #fffacd; border: 2px solid #ffc107; padding: 15px; margin: 15px 0; border-radius: 8px; display: none; }
+    .hint { padding: 8px 0; color: #333; }
+    .explanation { background: #f0e6ff; border: 2px solid #667eea; padding: 20px; margin: 15px 0; border-radius: 8px; display: none; white-space: pre-wrap; font-family: monospace; font-size: 14px; color: #333; }
+    .buttons { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin: 30px 0; }
+    .btn { padding: 12px; font-size: 16px; font-weight: bold; border: none; border-radius: 6px; cursor: pointer; color: white; }
+    .prev { background: #888; } .prev:disabled { background: #ccc; cursor: not-allowed; }
+    .reset { background: #e74c3c; }
+    .next { background: #667eea; } .next:disabled { background: #ccc; cursor: not-allowed; }
+    .complete { display: none; text-align: center; padding: 40px; }
+    .complete h2 { color: #27ae60; font-size: 2.5em; }
+    .complete .score { font-size: 2em; color: #667eea; font-weight: bold; margin: 20px 0; }
+  </style>
+</head>
+<body>
+<div class="container">
+  <div id="complete" class="complete">
+    <h2>🎉 Quiz Complete!</h2>
+    <div class="score" id="finalScore"></div>
+    <p>Excellent work mastering ion thruster physics!</p>
+    <button class="btn reset" onclick="location.reload()">Try Again</button>
+  </div>
+  
+  <div id="quiz">
+    <h1>Ion Thruster Physics Quiz</h1>
+    <div class="header">
+      <div>Problem <span id="pnum">1</span> of 3</div>
+      <div>Score: <span id="sc">0</span>/3</div>
+    </div>
+    <div class="progress"><div class="progress-bar" id="pb" style="width: 0%"></div></div>
+    
+    <div class="question" id="q"></div>
+    <div class="feedback" id="fb"></div>
+    <button class="hints-btn" id="hbtn" onclick="toggleHints()">Show Hints</button>
+    <div class="hints-box" id="hbox"></div>
+    <div class="options" id="opts"></div>
+    <div class="explanation" id="exp"></div>
+    
+    <div class="buttons">
+      <button class="btn prev" id="pb1" onclick="prev()">Previous</button>
+      <button class="btn reset" onclick="location.reload()">Reset</button>
+      <button class="btn next" id="nb1" onclick="next()">Next</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const problems = [
+  {
+    q: "An electrostatic ion thruster accelerates positively-charged xenon ions (q = 1.60 × 10⁻¹⁹ C) from rest using two oppositely-charged plates separated by Δx = 22 cm. A uniform electric field E = 1.10 × 10⁴ N/C is maintained between the plates. Each xenon ion has a mass of 2.18 × 10⁻²⁵ kg. What is the final velocity of a xenon ion as it leaves the ion thruster?",
+    opts: ["A. 6.0 × 10⁴ m/s", "B. 8.0 × 10⁻¹ m/s", "C. 8.1 × 10⁻² m/s", "D. 4.2 × 10⁴ m/s"],
+    correct: 0,
+    exp: "Using energy conservation: work done by electric field equals kinetic energy gained.\n\nGiven: q = 1.60 × 10⁻¹⁹ C, E = 1.10 × 10⁴ N/C, Δx = 22 cm = 0.22 m, m = 2.18 × 10⁻²⁵ kg\n\nElectric force on ion: F = qE = (1.60 × 10⁻¹⁹)(1.10 × 10⁴) = 1.76 × 10⁻¹⁵ N\n\nWork done by electric field: W = FΔx = qEΔx\n\nBy work-energy theorem: W = ½mv² - 0\n\nqEΔx = ½mv²\n\nv = √(2qEΔx/m) = √[2(1.60 × 10⁻¹⁹)(1.10 × 10⁴)(0.22) / (2.18 × 10⁻²⁵)]\n\nv = √[(7.744 × 10⁻¹⁶) / (2.18 × 10⁻²⁵)] = √(3.553 × 10⁹) = 5.96 × 10⁴ m/s ≈ 6.0 × 10⁴ m/s",
+    hints: ["The ion starts from rest and is accelerated by the electric field", "Use energy conservation: Work by electric field = Change in kinetic energy", "Electric force: F = qE", "Work done: W = FΔx = qEΔx", "Kinetic energy: KE = ½mv², solve for v: v = √(2qEΔx/m)"]
+  },
+  {
+    q: "An electrostatic ion thruster accelerates positively-charged xenon ions (q = 1.60 × 10⁻¹⁹ C) from rest using two oppositely-charged plates separated by Δx = 60.0 cm. A uniform electric field E = 9.00 × 10³ N/C is maintained between the plates. Each xenon ion has a mass of 2.18 × 10⁻²⁵ kg. What is the electric force on a xenon ion between the plates and the ion's final velocity as it leaves the ion thruster?",
+    opts: ["A. F = 4.65 × 10⁻¹⁵ N, v = 9.90 × 10⁴ m/s", "B. F = 3.89 × 10⁻¹⁴ N, v = 10.90 × 10³ m/s", "C. F = 2.56 × 10⁻¹⁵ N, v = 9.98 × 10⁴ m/s", "D. F = 1.44 × 10⁻¹⁵ N, v = 8.90 × 10⁴ m/s"],
+    correct: 3,
+    exp: "Part 1: Electric Force\nF = qE = (1.60 × 10⁻¹⁹ C)(9.00 × 10³ N/C) = 1.44 × 10⁻¹⁵ N\n\nPart 2: Final Velocity\nUsing energy conservation:\nqEΔx = ½mv²\nv = √(2qEΔx/m) = √[2(1.60 × 10⁻¹⁹)(9.00 × 10³)(0.60) / (2.18 × 10⁻²⁵)]\nv = √[(1.728 × 10⁻¹⁵) / (2.18 × 10⁻²⁵)] = √(7.927 × 10⁹) = 8.90 × 10⁴ m/s",
+    hints: ["Electric force: F = qE where q is charge and E is field strength", "Work-energy theorem: W = FΔx = qEΔx equals kinetic energy change", "Starting from rest means initial KE = 0", "Final velocity: v = √(2qEΔx/m)", "Convert Δx to meters: 60.0 cm = 0.60 m"]
+  },
+  {
+    q: "In an ion thruster, how do the electric field strength (E) and plate separation (Δx) affect the final velocity of an ion?",
+    opts: ["A. Final velocity is independent of both E and Δx", "B. Final velocity depends on the product of E and Δx", "C. Final velocity depends only on E, not on Δx", "D. Final velocity depends only on Δx, not on E"],
+    correct: 1,
+    exp: "From the work-energy theorem and ion thruster physics:\n\nv = √(2qEΔx/m)\n\nThe final velocity depends directly on the PRODUCT of E and Δx. This makes physical sense:\n- Larger field (E) means stronger force accelerating the ion\n- Larger separation (Δx) means more distance to accelerate\n\nBoth factors multiply together to increase the final velocity. If you double either E or Δx (while keeping other factors constant), the final velocity increases, but not by a factor of 2—it increases by √2 (about 1.41 times).\n\nThis is why ion thrusters use very strong electric fields and/or longer acceleration regions to achieve higher exit velocities.",
+    hints: ["Look at the final velocity equation: v = √(2qEΔx/m)", "E and Δx appear together in the equation", "Both increasing E and increasing Δx lead to higher final velocities", "The relationship is multiplicative inside the square root", "This is why ion thrusters design for both high field and long acceleration regions"]
+  }
+];
+
+let cur = 0, ans = {}, sc = 0, sh = false;
+
+function draw() {
+  const p = problems[cur];
+  document.getElementById('pnum').textContent = cur + 1;
+  document.getElementById('sc').textContent = sc;
+  document.getElementById('q').textContent = p.q;
+  document.getElementById('pb').style.width = ((cur + 1) / 3 * 100) + '%';
+  document.getElementById('pb1').disabled = cur === 0;
+  document.getElementById('nb1').disabled = cur === 2;
+  
+  let html = '';
+  const a = ans[cur];
+  for (let i = 0; i < p.opts.length; i++) {
+    let cls = 'option';
+    if (a) {
+      if (a.i === i) cls += a.ok ? ' selected-correct' : ' selected-incorrect';
+      else if (i === p.correct && a.ok) cls += ' show-correct';
+    }
+    html += `<div class="${cls}" onclick="answer(${i})" ${a ? 'style="pointer-events:none"' : ''}>${p.opts[i]}</div>`;
+  }
+  document.getElementById('opts').innerHTML = html;
+  
+  if (a && !a.ok) {
+    document.getElementById('fb').style.display = 'block';
+    document.getElementById('fb').textContent = 'Not quite right. Review the explanation!';
+  } else {
+    document.getElementById('fb').style.display = 'none';
+  }
+  
+  let hints = '';
+  for (let h of p.hints) hints += `<div class="hint">• ${h}</div>`;
+  document.getElementById('hbox').innerHTML = hints;
+  document.getElementById('hbox').style.display = sh ? 'block' : 'none';
+  document.getElementById('hbtn').textContent = sh ? 'Hide Hints' : 'Show Hints';
+  
+  if (a) {
+    document.getElementById('exp').textContent = p.exp;
+    document.getElementById('exp').style.display = 'block';
+  } else {
+    document.getElementById('exp').style.display = 'none';
+  }
+}
+
+function answer(i) {
+  const p = problems[cur];
+  if (!ans[cur]) {
+    ans[cur] = {i: i, ok: i === p.correct};
+    if (ans[cur].ok) sc++;
+    if (sc === 3) setTimeout(() => {
+      document.getElementById('quiz').style.display = 'none';
+      document.getElementById('complete').style.display = 'block';
+      document.getElementById('finalScore').textContent = '3/3';
+    }, 1000);
+  }
+  draw();
+}
+
+function toggleHints() { sh = !sh; draw(); }
+function next() { if (cur < 2) { cur++; sh = false; draw(); } }
+function prev() { if (cur > 0) { cur--; sh = false; draw(); } }
+
+draw();
+</script>
+</body>
+</html>

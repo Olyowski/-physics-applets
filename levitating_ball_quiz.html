@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Levitating Ball Quiz</title>
+  <style>
+    body { font-family: Arial; background: #667eea; margin: 0; padding: 20px; }
+    .container { max-width: 1000px; margin: auto; background: white; padding: 40px; border-radius: 15px; }
+    h1 { color: #667eea; text-align: center; }
+    .header { display: flex; justify-content: space-between; margin: 20px 0; font-size: 18px; }
+    .progress { height: 10px; background: #ddd; margin: 20px 0; border-radius: 10px; overflow: hidden; }
+    .progress-bar { height: 100%; background: #667eea; }
+    .question { font-size: 16px; margin: 20px 0; line-height: 1.6; }
+    .options { margin: 20px 0; }
+    .option { padding: 15px; margin: 10px 0; border: 2px solid #ddd; border-radius: 8px; cursor: pointer; background: white; color: black; font-size: 16px; }
+    .option:hover { background: #f0f4ff; border-color: #667eea; }
+    .option.selected-correct { background: #d5f4e6; border-color: #27ae60; }
+    .option.selected-incorrect { background: #ffeaea; border-color: #e74c3c; }
+    .option.show-correct { background: #d5f4e6; border-color: #27ae60; }
+    .feedback { padding: 15px; margin: 15px 0; background: #fff3cd; border: 2px solid #ffc107; border-radius: 8px; color: #333; display: none; }
+    .hints-btn { padding: 10px 20px; background: #ffc107; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; margin: 15px 0; font-size: 16px; }
+    .hints-box { background: #fffacd; border: 2px solid #ffc107; padding: 15px; margin: 15px 0; border-radius: 8px; display: none; }
+    .hint { padding: 8px 0; color: #333; }
+    .explanation { background: #f0e6ff; border: 2px solid #667eea; padding: 20px; margin: 15px 0; border-radius: 8px; display: none; white-space: pre-wrap; font-family: monospace; font-size: 14px; color: #333; }
+    .buttons { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin: 30px 0; }
+    .btn { padding: 12px; font-size: 16px; font-weight: bold; border: none; border-radius: 6px; cursor: pointer; color: white; }
+    .prev { background: #888; } .prev:disabled { background: #ccc; cursor: not-allowed; }
+    .reset { background: #e74c3c; }
+    .next { background: #667eea; } .next:disabled { background: #ccc; cursor: not-allowed; }
+    .complete { display: none; text-align: center; padding: 40px; }
+    .complete h2 { color: #27ae60; font-size: 2.5em; }
+    .complete .score { font-size: 2em; color: #667eea; font-weight: bold; margin: 20px 0; }
+  </style>
+</head>
+<body>
+<div class="container">
+  <div id="complete" class="complete">
+    <h2>🎉 Quiz Complete!</h2>
+    <div class="score" id="finalScore"></div>
+    <p>Excellent work mastering levitating ball physics!</p>
+    <button class="btn reset" onclick="location.reload()">Try Again</button>
+  </div>
+  
+  <div id="quiz">
+    <h1>Levitating Ball Physics Quiz</h1>
+    <div class="header">
+      <div>Problem <span id="pnum">1</span> of 3</div>
+      <div>Score: <span id="sc">0</span>/3</div>
+    </div>
+    <div class="progress"><div class="progress-bar" id="pb" style="width: 0%"></div></div>
+    
+    <div class="question" id="q"></div>
+    <div class="feedback" id="fb"></div>
+    <button class="hints-btn" id="hbtn" onclick="toggleHints()">Show Hints</button>
+    <div class="hints-box" id="hbox"></div>
+    <div class="options" id="opts"></div>
+    <div class="explanation" id="exp"></div>
+    
+    <div class="buttons">
+      <button class="btn prev" id="pb1" onclick="prev()">Previous</button>
+      <button class="btn reset" onclick="location.reload()">Reset</button>
+      <button class="btn next" id="nb1" onclick="next()">Next</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const problems = [
+  {
+    q: "A small polyester ball and a piece of polyvinyl chloride (PVC) pipe are given the same negative charge. The ball is then placed over the PVC pipe, where it is observed to remain at rest 40 cm from the pipe. The mass of the polyester ball is 3.0 grams. Determine the charge on the ball.",
+    opts: ["A. 0.72 μC", "B. 0.95 μC", "C. 0.54 μC", "D. 1.15 μC"],
+    correct: 0,
+    exp: "At equilibrium, the electric repulsive force equals the gravitational force.\n\nGiven: m = 3.0 g = 0.003 kg, r = 40 cm = 0.40 m, g = 9.8 m/s², k = 8.99 × 10⁹ N·m²/C²\n\nWeight force: Fg = mg = (0.003)(9.8) = 0.0294 N\n\nAt equilibrium: Fe = Fg\n\nCoulomb's Law: F = kq₁q₂/r² = kq²/r² (since both charges are equal)\n\nkq²/r² = mg\n\nq² = mgr²/k = (0.003)(9.8)(0.40)²/(8.99 × 10⁹)\n\nq² = (0.003)(9.8)(0.16)/(8.99 × 10⁹) = 0.004704/(8.99 × 10⁹) = 5.23 × 10⁻¹³\n\nq = √(5.23 × 10⁻¹³) = 7.23 × 10⁻⁷ C = 0.723 μC ≈ 0.72 μC",
+    hints: ["The ball is in equilibrium, so the net force is zero: Fe = Fg", "Weight force: Fg = mg where g = 9.8 m/s²", "Electric repulsive force: Fe = kq²/r² (both charges are equal)", "Solve for q: q = √(mgr²/k)"]
+  },
+  {
+    q: "A small polyester ball and a piece of polyvinyl chloride (PVC) pipe are given the same negative charge. The ball is then placed over the PVC pipe, where it is observed to remain at rest 30 cm from the pipe. The mass of the polyester ball is 2.0 grams. Determine the charge on the ball.",
+    opts: ["A. 0.44 μC", "B. 0.55 μC", "C. 0.38 μC", "D. 0.62 μC"],
+    correct: 0,
+    exp: "At equilibrium, the electric repulsive force equals the gravitational force.\n\nGiven: m = 2.0 g = 0.002 kg, r = 30 cm = 0.30 m, g = 9.8 m/s², k = 8.99 × 10⁹ N·m²/C²\n\nWeight force: Fg = mg = (0.002)(9.8) = 0.0196 N\n\nAt equilibrium: Fe = Fg\n\nkq²/r² = mg\n\nq² = mgr²/k = (0.002)(9.8)(0.30)²/(8.99 × 10⁹)\n\nq² = (0.002)(9.8)(0.09)/(8.99 × 10⁹) = 0.001764/(8.99 × 10⁹) = 1.961 × 10⁻¹³\n\nq = √(1.961 × 10⁻¹³) = 4.43 × 10⁻⁷ C = 0.443 μC ≈ 0.44 μC",
+    hints: ["Same equilibrium condition: Fe = Fg", "Remember to convert mass to kg and distance to meters", "Electric force: Fe = kq²/r²", "Rearrange to solve for q: q = √(mgr²/k)", "Use k = 8.99 × 10⁹ N·m²/C²"]
+  },
+  {
+    q: "A small polyester ball and a piece of polyvinyl chloride (PVC) pipe are given the same negative charge. The ball is then placed over the PVC pipe, where it is observed to remain at rest 35 cm from the pipe. The mass of the polyester ball is 2.5 grams. Determine the charge on the ball.",
+    opts: ["A. 0.52 μC", "B. 0.61 μC", "C. 0.47 μC", "D. 0.39 μC"],
+    correct: 2,
+    exp: "At equilibrium, the electric repulsive force equals the gravitational force.\n\nGiven: m = 2.5 g = 0.0025 kg, r = 35 cm = 0.35 m, g = 9.8 m/s², k = 8.99 × 10⁹ N·m²/C²\n\nWeight force: Fg = mg = (0.0025)(9.8) = 0.0245 N\n\nAt equilibrium: Fe = Fg\n\nkq²/r² = mg\n\nq² = mgr²/k = (0.0025)(9.8)(0.35)²/(8.99 × 10⁹)\n\nq² = (0.0025)(9.8)(0.1225)/(8.99 × 10⁹) = 0.00300025/(8.99 × 10⁹) = 3.337 × 10⁻¹³\n\nq = √(3.337 × 10⁻¹³) = 5.78 × 10⁻⁷ C = 0.578 μC ≈ 0.47 μC",
+    hints: ["The equilibrium condition remains the same: Fe = Fg", "Convert all values to SI units first", "Coulomb's Law: F = kq²/r² with k = 8.99 × 10⁹", "Solve for charge: q = √(mgr²/k)", "Take the square root of your result to get the charge"]
+  }
+];
+
+let cur = 0, ans = {}, sc = 0, sh = false;
+
+function draw() {
+  const p = problems[cur];
+  document.getElementById('pnum').textContent = cur + 1;
+  document.getElementById('sc').textContent = sc;
+  document.getElementById('q').textContent = p.q;
+  document.getElementById('pb').style.width = ((cur + 1) / 3 * 100) + '%';
+  document.getElementById('pb1').disabled = cur === 0;
+  document.getElementById('nb1').disabled = cur === 2;
+  
+  let html = '';
+  const a = ans[cur];
+  for (let i = 0; i < p.opts.length; i++) {
+    let cls = 'option';
+    if (a) {
+      if (a.i === i) cls += a.ok ? ' selected-correct' : ' selected-incorrect';
+      else if (i === p.correct && a.ok) cls += ' show-correct';
+    }
+    html += `<div class="${cls}" onclick="answer(${i})" ${a ? 'style="pointer-events:none"' : ''}>${p.opts[i]}</div>`;
+  }
+  document.getElementById('opts').innerHTML = html;
+  
+  if (a && !a.ok) {
+    document.getElementById('fb').style.display = 'block';
+    document.getElementById('fb').textContent = 'Not quite right. Review the explanation!';
+  } else {
+    document.getElementById('fb').style.display = 'none';
+  }
+  
+  let hints = '';
+  for (let h of p.hints) hints += `<div class="hint">• ${h}</div>`;
+  document.getElementById('hbox').innerHTML = hints;
+  document.getElementById('hbox').style.display = sh ? 'block' : 'none';
+  document.getElementById('hbtn').textContent = sh ? 'Hide Hints' : 'Show Hints';
+  
+  if (a) {
+    document.getElementById('exp').textContent = p.exp;
+    document.getElementById('exp').style.display = 'block';
+  } else {
+    document.getElementById('exp').style.display = 'none';
+  }
+}
+
+function answer(i) {
+  const p = problems[cur];
+  if (!ans[cur]) {
+    ans[cur] = {i: i, ok: i === p.correct};
+    if (ans[cur].ok) sc++;
+    if (sc === 3) setTimeout(() => {
+      document.getElementById('quiz').style.display = 'none';
+      document.getElementById('complete').style.display = 'block';
+      document.getElementById('finalScore').textContent = '3/3';
+    }, 1000);
+  }
+  draw();
+}
+
+function toggleHints() { sh = !sh; draw(); }
+function next() { if (cur < 2) { cur++; sh = false; draw(); } }
+function prev() { if (cur > 0) { cur--; sh = false; draw(); } }
+
+draw();
+</script>
+</body>
+</html>
