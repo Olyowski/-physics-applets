@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Force on a Charged Particle</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+      min-height: 100vh;
+      padding: 20px;
+      color: #fff;
+    }
+    
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 20px;
+      padding: 30px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      color: #333;
+    }
+    
+    h1 {
+      text-align: center;
+      color: #2c3e50;
+      margin-bottom: 25px;
+      font-size: 1.8em;
+    }
+    
+    .quiz-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      padding: 15px;
+      background: #f8f9fa;
+      border-radius: 10px;
+    }
+    
+    .progress-bar {
+      width: 100%;
+      height: 8px;
+      background: #e0e0e0;
+      border-radius: 4px;
+      margin-bottom: 25px;
+      overflow: hidden;
+    }
+    
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #667eea, #764ba2);
+      border-radius: 4px;
+      transition: width 0.3s ease;
+    }
+    
+    .question-text {
+      font-size: 1.1em;
+      line-height: 1.6;
+      margin-bottom: 20px;
+      padding: 20px;
+      background: #f8f9fa;
+      border-radius: 10px;
+      border-left: 4px solid #667eea;
+    }
+    
+    .diagram-container {
+      display: flex;
+      justify-content: center;
+      margin: 20px 0;
+      padding: 20px;
+      background: #fff;
+      border-radius: 10px;
+      border: 2px solid #e0e0e0;
+    }
+    
+    .diagram-container svg {
+      max-width: 100%;
+      height: auto;
+    }
+    
+    .formula-hint {
+      background: #e8f4fd;
+      padding: 15px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+      border-left: 4px solid #3498db;
+      font-family: 'Courier New', monospace;
+    }
+    
+    .options {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+    
+    .option {
+      padding: 15px 20px;
+      background: #f8f9fa;
+      border: 2px solid #e0e0e0;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-size: 1em;
+      text-align: left;
+    }
+    
+    .option:hover:not(.disabled) {
+      background: #e8f4fd;
+      border-color: #667eea;
+      transform: translateX(5px);
+    }
+    
+    .option.selected {
+      background: #e8f4fd;
+      border-color: #667eea;
+    }
+    
+    .option.correct {
+      background: #d4edda;
+      border-color: #28a745;
+    }
+    
+    .option.incorrect {
+      background: #f8d7da;
+      border-color: #dc3545;
+    }
+    
+    .option.disabled {
+      cursor: not-allowed;
+      opacity: 0.7;
+    }
+    
+    .feedback-message {
+      padding: 15px;
+      border-radius: 10px;
+      margin-bottom: 15px;
+      font-weight: 500;
+    }
+    
+    .feedback-message.correct {
+      background: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+    }
+    
+    .feedback-message.incorrect {
+      background: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+    }
+    
+    #hintContainer {
+      margin-bottom: 15px;
+    }
+    
+    .hint-button {
+      background: #ffc107;
+      color: #333;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.9em;
+      margin-bottom: 10px;
+      transition: all 0.3s ease;
+    }
+    
+    .hint-button:hover {
+      background: #e0a800;
+    }
+    
+    .hint-button:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+    
+    .hint-text {
+      background: #fff3cd;
+      padding: 12px;
+      border-radius: 8px;
+      margin-top: 10px;
+      border-left: 4px solid #ffc107;
+      animation: fadeIn 0.3s ease;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    #explanationContainer {
+      margin-top: 15px;
+    }
+    
+    .explanation {
+      background: #e8f4fd;
+      padding: 20px;
+      border-radius: 10px;
+      border-left: 4px solid #17a2b8;
+      white-space: pre-wrap;
+      line-height: 1.6;
+      animation: fadeIn 0.3s ease;
+    }
+    
+    .button-group {
+      display: flex;
+      justify-content: space-between;
+      gap: 15px;
+      margin-top: 25px;
+    }
+    
+    .prev-button, .next-button, .reset-button {
+      padding: 12px 30px;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 1em;
+      font-weight: 500;
+      transition: all 0.3s ease;
+    }
+    
+    .prev-button {
+      background: #6c757d;
+      color: white;
+    }
+    
+    .prev-button:hover:not(:disabled) {
+      background: #5a6268;
+    }
+    
+    .next-button {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+    }
+    
+    .next-button:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+    }
+    
+    .reset-button {
+      background: #dc3545;
+      color: white;
+    }
+    
+    .reset-button:hover {
+      background: #c82333;
+    }
+    
+    .prev-button:disabled, .next-button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+    
+    #completionScreen {
+      display: none;
+      text-align: center;
+      padding: 40px;
+    }
+    
+    #completionScreen h2 {
+      color: #28a745;
+      font-size: 2em;
+      margin-bottom: 20px;
+    }
+    
+    #completionScreen p {
+      font-size: 1.2em;
+      margin-bottom: 15px;
+    }
+    
+    .try-again-button {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+      border: none;
+      padding: 15px 40px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 1.1em;
+      margin-top: 20px;
+      transition: all 0.3s ease;
+    }
+    
+    .try-again-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+    }
+    
+    .score-display {
+      font-size: 3em;
+      font-weight: bold;
+      color: #667eea;
+      margin: 20px 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div id="completionScreen">
+      <h2>🎉 Quiz Complete!</h2>
+      <div class="score-display" id="finalScore">0/3</div>
+      <p>You've completed the Force on a Charged Particle quiz!</p>
+      <p>Take a screenshot of this page to submit your completion!</p>
+      <button class="try-again-button" onclick="resetQuiz()">Try Again</button>
+    </div>
+    
+    <div id="quizContent">
+      <h1>Force on a Charged Particle</h1>
+      
+      <div class="quiz-header">
+        <div>Problem <span id="currentNumber">1</span> of <span id="totalNumber">3</span></div>
+        <div>Score: <span id="score">0</span>/3</div>
+      </div>
+      
+      <div class="progress-bar">
+        <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+      </div>
+      
+      <div class="question-text" id="questionText"></div>
+      
+      <div class="diagram-container" id="diagramContainer"></div>
+      
+      <div class="formula-hint">
+        <strong>Key Formula:</strong> F = qvB (Hint: 1 T = 1 kg/C·s)
+        <br><strong>Earth's Magnetic Field:</strong> B ≈ 5.0 × 10⁻⁵ T
+      </div>
+      
+      <div class="feedback-message" id="feedbackMessage" style="display: none;"></div>
+      
+      <div id="hintContainer"></div>
+      
+      <div class="options" id="optionsContainer"></div>
+      
+      <div id="explanationContainer"></div>
+      
+      <div class="button-group">
+        <button class="prev-button" id="prevBtn" onclick="prevProblem()">Previous</button>
+        <button class="reset-button" onclick="resetQuiz()">Reset Quiz</button>
+        <button class="next-button" id="nextBtn" onclick="nextProblem()">Next</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const problems = [
+      {
+        id: 1,
+        charge: "3.0 × 10⁻⁸",
+        chargeValue: 3.0e-8,
+        velocity: 6.0,
+        direction: "west",
+        question: "You rub a small glass ball with a piece of silk, giving the ball a charge of 3.0 × 10⁻⁸ C. Determine the magnitude of the force due to Earth's magnetic field if you throw the ball with a velocity of 6.0 m/s toward geographic west.",
+        options: [
+          "A. 9.0 × 10⁻¹² N",
+          "B. 1.0 × 10⁴ N",
+          "C. 2.5 × 10⁻¹³ N",
+          "D. 1.1 × 10¹¹ N"
+        ],
+        correctIndex: 0,
+        explanation: "Using the magnetic force formula F = qvB:\n\nGiven:\n• Charge q = 3.0 × 10⁻⁸ C\n• Velocity v = 6.0 m/s\n• Earth's magnetic field B ≈ 5.0 × 10⁻⁵ T\n\nCalculation:\nF = qvB\nF = (3.0 × 10⁻⁸ C)(6.0 m/s)(5.0 × 10⁻⁵ T)\nF = 9.0 × 10⁻¹² N\n\nThe answer is A.",
+        hints: [
+          "The formula for magnetic force on a moving charge is F = qvB",
+          "Earth's magnetic field strength is approximately 5.0 × 10⁻⁵ T",
+          "Multiply: (3.0 × 10⁻⁸)(6.0)(5.0 × 10⁻⁵)",
+          "When multiplying powers of 10: 10⁻⁸ × 10⁻⁵ = 10⁻¹³",
+          "3.0 × 6.0 × 5.0 = 90 = 9.0 × 10¹, so 9.0 × 10¹ × 10⁻¹³ = 9.0 × 10⁻¹²"
+        ]
+      },
+      {
+        id: 2,
+        charge: "4.5 × 10⁻⁸",
+        chargeValue: 4.5e-8,
+        velocity: 5.0,
+        direction: "east",
+        question: "You rub a small glass ball with a piece of silk, giving the ball a charge of 4.5 × 10⁻⁸ C. Determine the magnitude of the force due to Earth's magnetic field if you throw the ball with a velocity of 5.0 m/s toward geographic east.",
+        options: [
+          "A. 2.6 × 10⁻¹¹ N",
+          "B. 6.5 × 10⁻¹¹ N",
+          "C. 8.3 × 10⁻¹¹ N",
+          "D. 1.1 × 10⁻¹¹ N"
+        ],
+        correctIndex: 3,
+        explanation: "Using the magnetic force formula F = qvB:\n\nGiven:\n• Charge q = 4.5 × 10⁻⁸ C\n• Velocity v = 5.0 m/s\n• Earth's magnetic field B ≈ 5.0 × 10⁻⁵ T\n\nCalculation:\nF = qvB\nF = (4.5 × 10⁻⁸ C)(5.0 m/s)(5.0 × 10⁻⁵ T)\nF = 1.125 × 10⁻¹¹ N ≈ 1.1 × 10⁻¹¹ N\n\nThe answer is D.",
+        hints: [
+          "The formula for magnetic force on a moving charge is F = qvB",
+          "Earth's magnetic field strength is approximately 5.0 × 10⁻⁵ T",
+          "Multiply: (4.5 × 10⁻⁸)(5.0)(5.0 × 10⁻⁵)",
+          "When multiplying powers of 10: 10⁻⁸ × 10⁻⁵ = 10⁻¹³",
+          "4.5 × 5.0 × 5.0 = 112.5, so 112.5 × 10⁻¹³ = 1.125 × 10⁻¹¹ ≈ 1.1 × 10⁻¹¹"
+        ]
+      },
+      {
+        id: 3,
+        charge: "3.5 × 10⁻⁸",
+        chargeValue: 3.5e-8,
+        velocity: 8.5,
+        direction: "east",
+        question: "You rub a small glass ball with a piece of silk, giving the ball a charge of 3.5 × 10⁻⁸ C. Determine the magnitude of the force due to Earth's magnetic field if you throw the ball with a velocity of 8.5 m/s toward geographic east.",
+        options: [
+          "A. 1.5 × 10⁻¹¹ N",
+          "B. 4.2 × 10⁻¹¹ N",
+          "C. 6.3 × 10⁻¹¹ N",
+          "D. 1.1 × 10⁻¹¹ N"
+        ],
+        correctIndex: 0,
+        explanation: "Using the magnetic force formula F = qvB:\n\nGiven:\n• Charge q = 3.5 × 10⁻⁸ C\n• Velocity v = 8.5 m/s\n• Earth's magnetic field B ≈ 5.0 × 10⁻⁵ T\n\nCalculation:\nF = qvB\nF = (3.5 × 10⁻⁸ C)(8.5 m/s)(5.0 × 10⁻⁵ T)\nF = 1.4875 × 10⁻¹¹ N ≈ 1.5 × 10⁻¹¹ N\n\nThe answer is A.",
+        hints: [
+          "The formula for magnetic force on a moving charge is F = qvB",
+          "Earth's magnetic field strength is approximately 5.0 × 10⁻⁵ T",
+          "Multiply: (3.5 × 10⁻⁸)(8.5)(5.0 × 10⁻⁵)",
+          "When multiplying powers of 10: 10⁻⁸ × 10⁻⁵ = 10⁻¹³",
+          "3.5 × 8.5 × 5.0 = 148.75, so 148.75 × 10⁻¹³ = 1.4875 × 10⁻¹¹ ≈ 1.5 × 10⁻¹¹"
+        ]
+      }
+    ];
+
+    let currentProblem = 0;
+    let score = 0;
+    let answers = new Array(problems.length).fill(null);
+    let hintsShown = new Array(problems.length).fill(0);
+
+    function createDiagram(problem) {
+      const direction = problem.direction;
+      const isWest = direction === "west";
+      
+      return `
+        <svg viewBox="0 0 400 300" width="400" height="300">
+          <!-- North arrow and B field -->
+          <line x1="200" y1="200" x2="200" y2="60" stroke="black" stroke-width="2"/>
+          <polygon points="200,50 195,70 205,70" fill="black"/>
+          <text x="200" y="35" text-anchor="middle" font-weight="bold" font-size="16">North</text>
+          <text x="215" y="80" font-style="italic" font-size="16">B</text>
+          
+          <!-- Horizontal line -->
+          <line x1="50" y1="200" x2="350" y2="200" stroke="black" stroke-width="2"/>
+          
+          <!-- West label and velocity arrow -->
+          <text x="30" y="180" font-weight="bold" font-size="16">West</text>
+          <polygon points="50,200 70,195 70,205" fill="black"/>
+          
+          <!-- Velocity arrow pointing in direction of motion -->
+          ${isWest ? `
+            <line x1="150" y1="180" x2="80" y2="180" stroke="black" stroke-width="2"/>
+            <polygon points="80,180 95,175 95,185" fill="black"/>
+            <text x="100" y="170" font-style="italic" font-size="14">v</text>
+          ` : `
+            <line x1="250" y1="180" x2="320" y2="180" stroke="black" stroke-width="2"/>
+            <polygon points="320,180 305,175 305,185" fill="black"/>
+            <text x="280" y="170" font-style="italic" font-size="14">v</text>
+          `}
+          
+          <!-- Charged particle -->
+          <circle cx="300" cy="150" r="25" fill="none" stroke="black" stroke-width="2"/>
+          <text x="300" y="157" text-anchor="middle" font-size="18">+q</text>
+        </svg>
+      `;
+    }
+
+    function displayProblem() {
+      const problem = problems[currentProblem];
+      
+      document.getElementById('currentNumber').textContent = currentProblem + 1;
+      document.getElementById('totalNumber').textContent = problems.length;
+      document.getElementById('score').textContent = score;
+      document.getElementById('progressFill').style.width = ((currentProblem + 1) / problems.length * 100) + '%';
+      
+      document.getElementById('questionText').textContent = problem.question;
+      document.getElementById('diagramContainer').innerHTML = createDiagram(problem);
+      
+      // Display options
+      const optionsContainer = document.getElementById('optionsContainer');
+      optionsContainer.innerHTML = '';
+      
+      problem.options.forEach((option, index) => {
+        const optionDiv = document.createElement('div');
+        optionDiv.className = 'option';
+        optionDiv.textContent = option;
+        
+        if (answers[currentProblem] !== null) {
+          optionDiv.classList.add('disabled');
+          if (index === problem.correctIndex) {
+            optionDiv.classList.add('correct');
+          } else if (index === answers[currentProblem] && answers[currentProblem] !== problem.correctIndex) {
+            optionDiv.classList.add('incorrect');
+          }
+        } else {
+          optionDiv.onclick = () => selectAnswer(index);
+        }
+        
+        optionsContainer.appendChild(optionDiv);
+      });
+      
+      // Display hints
+      displayHints();
+      
+      // Display feedback if already answered
+      const feedbackMessage = document.getElementById('feedbackMessage');
+      const explanationContainer = document.getElementById('explanationContainer');
+      
+      if (answers[currentProblem] !== null) {
+        feedbackMessage.style.display = 'block';
+        if (answers[currentProblem] === problem.correctIndex) {
+          feedbackMessage.className = 'feedback-message correct';
+          feedbackMessage.textContent = '✓ Correct!';
+        } else {
+          feedbackMessage.className = 'feedback-message incorrect';
+          feedbackMessage.textContent = '✗ Incorrect. See the explanation below.';
+        }
+        explanationContainer.innerHTML = `<div class="explanation">${problem.explanation}</div>`;
+      } else {
+        feedbackMessage.style.display = 'none';
+        explanationContainer.innerHTML = '';
+      }
+      
+      // Update navigation buttons
+      document.getElementById('prevBtn').disabled = currentProblem === 0;
+      document.getElementById('nextBtn').disabled = currentProblem === problems.length - 1 && answers[currentProblem] === null;
+    }
+
+    function displayHints() {
+      const problem = problems[currentProblem];
+      const hintContainer = document.getElementById('hintContainer');
+      hintContainer.innerHTML = '';
+      
+      if (answers[currentProblem] === null) {
+        const hintButton = document.createElement('button');
+        hintButton.className = 'hint-button';
+        const hintsRemaining = problem.hints.length - hintsShown[currentProblem];
+        hintButton.textContent = `Show Hint (${hintsRemaining} remaining)`;
+        hintButton.disabled = hintsRemaining === 0;
+        hintButton.onclick = showNextHint;
+        hintContainer.appendChild(hintButton);
+      }
+      
+      for (let i = 0; i < hintsShown[currentProblem]; i++) {
+        const hintDiv = document.createElement('div');
+        hintDiv.className = 'hint-text';
+        hintDiv.textContent = `Hint ${i + 1}: ${problem.hints[i]}`;
+        hintContainer.appendChild(hintDiv);
+      }
+    }
+
+    function showNextHint() {
+      const problem = problems[currentProblem];
+      if (hintsShown[currentProblem] < problem.hints.length) {
+        hintsShown[currentProblem]++;
+        displayHints();
+      }
+    }
+
+    function selectAnswer(index) {
+      const problem = problems[currentProblem];
+      answers[currentProblem] = index;
+      
+      if (index === problem.correctIndex) {
+        score++;
+      }
+      
+      displayProblem();
+      
+      // Check if quiz is complete
+      if (answers.every(a => a !== null)) {
+        setTimeout(showCompletion, 1000);
+      }
+    }
+
+    function nextProblem() {
+      if (currentProblem < problems.length - 1) {
+        currentProblem++;
+        displayProblem();
+      }
+    }
+
+    function prevProblem() {
+      if (currentProblem > 0) {
+        currentProblem--;
+        displayProblem();
+      }
+    }
+
+    function showCompletion() {
+      document.getElementById('quizContent').style.display = 'none';
+      document.getElementById('completionScreen').style.display = 'block';
+      document.getElementById('finalScore').textContent = `${score}/${problems.length}`;
+    }
+
+    function resetQuiz() {
+      currentProblem = 0;
+      score = 0;
+      answers = new Array(problems.length).fill(null);
+      hintsShown = new Array(problems.length).fill(0);
+      document.getElementById('completionScreen').style.display = 'none';
+      document.getElementById('quizContent').style.display = 'block';
+      displayProblem();
+    }
+
+    // Initialize
+    displayProblem();
+  </script>
+</body>
+</html>
