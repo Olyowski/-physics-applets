@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Calculating Force on a Wire</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+      min-height: 100vh;
+      padding: 20px;
+      color: #fff;
+    }
+    
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 20px;
+      padding: 30px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      color: #333;
+    }
+    
+    h1 {
+      text-align: center;
+      color: #2c3e50;
+      margin-bottom: 25px;
+      font-size: 1.8em;
+    }
+    
+    .quiz-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      padding: 15px;
+      background: #f8f9fa;
+      border-radius: 10px;
+    }
+    
+    .progress-bar {
+      width: 100%;
+      height: 8px;
+      background: #e0e0e0;
+      border-radius: 4px;
+      margin-bottom: 25px;
+      overflow: hidden;
+    }
+    
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #667eea, #764ba2);
+      border-radius: 4px;
+      transition: width 0.3s ease;
+    }
+    
+    .question-text {
+      font-size: 1.1em;
+      line-height: 1.6;
+      margin-bottom: 20px;
+      padding: 20px;
+      background: #f8f9fa;
+      border-radius: 10px;
+      border-left: 4px solid #667eea;
+    }
+    
+    .diagram-container {
+      display: flex;
+      justify-content: center;
+      margin: 20px 0;
+      padding: 20px;
+      background: #fff;
+      border-radius: 10px;
+      border: 2px solid #e0e0e0;
+    }
+    
+    .diagram-container svg {
+      max-width: 100%;
+      height: auto;
+    }
+    
+    .formula-hint {
+      background: #e8f4fd;
+      padding: 15px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+      border-left: 4px solid #3498db;
+      font-family: 'Courier New', monospace;
+    }
+    
+    .input-section {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 20px;
+      padding: 15px;
+      background: #f8f9fa;
+      border-radius: 10px;
+    }
+    
+    .input-section label {
+      font-size: 1.1em;
+    }
+    
+    .input-section input {
+      padding: 10px 15px;
+      font-size: 1.1em;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      width: 120px;
+      text-align: center;
+    }
+    
+    .input-section input:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+    
+    .input-section .unit {
+      font-size: 1.1em;
+      font-weight: 500;
+    }
+    
+    .submit-answer {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+      border: none;
+      padding: 10px 25px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 1em;
+      transition: all 0.3s ease;
+    }
+    
+    .submit-answer:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+    }
+    
+    .options {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+    
+    .option {
+      padding: 15px 20px;
+      background: #f8f9fa;
+      border: 2px solid #e0e0e0;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-size: 1em;
+      text-align: left;
+    }
+    
+    .option:hover:not(.disabled) {
+      background: #e8f4fd;
+      border-color: #667eea;
+      transform: translateX(5px);
+    }
+    
+    .option.selected {
+      background: #e8f4fd;
+      border-color: #667eea;
+    }
+    
+    .option.correct {
+      background: #d4edda;
+      border-color: #28a745;
+    }
+    
+    .option.incorrect {
+      background: #f8d7da;
+      border-color: #dc3545;
+    }
+    
+    .option.disabled {
+      cursor: not-allowed;
+      opacity: 0.7;
+    }
+    
+    .feedback-message {
+      padding: 15px;
+      border-radius: 10px;
+      margin-bottom: 15px;
+      font-weight: 500;
+    }
+    
+    .feedback-message.correct {
+      background: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+    }
+    
+    .feedback-message.incorrect {
+      background: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+    }
+    
+    #hintContainer {
+      margin-bottom: 15px;
+    }
+    
+    .hint-button {
+      background: #ffc107;
+      color: #333;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.9em;
+      margin-bottom: 10px;
+      transition: all 0.3s ease;
+    }
+    
+    .hint-button:hover {
+      background: #e0a800;
+    }
+    
+    .hint-button:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+    
+    .hint-text {
+      background: #fff3cd;
+      padding: 12px;
+      border-radius: 8px;
+      margin-top: 10px;
+      border-left: 4px solid #ffc107;
+      animation: fadeIn 0.3s ease;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    #explanationContainer {
+      margin-top: 15px;
+    }
+    
+    .explanation {
+      background: #e8f4fd;
+      padding: 20px;
+      border-radius: 10px;
+      border-left: 4px solid #17a2b8;
+      white-space: pre-wrap;
+      line-height: 1.6;
+      animation: fadeIn 0.3s ease;
+    }
+    
+    .button-group {
+      display: flex;
+      justify-content: space-between;
+      gap: 15px;
+      margin-top: 25px;
+    }
+    
+    .prev-button, .next-button, .reset-button {
+      padding: 12px 30px;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 1em;
+      font-weight: 500;
+      transition: all 0.3s ease;
+    }
+    
+    .prev-button {
+      background: #6c757d;
+      color: white;
+    }
+    
+    .prev-button:hover:not(:disabled) {
+      background: #5a6268;
+    }
+    
+    .next-button {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+    }
+    
+    .next-button:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+    }
+    
+    .reset-button {
+      background: #dc3545;
+      color: white;
+    }
+    
+    .reset-button:hover {
+      background: #c82333;
+    }
+    
+    .prev-button:disabled, .next-button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+    
+    #completionScreen {
+      display: none;
+      text-align: center;
+      padding: 40px;
+    }
+    
+    #completionScreen h2 {
+      color: #28a745;
+      font-size: 2em;
+      margin-bottom: 20px;
+    }
+    
+    #completionScreen p {
+      font-size: 1.2em;
+      margin-bottom: 15px;
+    }
+    
+    .try-again-button {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+      border: none;
+      padding: 15px 40px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 1.1em;
+      margin-top: 20px;
+      transition: all 0.3s ease;
+    }
+    
+    .try-again-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+    }
+    
+    .score-display {
+      font-size: 3em;
+      font-weight: bold;
+      color: #667eea;
+      margin: 20px 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div id="completionScreen">
+      <h2>🎉 Quiz Complete!</h2>
+      <div class="score-display" id="finalScore">0/3</div>
+      <p>You've completed the Calculating Force on a Wire quiz!</p>
+      <p>Take a screenshot of this page to submit your completion!</p>
+      <button class="try-again-button" onclick="resetQuiz()">Try Again</button>
+    </div>
+    
+    <div id="quizContent">
+      <h1>Calculating Force on a Wire</h1>
+      
+      <div class="quiz-header">
+        <div>Problem <span id="currentNumber">1</span> of <span id="totalNumber">3</span></div>
+        <div>Score: <span id="score">0</span>/3</div>
+      </div>
+      
+      <div class="progress-bar">
+        <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+      </div>
+      
+      <div class="question-text" id="questionText"></div>
+      
+      <div class="diagram-container" id="diagramContainer"></div>
+      
+      <div class="formula-hint">
+        <strong>Key Formula:</strong> F = BIL
+        <br>where F = force (N), B = magnetic field (T), I = current (A), L = length (m)
+        <br><strong>Remember:</strong> Convert cm to m by dividing by 100
+      </div>
+      
+      <div class="feedback-message" id="feedbackMessage" style="display: none;"></div>
+      
+      <div id="hintContainer"></div>
+      
+      <div id="answerContainer"></div>
+      
+      <div id="explanationContainer"></div>
+      
+      <div class="button-group">
+        <button class="prev-button" id="prevBtn" onclick="prevProblem()">Previous</button>
+        <button class="reset-button" onclick="resetQuiz()">Reset Quiz</button>
+        <button class="next-button" id="nextBtn" onclick="nextProblem()">Next</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const problems = [
+      {
+        id: 1,
+        type: "input",
+        question: "You are facing a 20.0-cm length of wire placed inside a uniform 3.0-T magnetic field directed up. A 15.0-A current is passed through the wire directed to the right. Determine the magnitude of the force on the wire.",
+        correctAnswer: 9.0,
+        tolerance: 0.1,
+        unit: "N",
+        explanation: "Using the formula F = BIL:\n\nGiven:\n• Length L = 20.0 cm = 0.20 m (convert to meters!)\n• Magnetic field B = 3.0 T\n• Current I = 15.0 A\n\nCalculation:\nF = BIL\nF = (3.0 T)(15.0 A)(0.20 m)\nF = 9.0 N\n\nThe magnitude of the force is 9.0 N.",
+        hints: [
+          "The formula for force on a current-carrying wire is F = BIL",
+          "Don't forget to convert length from cm to m: 20.0 cm = 0.20 m",
+          "Multiply: F = (3.0)(15.0)(0.20)",
+          "F = 3.0 × 15.0 × 0.20 = 9.0 N"
+        ],
+        diagram: "problem1"
+      },
+      {
+        id: 2,
+        type: "multiple",
+        question: "You are facing a 32-cm length of wire placed inside a uniform 3.5-T magnetic field directed down. A 14-A current is passed through the wire directed to the left. Determine the direction and magnitude of the force on the wire.",
+        options: [
+          "A. 16 N; away from you",
+          "B. 1.6 N; toward you",
+          "C. 16 N; toward you",
+          "D. 1.6 N; away from you"
+        ],
+        correctIndex: 2,
+        explanation: "Using the formula F = BIL:\n\nGiven:\n• Length L = 32 cm = 0.32 m (convert to meters!)\n• Magnetic field B = 3.5 T\n• Current I = 14 A\n\nCalculation:\nF = BIL\nF = (3.5 T)(14 A)(0.32 m)\nF = 15.68 N ≈ 16 N\n\nDirection (using right-hand rule):\n• Point fingers in direction of current (left)\n• Curl fingers in direction of B field (down)\n• Thumb points toward you\n\nThe force is 16 N toward you. Answer: C",
+        hints: [
+          "The formula for force on a current-carrying wire is F = BIL",
+          "Convert length: 32 cm = 0.32 m",
+          "Calculate magnitude: F = (3.5)(14)(0.32) ≈ 16 N",
+          "Use the right-hand rule for direction: fingers point in current direction, curl toward B field",
+          "With current left and B down, thumb points toward you"
+        ],
+        diagram: "problem2"
+      },
+      {
+        id: 3,
+        type: "input",
+        question: "Using a scale, you measure the force on a 15-cm length of wire to be 1.2 N. The wire carries a current of 5.0 A. What is the magnitude of the magnetic field?",
+        correctAnswer: 1.6,
+        tolerance: 0.1,
+        unit: "T",
+        explanation: "Rearranging the formula F = BIL to solve for B:\n\nB = F / (IL)\n\nGiven:\n• Force F = 1.2 N\n• Length L = 15 cm = 0.15 m (convert to meters!)\n• Current I = 5.0 A\n\nCalculation:\nB = F / (IL)\nB = 1.2 / (5.0 × 0.15)\nB = 1.2 / 0.75\nB = 1.6 T\n\nThe magnitude of the magnetic field is 1.6 T.",
+        hints: [
+          "Start with F = BIL and rearrange to solve for B",
+          "B = F / (IL)",
+          "Convert length: 15 cm = 0.15 m",
+          "B = 1.2 / (5.0 × 0.15) = 1.2 / 0.75",
+          "B = 1.6 T"
+        ],
+        diagram: "problem3"
+      }
+    ];
+
+    let currentProblem = 0;
+    let score = 0;
+    let answers = new Array(problems.length).fill(null);
+    let hintsShown = new Array(problems.length).fill(0);
+
+    function createDiagram(problemType) {
+      if (problemType === "problem1") {
+        return `
+          <svg viewBox="0 0 450 250" width="450" height="250">
+            <!-- Magnetic field arrows pointing up -->
+            <defs>
+              <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                <polygon points="0 0, 10 3.5, 0 7" fill="black"/>
+              </marker>
+            </defs>
+            
+            <!-- B field label -->
+            <text x="60" y="30" font-style="italic" font-size="16">B</text>
+            
+            <!-- Upward arrows for B field -->
+            <line x1="70" y1="200" x2="70" y2="50" stroke="black" stroke-width="2" marker-end="url(#arrowhead)"/>
+            <line x1="140" y1="200" x2="140" y2="50" stroke="black" stroke-width="2" marker-end="url(#arrowhead)"/>
+            <line x1="210" y1="200" x2="210" y2="50" stroke="black" stroke-width="2" marker-end="url(#arrowhead)"/>
+            <line x1="280" y1="200" x2="280" y2="50" stroke="black" stroke-width="2" marker-end="url(#arrowhead)"/>
+            <line x1="350" y1="200" x2="350" y2="50" stroke="black" stroke-width="2" marker-end="url(#arrowhead)"/>
+            
+            <!-- Wire (cylinder shape) -->
+            <ellipse cx="80" cy="125" rx="15" ry="25" fill="none" stroke="black" stroke-width="2"/>
+            <line x1="80" y1="100" x2="380" y2="100" stroke="black" stroke-width="2"/>
+            <line x1="80" y1="150" x2="380" y2="150" stroke="black" stroke-width="2"/>
+            <ellipse cx="380" cy="125" rx="15" ry="25" fill="none" stroke="black" stroke-width="2"/>
+            
+            <!-- Current arrow -->
+            <line x1="200" y1="125" x2="320" y2="125" stroke="black" stroke-width="3" marker-end="url(#arrowhead)"/>
+            <text x="330" y="120" font-style="italic" font-size="16">I</text>
+            
+            <!-- Length bracket -->
+            <line x1="100" y1="170" x2="100" y2="190" stroke="black" stroke-width="1"/>
+            <line x1="360" y1="170" x2="360" y2="190" stroke="black" stroke-width="1"/>
+            <line x1="100" y1="180" x2="360" y2="180" stroke="black" stroke-width="1"/>
+            <text x="200" y="210" font-style="italic" font-size="14">Length (l)</text>
+          </svg>
+        `;
+      } else if (problemType === "problem2") {
+        return `
+          <svg viewBox="0 0 450 250" width="450" height="250">
+            <!-- Magnetic field arrows pointing down -->
+            <defs>
+              <marker id="arrowhead2" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                <polygon points="0 0, 10 3.5, 0 7" fill="black"/>
+              </marker>
+            </defs>
+            
+            <!-- B field label -->
+            <text x="60" y="30" font-style="italic" font-size="16">B</text>
+            
+            <!-- Downward arrows for B field -->
+            <line x1="70" y1="50" x2="70" y2="200" stroke="black" stroke-width="2" marker-end="url(#arrowhead2)"/>
+            <line x1="140" y1="50" x2="140" y2="200" stroke="black" stroke-width="2" marker-end="url(#arrowhead2)"/>
+            <line x1="210" y1="50" x2="210" y2="200" stroke="black" stroke-width="2" marker-end="url(#arrowhead2)"/>
+            <line x1="280" y1="50" x2="280" y2="200" stroke="black" stroke-width="2" marker-end="url(#arrowhead2)"/>
+            <line x1="350" y1="50" x2="350" y2="200" stroke="black" stroke-width="2" marker-end="url(#arrowhead2)"/>
+            
+            <!-- Wire (cylinder shape) -->
+            <ellipse cx="80" cy="125" rx="15" ry="25" fill="none" stroke="black" stroke-width="2"/>
+            <line x1="80" y1="100" x2="380" y2="100" stroke="black" stroke-width="2"/>
+            <line x1="80" y1="150" x2="380" y2="150" stroke="black" stroke-width="2"/>
+            <ellipse cx="380" cy="125" rx="15" ry="25" fill="none" stroke="black" stroke-width="2"/>
+            
+            <!-- Current arrow pointing LEFT -->
+            <line x1="320" y1="125" x2="200" y2="125" stroke="black" stroke-width="3" marker-end="url(#arrowhead2)"/>
+            <text x="170" y="120" font-style="italic" font-size="16">I</text>
+            
+            <!-- Length bracket -->
+            <line x1="100" y1="170" x2="100" y2="190" stroke="black" stroke-width="1"/>
+            <line x1="360" y1="170" x2="360" y2="190" stroke="black" stroke-width="1"/>
+            <line x1="100" y1="180" x2="360" y2="180" stroke="black" stroke-width="1"/>
+            <text x="200" y="210" font-style="italic" font-size="14">Length (l)</text>
+          </svg>
+        `;
+      } else if (problemType === "problem3") {
+        return `
+          <svg viewBox="0 0 450 200" width="450" height="200">
+            <!-- Simple wire diagram -->
+            <defs>
+              <marker id="arrowhead3" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                <polygon points="0 0, 10 3.5, 0 7" fill="black"/>
+              </marker>
+            </defs>
+            
+            <!-- Wire -->
+            <line x1="80" y1="100" x2="380" y2="100" stroke="black" stroke-width="4"/>
+            
+            <!-- Current arrow -->
+            <line x1="180" y1="70" x2="280" y2="70" stroke="black" stroke-width="2" marker-end="url(#arrowhead3)"/>
+            <text x="290" y="75" font-style="italic" font-size="16">I = 5.0 A</text>
+            
+            <!-- Length bracket -->
+            <line x1="80" y1="120" x2="80" y2="140" stroke="black" stroke-width="1"/>
+            <line x1="380" y1="120" x2="380" y2="140" stroke="black" stroke-width="1"/>
+            <line x1="80" y1="130" x2="380" y2="130" stroke="black" stroke-width="1"/>
+            <text x="200" y="160" font-size="14">L = 15 cm</text>
+            
+            <!-- Force label -->
+            <text x="180" y="190" font-size="14">F = 1.2 N measured</text>
+          </svg>
+        `;
+      }
+      return "";
+    }
+
+    function displayProblem() {
+      const problem = problems[currentProblem];
+      
+      document.getElementById('currentNumber').textContent = currentProblem + 1;
+      document.getElementById('totalNumber').textContent = problems.length;
+      document.getElementById('score').textContent = score;
+      document.getElementById('progressFill').style.width = ((currentProblem + 1) / problems.length * 100) + '%';
+      
+      document.getElementById('questionText').textContent = problem.question;
+      document.getElementById('diagramContainer').innerHTML = createDiagram(problem.diagram);
+      
+      // Display answer input or multiple choice
+      const answerContainer = document.getElementById('answerContainer');
+      answerContainer.innerHTML = '';
+      
+      if (problem.type === "input") {
+        const inputSection = document.createElement('div');
+        inputSection.className = 'input-section';
+        inputSection.innerHTML = `
+          <label>The magnitude is</label>
+          <input type="number" id="answerInput" step="0.1" ${answers[currentProblem] !== null ? 'disabled' : ''} value="${answers[currentProblem] !== null ? answers[currentProblem] : ''}">
+          <span class="unit">${problem.unit}</span>
+          ${answers[currentProblem] === null ? '<button class="submit-answer" onclick="submitInputAnswer()">Submit</button>' : ''}
+        `;
+        answerContainer.appendChild(inputSection);
+      } else {
+        const optionsDiv = document.createElement('div');
+        optionsDiv.className = 'options';
+        
+        problem.options.forEach((option, index) => {
+          const optionDiv = document.createElement('div');
+          optionDiv.className = 'option';
+          optionDiv.textContent = option;
+          
+          if (answers[currentProblem] !== null) {
+            optionDiv.classList.add('disabled');
+            if (index === problem.correctIndex) {
+              optionDiv.classList.add('correct');
+            } else if (index === answers[currentProblem] && answers[currentProblem] !== problem.correctIndex) {
+              optionDiv.classList.add('incorrect');
+            }
+          } else {
+            optionDiv.onclick = () => selectMultipleChoice(index);
+          }
+          
+          optionsDiv.appendChild(optionDiv);
+        });
+        
+        answerContainer.appendChild(optionsDiv);
+      }
+      
+      // Display hints
+      displayHints();
+      
+      // Display feedback if already answered
+      const feedbackMessage = document.getElementById('feedbackMessage');
+      const explanationContainer = document.getElementById('explanationContainer');
+      
+      if (answers[currentProblem] !== null) {
+        feedbackMessage.style.display = 'block';
+        const isCorrect = problem.type === "input" 
+          ? Math.abs(answers[currentProblem] - problem.correctAnswer) <= problem.tolerance
+          : answers[currentProblem] === problem.correctIndex;
+        
+        if (isCorrect) {
+          feedbackMessage.className = 'feedback-message correct';
+          feedbackMessage.textContent = '✓ Correct!';
+        } else {
+          feedbackMessage.className = 'feedback-message incorrect';
+          feedbackMessage.textContent = `✗ Incorrect. The correct answer is ${problem.type === "input" ? problem.correctAnswer + " " + problem.unit : problem.options[problem.correctIndex]}`;
+        }
+        explanationContainer.innerHTML = `<div class="explanation">${problem.explanation}</div>`;
+      } else {
+        feedbackMessage.style.display = 'none';
+        explanationContainer.innerHTML = '';
+      }
+      
+      // Update navigation buttons
+      document.getElementById('prevBtn').disabled = currentProblem === 0;
+      document.getElementById('nextBtn').disabled = currentProblem === problems.length - 1 && answers[currentProblem] === null;
+    }
+
+    function displayHints() {
+      const problem = problems[currentProblem];
+      const hintContainer = document.getElementById('hintContainer');
+      hintContainer.innerHTML = '';
+      
+      if (answers[currentProblem] === null) {
+        const hintButton = document.createElement('button');
+        hintButton.className = 'hint-button';
+        const hintsRemaining = problem.hints.length - hintsShown[currentProblem];
+        hintButton.textContent = `Show Hint (${hintsRemaining} remaining)`;
+        hintButton.disabled = hintsRemaining === 0;
+        hintButton.onclick = showNextHint;
+        hintContainer.appendChild(hintButton);
+      }
+      
+      for (let i = 0; i < hintsShown[currentProblem]; i++) {
+        const hintDiv = document.createElement('div');
+        hintDiv.className = 'hint-text';
+        hintDiv.textContent = `Hint ${i + 1}: ${problem.hints[i]}`;
+        hintContainer.appendChild(hintDiv);
+      }
+    }
+
+    function showNextHint() {
+      const problem = problems[currentProblem];
+      if (hintsShown[currentProblem] < problem.hints.length) {
+        hintsShown[currentProblem]++;
+        displayHints();
+      }
+    }
+
+    function submitInputAnswer() {
+      const input = document.getElementById('answerInput');
+      const value = parseFloat(input.value);
+      
+      if (isNaN(value)) {
+        alert('Please enter a number');
+        return;
+      }
+      
+      const problem = problems[currentProblem];
+      answers[currentProblem] = value;
+      
+      if (Math.abs(value - problem.correctAnswer) <= problem.tolerance) {
+        score++;
+      }
+      
+      displayProblem();
+      checkCompletion();
+    }
+
+    function selectMultipleChoice(index) {
+      const problem = problems[currentProblem];
+      answers[currentProblem] = index;
+      
+      if (index === problem.correctIndex) {
+        score++;
+      }
+      
+      displayProblem();
+      checkCompletion();
+    }
+
+    function checkCompletion() {
+      if (answers.every(a => a !== null)) {
+        setTimeout(showCompletion, 1000);
+      }
+    }
+
+    function nextProblem() {
+      if (currentProblem < problems.length - 1) {
+        currentProblem++;
+        displayProblem();
+      }
+    }
+
+    function prevProblem() {
+      if (currentProblem > 0) {
+        currentProblem--;
+        displayProblem();
+      }
+    }
+
+    function showCompletion() {
+      document.getElementById('quizContent').style.display = 'none';
+      document.getElementById('completionScreen').style.display = 'block';
+      document.getElementById('finalScore').textContent = `${score}/${problems.length}`;
+    }
+
+    function resetQuiz() {
+      currentProblem = 0;
+      score = 0;
+      answers = new Array(problems.length).fill(null);
+      hintsShown = new Array(problems.length).fill(0);
+      document.getElementById('completionScreen').style.display = 'none';
+      document.getElementById('quizContent').style.display = 'block';
+      displayProblem();
+    }
+
+    // Initialize
+    displayProblem();
+  </script>
+</body>
+</html>
