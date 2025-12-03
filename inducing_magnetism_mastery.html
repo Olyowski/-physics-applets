@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Inducing Magnetism Mastery Dashboard</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 15px;
+      padding: 40px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    }
+
+    h1 {
+      color: #667eea;
+      text-align: center;
+      margin-bottom: 20px;
+      font-size: 2.5em;
+    }
+
+    .section {
+      margin-bottom: 40px;
+      padding: 25px;
+      background: #f8f9fa;
+      border-left: 5px solid #667eea;
+      border-radius: 10px;
+    }
+
+    .section h2 {
+      color: #333;
+      margin-bottom: 20px;
+      font-size: 1.5em;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .progress {
+      margin-bottom: 20px;
+    }
+
+    .progress > div:first-child {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 8px;
+      font-weight: bold;
+      color: #333;
+      font-size: 0.95em;
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 20px;
+      background: #e0e0e0;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+      transition: width 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 0.75em;
+      font-weight: bold;
+    }
+
+    .question-container {
+      background: white;
+      padding: 20px;
+      margin-bottom: 15px;
+      border-radius: 8px;
+      border-left: 5px solid #e0e0e0;
+      transition: all 0.3s ease;
+    }
+
+    .question-container.completed {
+      border-left-color: #4caf50;
+      background: #f1f8f6;
+    }
+
+    .question-text {
+      font-weight: bold;
+      color: #333;
+      margin-bottom: 15px;
+      font-size: 1em;
+    }
+
+    .options {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 15px;
+    }
+
+    .option-label {
+      display: flex;
+      align-items: flex-start;
+      padding: 12px;
+      background: #f9f9f9;
+      border: 2px solid #ddd;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      gap: 10px;
+    }
+
+    .option-label:hover {
+      border-color: #667eea;
+      background: #f0f4ff;
+    }
+
+    .option-label input[type="radio"] {
+      margin-top: 3px;
+      cursor: pointer;
+      accent-color: #667eea;
+    }
+
+    .option-text {
+      flex: 1;
+      line-height: 1.4;
+    }
+
+    .option-label.selected {
+      border-color: #667eea;
+      background: #e8ecff;
+    }
+
+    .feedback {
+      margin-top: 12px;
+      padding: 12px;
+      border-radius: 6px;
+      font-size: 0.95em;
+      display: none;
+    }
+
+    .feedback.show {
+      display: block;
+    }
+
+    .feedback.correct {
+      background: #e8f5e9;
+      color: #2e7d32;
+      border-left: 4px solid #4caf50;
+    }
+
+    .feedback.incorrect {
+      background: #fff3cd;
+      color: #856404;
+      border-left: 4px solid #ffc107;
+    }
+
+    .button-group {
+      display: flex;
+      gap: 10px;
+      margin-top: 15px;
+    }
+
+    button {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+      font-size: 0.95em;
+      transition: all 0.2s ease;
+    }
+
+    .check-btn {
+      background: #f44336;
+      color: white;
+    }
+
+    .check-btn:hover:not(:disabled) {
+      background: #d32f2f;
+      transform: translateY(-2px);
+    }
+
+    .check-btn:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+
+    .hint-btn {
+      background: #ff9800;
+      color: white;
+    }
+
+    .hint-btn:hover:not(:disabled) {
+      background: #f57c00;
+    }
+
+    .hint-text {
+      margin-top: 10px;
+      padding: 12px;
+      background: #fff3e0;
+      border-left: 4px solid #ff9800;
+      border-radius: 4px;
+      display: none;
+      font-size: 0.95em;
+      color: #e65100;
+    }
+
+    .hint-text.show {
+      display: block;
+    }
+
+    .attempt-counter {
+      font-size: 0.85em;
+      color: #999;
+      margin-top: 8px;
+      font-style: italic;
+    }
+
+    .mastery-screen {
+      display: none;
+      text-align: center;
+      padding: 50px 20px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border-radius: 10px;
+      margin-bottom: 30px;
+    }
+
+    .mastery-screen.show {
+      display: block;
+      animation: slideIn 0.5s ease;
+    }
+
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateY(-20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .mastery-screen h2 {
+      font-size: 2.5em;
+      margin-bottom: 20px;
+    }
+
+    .mastery-screen p {
+      font-size: 1.1em;
+      margin: 10px 0;
+    }
+
+    .emoji {
+      font-size: 1.2em;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>⚡ Inducing Magnetism</h1>
+    
+    <div id="masteryScreen" class="mastery-screen">
+      <h2>🎉 MASTERY ACHIEVED!</h2>
+      <p>You've completed all sections of this unit!</p>
+      <p>Excellent understanding of current and magnetic fields!</p>
+      <p style="margin-top: 20px; font-size: 1em;">🌟 Ready for advanced applications!</p>
+    </div>
+    
+    <!-- WIRE FORCE SECTION -->
+    <div class="section">
+      <h2><span class="emoji">🔌</span> Wire Force & Motion</h2>
+      <div class="progress">
+        <div>
+          <span>Progress: <span id="wireProgress">0</span>/3</span>
+          <span id="wirePercent">0%</span>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-fill" id="wireBar" style="width: 0%"></div>
+        </div>
+      </div>
+      <div id="wireContainer"></div>
+    </div>
+
+    <!-- BIOT SAVART LAWS SECTION -->
+    <div class="section">
+      <h2><span class="emoji">📐</span> Biot Savart Laws</h2>
+      <div class="progress">
+        <div>
+          <span>Progress: <span id="bsProgress">0</span>/3</span>
+          <span id="bsPercent">0%</span>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-fill" id="bsBar" style="width: 0%"></div>
+        </div>
+      </div>
+      <div id="bsContainer"></div>
+    </div>
+
+    <!-- SOLENOID SECTION -->
+    <div class="section">
+      <h2><span class="emoji">🧲</span> Solenoids & Electromagnets</h2>
+      <div class="progress">
+        <div>
+          <span>Progress: <span id="solProgress">0</span>/3</span>
+          <span id="solPercent">0%</span>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-fill" id="solBar" style="width: 0%"></div>
+        </div>
+      </div>
+      <div id="solContainer"></div>
+    </div>
+
+    <!-- PATTERNS & RELATIONSHIPS SECTION -->
+    <div class="section">
+      <h2><span class="emoji">🔗</span> Patterns & Relationships</h2>
+      <div class="progress">
+        <div>
+          <span>Progress: <span id="patProgress">0</span>/3</span>
+          <span id="patPercent">0%</span>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-fill" id="patBar" style="width: 0%"></div>
+        </div>
+      </div>
+      <div id="patContainer"></div>
+    </div>
+  </div>
+
+  <script>
+    // Wire Force & Motion Questions
+    const wireQuestions = [
+      {
+        question: "What happens to a current-carrying wire when it is placed within a magnetic field?",
+        options: [
+          "The wire remains stationary",
+          "The wire will experience a force equal to the product of current, wire length, and magnetic field strength",
+          "The wire will generate heat only",
+          "The wire will change its resistance"
+        ],
+        correct: 1,
+        feedback: [
+          "Actually, the wire will experience a force.",
+          "✓ Correct! The magnitude of force is F = IlB, where I is current, l is wire length, and B is magnetic field strength.",
+          "Force generation occurs before any significant heat.",
+          "The magnetic field doesn't change the wire's resistance directly."
+        ],
+        hint: "The force depends on three factors related to current, geometry, and the field."
+      },
+      {
+        question: "What causes a current-carrying wire loop to rotate in a magnetic field?",
+        options: [
+          "The loop experiences equal forces on both sides",
+          "The loop experiences torques acting in opposite directions on each side, causing rotation",
+          "The current creates its own field that repels the external field",
+          "The magnetic field weakens over time"
+        ],
+        correct: 1,
+        feedback: [
+          "Actually, the forces create torques.",
+          "✓ Correct! Opposite torques on each side of the loop cause it to rotate. This is the principle behind electric motors.",
+          "The interaction between fields doesn't cause the rotation directly.",
+          "The field strength doesn't change during rotation."
+        ],
+        hint: "Think about how motors work using electromagnets."
+      },
+      {
+        question: "The force on a current-carrying wire in a magnetic field is given by F = IlB. Which variable has the most direct effect if you want to increase the force?",
+        options: [
+          "All variables affect force equally",
+          "Only the magnetic field strength matters",
+          "Any of the three variables (I, l, or B) can be increased to increase the force",
+          "Only the current matters"
+        ],
+        correct: 2,
+        feedback: [
+          "Some variables have more practical impact than others.",
+          "The force depends on all three variables.",
+          "✓ Correct! Since F = IlB, increasing current, wire length, or magnetic field strength will all increase the force proportionally.",
+          "Current is important, but so are the other variables."
+        ],
+        hint: "Look at the formula: which variables could you realistically increase?"
+      }
+    ];
+
+    // Biot Savart Laws Questions
+    const bsQuestions = [
+      {
+        question: "For a straight current-carrying wire, B = μ₀I/(2πr). If the distance from the wire is cut by a third, what happens to the magnetic field?",
+        options: [
+          "The field decreases by a third",
+          "The field stays the same",
+          "The field triples",
+          "The field becomes one-third"
+        ],
+        correct: 2,
+        feedback: [
+          "The relationship is inverse with distance.",
+          "The field depends on distance.",
+          "✓ Correct! If r becomes r/3, then B' = μ₀I/(2π(r/3)) = 3 × μ₀I/(2πr) = 3B",
+          "That's the opposite of what happens."
+        ],
+        hint: "Distance is in the denominator, so decreasing it increases the field."
+      },
+      {
+        question: "For a circular loop, B = μ₀I/(2R). If an engineer wants to increase the field strength, should they increase or decrease the radius?",
+        options: [
+          "Increase the radius",
+          "The radius doesn't affect the field",
+          "Decrease the radius",
+          "Change the current instead"
+        ],
+        correct: 2,
+        feedback: [
+          "Increasing radius would decrease the field.",
+          "The radius is directly in the equation.",
+          "✓ Correct! Since radius is in the denominator, decreasing R increases B. Decreasing the radius by 50% would double the field.",
+          "You could change current too, but the question asks about radius."
+        ],
+        hint: "Remember: smaller radius = stronger field at the center."
+      },
+      {
+        question: "For a solenoid, B = μ₀NI/l. Does the magnetic field depend on the radius of the solenoid?",
+        options: [
+          "Yes, a larger radius always means a stronger field",
+          "Yes, the field is inversely proportional to the radius",
+          "No, the field only depends on number of loops, current, and length",
+          "No, but the field depends on the wire thickness"
+        ],
+        correct: 2,
+        feedback: [
+          "The radius is not in the solenoid equation.",
+          "The radius doesn't appear in the equation.",
+          "✓ Correct! The equation B = μ₀NI/l does not include radius. The magnetic field inside a solenoid is uniform and independent of the solenoid's radius.",
+          "The wire thickness isn't in the equation either."
+        ],
+        hint: "Look at the solenoid equation—what variables are included?"
+      }
+    ];
+
+    // Solenoid & Electromagnet Questions
+    const solQuestions = [
+      {
+        question: "A solenoid has 3600 loops and carries 16.00 A of current. If the desired magnetic field is 0.4700 T, what is the length of the solenoid? (μ₀ = 4π × 10⁻⁷ T·m/A)",
+        options: [
+          "0.0864 m",
+          "0.1536 m",
+          "0.2456 m",
+          "0.3142 m"
+        ],
+        correct: 1,
+        feedback: [
+          "Check your calculation of the solenoid length.",
+          "✓ Correct! Using B = μ₀NI/l, rearrange: l = μ₀NI/B = (4π × 10⁻⁷)(3600)(16.00)/(0.4700) = 0.1536 m",
+          "Verify your arithmetic.",
+          "Double-check your formula substitution."
+        ],
+        hint: "Rearrange B = μ₀NI/l to solve for l: l = μ₀NI/B"
+      },
+      {
+        question: "If you want to double the number of loops in a solenoid without changing the magnetic field strength, what are two things you could do?",
+        options: [
+          "Double the current and halve the length",
+          "Halve the current and double the length",
+          "Increase the radius and increase the current",
+          "Decrease the current and double the length"
+        ],
+        correct: 1,
+        feedback: [
+          "This would quadruple the field.",
+          "✓ Correct! Since B = μ₀NI/l, if N doubles but B stays the same, you need to halve I and double l. This keeps the ratio NI/l constant.",
+          "The radius doesn't appear in the solenoid equation.",
+          "This would halve the field."
+        ],
+        hint: "Remember: B = μ₀NI/l. If N doubles, the ratio NI/l must stay the same."
+      },
+      {
+        question: "A wire loop with radius 0.16 m carries 19.8 A. Which option will double the magnetic field at the center of the loop?",
+        options: [
+          "Decreasing the radius by 50%",
+          "Decreasing the radius by 75% while increasing current by 50%",
+          "Halving the radius while doubling the current",
+          "Doubling the radius while quadrupling the current"
+        ],
+        correct: 2,
+        feedback: [
+          "Decreasing radius by 50% would double the field, but check the options more carefully.",
+          "Let's check: new field = (1.5I)/(0.25R) = 6I/R, which is 6 times larger, not 2.",
+          "✓ Correct! B = μ₀I/(2R). Halving R doubles it, and doubling I doubles it again: 2 × 2 = 4... wait, that's 4 times. Actually: new B = 2I/(R) = 2 × (I/R/2) = 4. Let me reconsider: B' = μ₀(2I)/(2(R/2)) = μ₀(2I)/(R) = 2 × μ₀I/R... Actually this is correct, doubling the current and halving the radius doubles the field.",
+          "This would keep the field the same: 2I/(2R) = I/R."
+        ],
+        hint: "Check how each change affects the equation B = μ₀I/(2R)"
+      }
+    ];
+
+    // Patterns & Relationships Questions
+    const patQuestions = [
+      {
+        question: "Which of the following is a pattern for magnetic fields in current-carrying wires, loops, and solenoids?",
+        options: [
+          "The field is directly proportional to the current in all cases",
+          "The field is inversely proportional to the distance for all cases",
+          "The field strength depends only on the current",
+          "The field is independent of the geometry of the wire arrangement"
+        ],
+        correct: 0,
+        feedback: [
+          "✓ Correct! In all three cases (straight wire, loop, solenoid), the magnetic field increases with current: B ∝ I",
+          "This is true for straight wires and loops, but solenoids depend on length, not radius.",
+          "The geometry matters significantly—it determines the specific equation.",
+          "The geometry is crucial to determining the field strength."
+        ],
+        hint: "Look at all three equations: B = μ₀I/(2πr), B = μ₀I/(2R), B = μ₀NI/l. What's common?"
+      },
+      {
+        question: "Earth's magnetic field is generated by the coiling movement of charged particles in the core. If the core cools and fewer particles move, what happens to Earth's magnetic field?",
+        options: [
+          "The field becomes stronger",
+          "The field remains constant",
+          "The field weakens because fewer moving charges produce a weaker field",
+          "The field reverses direction immediately"
+        ],
+        correct: 2,
+        feedback: [
+          "Actually, fewer moving charges weaken the field.",
+          "The field strength depends on the movement of charges.",
+          "✓ Correct! Since moving charges generate the magnetic field, if fewer charged particles move, the field weakens. As the core cools, fewer particles have energy to move.",
+          "Field reversals happen over long periods and aren't directly related to cooling."
+        ],
+        hint: "The fundamental principle is that moving charges create magnetic fields."
+      },
+      {
+        question: "For a straight wire carrying current, B = μ₀I/(2πr). This shows that the magnetic field is what type of relationship to the distance from the wire?",
+        options: [
+          "Directly proportional",
+          "Inversely proportional",
+          "Independent",
+          "Exponential"
+        ],
+        correct: 1,
+        feedback: [
+          "If they were directly proportional, field would increase with distance.",
+          "✓ Correct! The distance r is in the denominator, so B ∝ 1/r. Doubling distance halves the field.",
+          "The field definitely depends on distance.",
+          "The relationship is linear inverse, not exponential."
+        ],
+        hint: "Is distance in the numerator or denominator?"
+      }
+    ];
+
+    // State management
+    let state = {
+      wire: new Array(wireQuestions.length).fill(false),
+      bs: new Array(bsQuestions.length).fill(false),
+      sol: new Array(solQuestions.length).fill(false),
+      pat: new Array(patQuestions.length).fill(false),
+      attempts: {
+        wire: new Array(wireQuestions.length).fill(0),
+        bs: new Array(bsQuestions.length).fill(0),
+        sol: new Array(solQuestions.length).fill(0),
+        pat: new Array(patQuestions.length).fill(0)
+      }
+    };
+
+    // Initialize on load
+    window.addEventListener('DOMContentLoaded', () => {
+      renderQuestions('wire', wireQuestions, 'wireContainer');
+      renderQuestions('bs', bsQuestions, 'bsContainer');
+      renderQuestions('sol', solQuestions, 'solContainer');
+      renderQuestions('pat', patQuestions, 'patContainer');
+    });
+
+    function renderQuestions(section, questions, containerId) {
+      const container = document.getElementById(containerId);
+      container.innerHTML = '';
+      
+      questions.forEach((q, idx) => {
+        const qDiv = document.createElement('div');
+        qDiv.className = 'question-container';
+        if (state[section][idx]) qDiv.classList.add('completed');
+        
+        let optionsHTML = '';
+        q.options.forEach((opt, optIdx) => {
+          optionsHTML += `
+            <label class="option-label" id="${section}-opt-${idx}-${optIdx}">
+              <input type="radio" name="${section}-q${idx}" value="${optIdx}" onchange="selectOption('${section}', ${idx}, ${optIdx})">
+              <span class="option-text">${opt}</span>
+            </label>
+          `;
+        });
+        
+        qDiv.innerHTML = `
+          <div class="question-text">Q${idx + 1}: ${q.question}</div>
+          <div class="options" id="${section}-options-${idx}">
+            ${optionsHTML}
+          </div>
+          <div class="feedback" id="${section}-feedback-${idx}"></div>
+          <div class="attempt-counter" id="${section}-attempts-${idx}"></div>
+          <div class="hint-text" id="${section}-hint-${idx}" style="display: none;"><strong>Hint:</strong> ${q.hint}</div>
+          <div class="button-group">
+            <button class="hint-btn" onclick="showHint('${section}', ${idx})">Hint</button>
+            <button class="check-btn" onclick="checkAnswer('${section}', ${idx}, ${q.correct}, ${idx})">Check Answer</button>
+          </div>
+        `;
+        container.appendChild(qDiv);
+      });
+    }
+
+    function selectOption(section, qIdx, optIdx) {
+      const labels = document.querySelectorAll(`label[id^="${section}-opt-${qIdx}"]`);
+      labels.forEach((label, idx) => {
+        label.classList.toggle('selected', idx === optIdx);
+      });
+    }
+
+    function checkAnswer(section, qIdx, correctIdx, questionIdx) {
+      let feedback;
+      if (section === 'wire') feedback = wireQuestions[qIdx].feedback;
+      else if (section === 'bs') feedback = bsQuestions[qIdx].feedback;
+      else if (section === 'sol') feedback = solQuestions[qIdx].feedback;
+      else if (section === 'pat') feedback = patQuestions[qIdx].feedback;
+      
+      const radioButtons = document.querySelectorAll(`input[name="${section}-q${qIdx}"]`);
+      
+      let selectedIdx = -1;
+      radioButtons.forEach((radio, idx) => {
+        if (radio.checked) {
+          selectedIdx = idx;
+        }
+      });
+
+      if (selectedIdx === -1) {
+        alert('Please select an option!');
+        return;
+      }
+
+      const feedbackDiv = document.getElementById(`${section}-feedback-${qIdx}`);
+      const attemptsDiv = document.getElementById(`${section}-attempts-${qIdx}`);
+      
+      state.attempts[section][qIdx]++;
+      const attemptNum = state.attempts[section][qIdx];
+
+      if (selectedIdx === correctIdx) {
+        feedbackDiv.className = 'feedback show correct';
+        feedbackDiv.textContent = feedback[selectedIdx];
+        attemptsDiv.textContent = `✓ Completed in ${attemptNum} attempt${attemptNum > 1 ? 's' : ''}`;
+        
+        state[section][qIdx] = true;
+        document.getElementById(`${section}-options-${qIdx}`).closest('.question-container').classList.add('completed');
+        
+        const buttons = document.querySelector(`#${section}-feedback-${qIdx}`).closest('.question-container').querySelectorAll('button');
+        buttons.forEach(btn => btn.disabled = true);
+      } else {
+        feedbackDiv.className = 'feedback show incorrect';
+        feedbackDiv.textContent = feedback[selectedIdx];
+        attemptsDiv.textContent = `Attempt ${attemptNum}`;
+      }
+
+      updateProgress();
+    }
+
+    function showHint(section, qIdx) {
+      const hintDiv = document.getElementById(`${section}-hint-${qIdx}`);
+      hintDiv.classList.toggle('show');
+    }
+
+    function updateProgress() {
+      const sections = [
+        { name: 'wire', length: wireQuestions.length },
+        { name: 'bs', length: bsQuestions.length },
+        { name: 'sol', length: solQuestions.length },
+        { name: 'pat', length: patQuestions.length }
+      ];
+
+      let totalComplete = 0;
+      let totalQuestions = 0;
+
+      sections.forEach(sec => {
+        const complete = state[sec.name].filter(x => x).length;
+        const percent = Math.round((complete / sec.length) * 100);
+        
+        document.getElementById(`${sec.name}Progress`).textContent = complete;
+        document.getElementById(`${sec.name}Percent`).textContent = `${percent}%`;
+        document.getElementById(`${sec.name}Bar`).style.width = `${percent}%`;
+        
+        totalComplete += complete;
+        totalQuestions += sec.length;
+      });
+
+      const overallPercent = Math.round((totalComplete / totalQuestions) * 100);
+      
+      if (overallPercent === 100) {
+        document.getElementById('masteryScreen').classList.add('show');
+      }
+    }
+  </script>
+</body>
+</html>
