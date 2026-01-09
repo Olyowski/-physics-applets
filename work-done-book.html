@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Work Done on a Book</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+      min-height: 100vh;
+      padding: 20px;
+      color: #fff;
+    }
+    
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 20px;
+      padding: 30px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      color: #333;
+    }
+    
+    h1 {
+      text-align: center;
+      color: #2c3e50;
+      margin-bottom: 25px;
+      font-size: 1.8em;
+    }
+    
+    .quiz-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      padding: 15px;
+      background: #f8f9fa;
+      border-radius: 10px;
+    }
+    
+    .progress-bar {
+      width: 100%;
+      height: 8px;
+      background: #e0e0e0;
+      border-radius: 4px;
+      margin-bottom: 25px;
+      overflow: hidden;
+    }
+    
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #667eea, #764ba2);
+      border-radius: 4px;
+      transition: width 0.3s ease;
+    }
+    
+    .question-text {
+      font-size: 1.1em;
+      line-height: 1.6;
+      margin-bottom: 20px;
+      padding: 20px;
+      background: #f8f9fa;
+      border-radius: 10px;
+      border-left: 4px solid #667eea;
+    }
+    
+    .diagram-container {
+      display: flex;
+      justify-content: center;
+      margin: 20px 0;
+      padding: 20px;
+      background: #fff;
+      border-radius: 10px;
+      border: 1px solid #e0e0e0;
+    }
+    
+    .formula-hint {
+      background: linear-gradient(135deg, #667eea20, #764ba220);
+      padding: 15px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+      border: 1px solid #667eea40;
+    }
+    
+    .input-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 20px 0;
+      justify-content: center;
+    }
+    
+    .answer-input {
+      padding: 12px 20px;
+      font-size: 1.1em;
+      border: 2px solid #ddd;
+      border-radius: 8px;
+      width: 150px;
+      text-align: center;
+    }
+    
+    .answer-input:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+    
+    .unit-label {
+      font-size: 1.1em;
+      color: #666;
+    }
+    
+    .submit-btn {
+      padding: 12px 30px;
+      font-size: 1em;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    
+    .submit-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+    }
+    
+    .option-btn {
+      display: block;
+      width: 100%;
+      padding: 15px 20px;
+      margin: 10px 0;
+      font-size: 1em;
+      text-align: left;
+      background: #f8f9fa;
+      border: 2px solid #e0e0e0;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .option-btn:hover:not(:disabled) {
+      background: #e8f4fd;
+      border-color: #667eea;
+    }
+    
+    .option-btn.correct {
+      background: #d4edda;
+      border-color: #28a745;
+      color: #155724;
+    }
+    
+    .option-btn.incorrect {
+      background: #f8d7da;
+      border-color: #dc3545;
+      color: #721c24;
+    }
+    
+    .option-btn:disabled {
+      cursor: not-allowed;
+    }
+    
+    .feedback-message {
+      padding: 15px;
+      border-radius: 10px;
+      margin: 15px 0;
+      text-align: center;
+      font-weight: 500;
+    }
+    
+    .feedback-correct {
+      background: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+    }
+    
+    .feedback-incorrect {
+      background: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+    }
+    
+    .hint-btn {
+      padding: 10px 20px;
+      background: #ffc107;
+      color: #333;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      margin: 10px 0;
+    }
+    
+    .hint-btn:hover {
+      background: #e0a800;
+    }
+    
+    .hint-text {
+      background: #fff3cd;
+      padding: 12px;
+      border-radius: 8px;
+      margin: 8px 0;
+      border-left: 4px solid #ffc107;
+    }
+    
+    .explanation-box {
+      background: #e8f4fd;
+      padding: 20px;
+      border-radius: 10px;
+      margin-top: 15px;
+      border: 1px solid #b8daff;
+      white-space: pre-line;
+    }
+    
+    .button-group {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 25px;
+      gap: 10px;
+    }
+    
+    .prev-button, .next-button {
+      padding: 12px 30px;
+      font-size: 1em;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .prev-button {
+      background: #6c757d;
+      color: white;
+    }
+    
+    .next-button {
+      background: linear-gradient(135deg, #28a745, #20c997);
+      color: white;
+    }
+    
+    .prev-button:hover, .next-button:hover {
+      transform: translateY(-2px);
+    }
+    
+    .prev-button:disabled, .next-button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+    
+    .reset-button {
+      padding: 12px 30px;
+      background: #dc3545;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    
+    .reset-button:hover {
+      background: #c82333;
+    }
+    
+    #completionScreen {
+      display: none;
+      text-align: center;
+      padding: 40px;
+    }
+    
+    #completionScreen h2 {
+      color: #28a745;
+      font-size: 2em;
+      margin-bottom: 20px;
+    }
+    
+    .score-display {
+      font-size: 3em;
+      font-weight: bold;
+      color: #667eea;
+      margin: 20px 0;
+    }
+    
+    .try-again-button {
+      padding: 15px 40px;
+      font-size: 1.2em;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      margin-top: 20px;
+    }
+    
+    .try-again-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+    }
+
+    .answered-correct {
+      border-color: #28a745;
+      background: #d4edda;
+    }
+
+    .answered-incorrect {
+      border-color: #dc3545;
+      background: #f8d7da;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div id="completionScreen">
+      <h2>🎉 Quiz Complete!</h2>
+      <div class="score-display" id="finalScore">0/3</div>
+      <p>You've completed the Work Done on a Book quiz!</p>
+      <p>Take a screenshot of this page to submit your completion!</p>
+      <button class="try-again-button" onclick="resetQuiz()">Try Again</button>
+    </div>
+    
+    <div id="quizContent">
+      <h1>Work Done on a Book</h1>
+      
+      <div class="quiz-header">
+        <div>Problem <span id="currentNumber">1</span> of <span id="totalNumber">3</span></div>
+        <div>Score: <span id="score">0</span>/3</div>
+      </div>
+      
+      <div class="progress-bar">
+        <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+      </div>
+      
+      <div class="question-text" id="questionText"></div>
+      
+      <div class="diagram-container" id="diagramContainer"></div>
+      
+      <div class="formula-hint">
+        <strong>Key Formulas:</strong> 
+        <br>Work: W = F × d
+        <br>Work-Energy Theorem: KE<sub>i</sub> + W<sub>net</sub> = KE<sub>f</sub>
+        <br>Kinetic Energy: KE = ½mv²
+        <br><strong>Remember:</strong> Net work = W<sub>push</sub> − W<sub>friction</sub> (when friction opposes motion)
+      </div>
+      
+      <div class="feedback-message" id="feedbackMessage" style="display: none;"></div>
+      
+      <div id="hintContainer"></div>
+      
+      <div id="answerContainer"></div>
+      
+      <div id="explanationContainer"></div>
+      
+      <div class="button-group">
+        <button class="prev-button" id="prevBtn" onclick="prevProblem()">Previous</button>
+        <button class="reset-button" onclick="resetQuiz()">Reset Quiz</button>
+        <button class="next-button" id="nextBtn" onclick="nextProblem()">Next</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const problems = [
+      {
+        id: 1,
+        type: "input",
+        question: "A 1.33-kg physics textbook is initially at rest on a steel table. The textbook is then pushed with a constant force of 4.0 N. Friction with a magnitude of 2.0 N is exerted on the moving book by the surface of the table. Determine the final velocity of the textbook after it has been pushed 0.75 meter across the table.",
+        correctAnswer: 1.5,
+        tolerance: 0.05,
+        unit: "m/s",
+        explanation: "Using the Work-Energy Theorem:\n\nGiven:\n• Mass m = 1.33 kg\n• Push force F_push = 4.0 N\n• Friction force f_k = 2.0 N\n• Distance d = 0.75 m\n• Initial velocity v_i = 0 (at rest)\n\nStep 1: Calculate work done by push force\nW_push = F_push × d = 4.0 N × 0.75 m = 3.0 J\n\nStep 2: Calculate work done by friction (negative because it opposes motion)\nW_friction = -f_k × d = -2.0 N × 0.75 m = -1.5 J\n\nStep 3: Calculate net work\nW_net = W_push + W_friction = 3.0 J + (-1.5 J) = 1.5 J\n\nStep 4: Apply Work-Energy Theorem\nKE_i + W_net = KE_f\n0 + 1.5 J = ½mv_f²\n\nStep 5: Solve for final velocity\n1.5 = ½(1.33)v_f²\n1.5 = 0.665 v_f²\nv_f² = 2.26\nv_f = 1.5 m/s",
+        hints: [
+          "The work-energy theorem states: KEi + Wnet = KEf",
+          "Since the book starts at rest, KEi = 0",
+          "Net work = Work by push − Work by friction = (4.0)(0.75) − (2.0)(0.75) = 1.5 J",
+          "Set up: 0 + 1.5 = ½(1.33)v²",
+          "Solve: v = √(2 × 1.5 / 1.33) = √2.26 ≈ 1.5 m/s"
+        ],
+        diagram: "problem1"
+      },
+      {
+        id: 2,
+        type: "multiple",
+        question: "A 1.4-kg physics textbook is initially at rest on a steel table. The textbook is then pushed with a constant force of 6.0 N. Friction with a magnitude of 3.0 N is exerted on the moving book by the surface of the table. Determine the final velocity of the textbook after it has been pushed 1.0 meter across the table.",
+        options: [
+          "A. 5.0 m/s",
+          "B. 3.9 m/s",
+          "C. 2.1 m/s",
+          "D. 1.6 m/s"
+        ],
+        correctIndex: 2,
+        explanation: "Using the Work-Energy Theorem:\n\nGiven:\n• Mass m = 1.4 kg\n• Push force F_push = 6.0 N\n• Friction force f_k = 3.0 N\n• Distance d = 1.0 m\n• Initial velocity v_i = 0 (at rest)\n\nStep 1: Calculate net force\nF_net = F_push - f_k = 6.0 N - 3.0 N = 3.0 N\n\nStep 2: Calculate net work\nW_net = F_net × d = 3.0 N × 1.0 m = 3.0 J\n\nStep 3: Apply Work-Energy Theorem\nKE_i + W_net = KE_f\n0 + 3.0 J = ½mv_f²\n\nStep 4: Solve for final velocity\n3.0 = ½(1.4)v_f²\n3.0 = 0.7 v_f²\nv_f² = 4.29\nv_f = 2.07 ≈ 2.1 m/s\n\nAnswer: C",
+        hints: [
+          "Start by finding the net force: Fnet = 6.0 N − 3.0 N = 3.0 N",
+          "Calculate net work: Wnet = (3.0 N)(1.0 m) = 3.0 J",
+          "Since book starts at rest: 0 + Wnet = ½mv²",
+          "Solve: 3.0 = ½(1.4)v², so v² = 3.0/0.7 = 4.29",
+          "v = √4.29 ≈ 2.1 m/s"
+        ],
+        diagram: "problem2"
+      },
+      {
+        id: 3,
+        type: "input",
+        question: "A 1.4-kg physics textbook is initially at rest on a steel table. The textbook is then pushed with a constant force of 3.0 N. Friction with a magnitude of 2.0 N is exerted on the moving book by the surface of the table. Determine the final velocity of the textbook after it has been pushed 3.2 meters across the table.",
+        correctAnswer: 2.1,
+        tolerance: 0.1,
+        unit: "m/s",
+        explanation: "Using the Work-Energy Theorem:\n\nGiven:\n• Mass m = 1.4 kg\n• Push force F_push = 3.0 N\n• Friction force f_k = 2.0 N\n• Distance d = 3.2 m\n• Initial velocity v_i = 0 (at rest)\n\nStep 1: Calculate net force\nF_net = F_push - f_k = 3.0 N - 2.0 N = 1.0 N\n\nStep 2: Calculate net work\nW_net = F_net × d = 1.0 N × 3.2 m = 3.2 J\n\nStep 3: Apply Work-Energy Theorem\nKE_i + W_net = KE_f\n0 + 3.2 J = ½mv_f²\n\nStep 4: Solve for final velocity\n3.2 = ½(1.4)v_f²\n3.2 = 0.7 v_f²\nv_f² = 4.57\nv_f = 2.14 ≈ 2.1 m/s",
+        hints: [
+          "Find the net force: Fnet = 3.0 N − 2.0 N = 1.0 N",
+          "Calculate net work: Wnet = (1.0 N)(3.2 m) = 3.2 J",
+          "Use work-energy theorem: 0 + Wnet = ½mv²",
+          "Set up: 3.2 = ½(1.4)v²",
+          "Solve: v = √(3.2/0.7) = √4.57 ≈ 2.1 m/s"
+        ],
+        diagram: "problem3"
+      }
+    ];
+
+    let currentProblem = 0;
+    let score = 0;
+    let answers = new Array(problems.length).fill(null);
+    let hintsShown = new Array(problems.length).fill(0);
+
+    function getDiagram(type, problemData) {
+      // Clean sketch-style diagram matching the reference image
+      return `
+        <svg width="500" height="220" viewBox="0 0 500 220">
+          <defs>
+            <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+              <polygon points="0 0, 10 3.5, 0 7" fill="#333"/>
+            </marker>
+            <marker id="arrowhead-left" markerWidth="10" markerHeight="7" refX="1" refY="3.5" orient="auto">
+              <polygon points="10 0, 0 3.5, 10 7" fill="#333"/>
+            </marker>
+          </defs>
+          
+          <!-- Table top -->
+          <line x1="30" y1="130" x2="470" y2="130" stroke="#333" stroke-width="2.5"/>
+          
+          <!-- Table edge/thickness -->
+          <path d="M 30 130 L 30 140 L 470 140 L 470 130" stroke="#333" stroke-width="2" fill="none"/>
+          
+          <!-- Table legs - angled outward -->
+          <line x1="70" y1="140" x2="50" y2="200" stroke="#333" stroke-width="2.5"/>
+          <line x1="110" y1="140" x2="90" y2="200" stroke="#333" stroke-width="2.5"/>
+          <line x1="390" y1="140" x2="410" y2="200" stroke="#333" stroke-width="2.5"/>
+          <line x1="430" y1="140" x2="450" y2="200" stroke="#333" stroke-width="2.5"/>
+          
+          <!-- Book - stacked pages look -->
+          <rect x="200" y="85" width="100" height="45" fill="#f5f5f5" stroke="#333" stroke-width="2" rx="2"/>
+          <!-- Page lines -->
+          <line x1="205" y1="95" x2="295" y2="95" stroke="#333" stroke-width="1"/>
+          <line x1="205" y1="105" x2="295" y2="105" stroke="#333" stroke-width="1"/>
+          <line x1="205" y1="115" x2="295" y2="115" stroke="#333" stroke-width="1"/>
+          <!-- Book cover top edge curve -->
+          <path d="M 200 85 Q 250 80, 300 85" stroke="#333" stroke-width="2" fill="none"/>
+          
+          <!-- F_push arrow (pointing right, into the book) -->
+          <line x1="100" y1="107" x2="195" y2="107" stroke="#333" stroke-width="2" marker-end="url(#arrowhead)"/>
+          <!-- F_push label with subscript -->
+          <text x="120" y="95" font-size="16" font-style="italic" fill="#333">F</text>
+          <text x="132" y="100" font-size="11" fill="#333">push</text>
+          
+          <!-- f_k arrow (shorter, arrowhead pointing LEFT) -->
+          <line x1="305" y1="107" x2="355" y2="107" stroke="#333" stroke-width="2" marker-start="url(#arrowhead-left)"/>
+          <!-- f_k label with subscript -->
+          <text x="360" y="100" font-size="16" font-style="italic" fill="#333">f</text>
+          <text x="369" y="105" font-size="11" fill="#333">k</text>
+          
+          <!-- d arrow (distance, below table, shorter to avoid table leg) -->
+          <line x1="300" y1="170" x2="380" y2="170" stroke="#333" stroke-width="2" marker-end="url(#arrowhead)"/>
+          <!-- d label -->
+          <text x="335" y="190" font-size="16" font-style="italic" fill="#333">d</text>
+        </svg>
+      `;
+    }
+
+    function displayProblem() {
+      const problem = problems[currentProblem];
+      
+      document.getElementById('currentNumber').textContent = currentProblem + 1;
+      document.getElementById('totalNumber').textContent = problems.length;
+      document.getElementById('score').textContent = score;
+      document.getElementById('progressFill').style.width = `${((currentProblem + 1) / problems.length) * 100}%`;
+      
+      document.getElementById('questionText').textContent = problem.question;
+      document.getElementById('diagramContainer').innerHTML = getDiagram(problem.diagram, problem);
+      
+      document.getElementById('feedbackMessage').style.display = 'none';
+      document.getElementById('explanationContainer').innerHTML = '';
+      
+      displayHints();
+      
+      const answerContainer = document.getElementById('answerContainer');
+      
+      if (answers[currentProblem] !== null) {
+        // Already answered
+        if (problem.type === "input") {
+          const isCorrect = Math.abs(answers[currentProblem] - problem.correctAnswer) <= problem.tolerance;
+          answerContainer.innerHTML = `
+            <div class="input-group">
+              <input type="text" class="answer-input ${isCorrect ? 'answered-correct' : 'answered-incorrect'}" 
+                     value="${answers[currentProblem]}" disabled>
+              <span class="unit-label">${problem.unit}</span>
+            </div>
+          `;
+          showFeedback(isCorrect);
+          showExplanation(problem.explanation);
+        } else {
+          let optionsHtml = '';
+          problem.options.forEach((opt, idx) => {
+            const isSelected = answers[currentProblem] === idx;
+            const isCorrect = idx === problem.correctIndex;
+            let className = 'option-btn';
+            if (isSelected && isCorrect) className += ' correct';
+            else if (isSelected && !isCorrect) className += ' incorrect';
+            else if (isCorrect) className += ' correct';
+            optionsHtml += `<button class="${className}" disabled>${opt}</button>`;
+          });
+          answerContainer.innerHTML = optionsHtml;
+          showFeedback(answers[currentProblem] === problem.correctIndex);
+          showExplanation(problem.explanation);
+        }
+      } else {
+        // Not answered yet
+        if (problem.type === "input") {
+          answerContainer.innerHTML = `
+            <div class="input-group">
+              <input type="text" id="answerInput" class="answer-input" placeholder="Enter answer">
+              <span class="unit-label">${problem.unit}</span>
+              <button class="submit-btn" onclick="submitInputAnswer()">Check</button>
+            </div>
+            <button class="hint-btn" onclick="showNextHint()">Show Hint</button>
+          `;
+        } else {
+          let optionsHtml = '';
+          problem.options.forEach((opt, idx) => {
+            optionsHtml += `<button class="option-btn" onclick="selectMultipleChoice(${idx})">${opt}</button>`;
+          });
+          answerContainer.innerHTML = optionsHtml + '<button class="hint-btn" onclick="showNextHint()">Show Hint</button>';
+        }
+      }
+      
+      document.getElementById('prevBtn').disabled = currentProblem === 0;
+      document.getElementById('nextBtn').disabled = currentProblem === problems.length - 1;
+    }
+
+    function showFeedback(isCorrect) {
+      const feedbackEl = document.getElementById('feedbackMessage');
+      feedbackEl.style.display = 'block';
+      if (isCorrect) {
+        feedbackEl.className = 'feedback-message feedback-correct';
+        feedbackEl.textContent = '✓ Correct! Great work!';
+      } else {
+        feedbackEl.className = 'feedback-message feedback-incorrect';
+        feedbackEl.textContent = '✗ Not quite. Review the explanation below.';
+      }
+    }
+
+    function showExplanation(text) {
+      document.getElementById('explanationContainer').innerHTML = `<div class="explanation-box">${text}</div>`;
+    }
+
+    function displayHints() {
+      const hintContainer = document.getElementById('hintContainer');
+      hintContainer.innerHTML = '';
+      const problem = problems[currentProblem];
+      
+      for (let i = 0; i < hintsShown[currentProblem]; i++) {
+        const hintDiv = document.createElement('div');
+        hintDiv.className = 'hint-text';
+        hintDiv.textContent = `Hint ${i + 1}: ${problem.hints[i]}`;
+        hintContainer.appendChild(hintDiv);
+      }
+    }
+
+    function showNextHint() {
+      const problem = problems[currentProblem];
+      if (hintsShown[currentProblem] < problem.hints.length) {
+        hintsShown[currentProblem]++;
+        displayHints();
+      }
+    }
+
+    function submitInputAnswer() {
+      const input = document.getElementById('answerInput');
+      const value = parseFloat(input.value);
+      
+      if (isNaN(value)) {
+        alert('Please enter a number');
+        return;
+      }
+      
+      const problem = problems[currentProblem];
+      answers[currentProblem] = value;
+      
+      if (Math.abs(value - problem.correctAnswer) <= problem.tolerance) {
+        score++;
+      }
+      
+      displayProblem();
+      checkCompletion();
+    }
+
+    function selectMultipleChoice(index) {
+      const problem = problems[currentProblem];
+      answers[currentProblem] = index;
+      
+      if (index === problem.correctIndex) {
+        score++;
+      }
+      
+      displayProblem();
+      checkCompletion();
+    }
+
+    function checkCompletion() {
+      if (answers.every(a => a !== null)) {
+        setTimeout(showCompletion, 1000);
+      }
+    }
+
+    function nextProblem() {
+      if (currentProblem < problems.length - 1) {
+        currentProblem++;
+        displayProblem();
+      }
+    }
+
+    function prevProblem() {
+      if (currentProblem > 0) {
+        currentProblem--;
+        displayProblem();
+      }
+    }
+
+    function showCompletion() {
+      document.getElementById('quizContent').style.display = 'none';
+      document.getElementById('completionScreen').style.display = 'block';
+      document.getElementById('finalScore').textContent = `${score}/${problems.length}`;
+    }
+
+    function resetQuiz() {
+      currentProblem = 0;
+      score = 0;
+      answers = new Array(problems.length).fill(null);
+      hintsShown = new Array(problems.length).fill(0);
+      document.getElementById('completionScreen').style.display = 'none';
+      document.getElementById('quizContent').style.display = 'block';
+      displayProblem();
+    }
+
+    // Initialize
+    displayProblem();
+  </script>
+</body>
+</html>
