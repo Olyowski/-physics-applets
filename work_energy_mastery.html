@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Work and Energy Mastery Dashboard</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 15px;
+      padding: 40px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    }
+
+    h1 {
+      color: #f5576c;
+      text-align: center;
+      margin-bottom: 30px;
+      font-size: 2.5em;
+    }
+
+    .section {
+      margin-bottom: 40px;
+      padding: 25px;
+      background: #f8f9fa;
+      border-left: 5px solid #f5576c;
+      border-radius: 10px;
+    }
+
+    .section h2 {
+      color: #333;
+      margin-bottom: 20px;
+      font-size: 1.5em;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .progress {
+      margin-bottom: 20px;
+    }
+
+    .progress > div:first-child {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 8px;
+      font-weight: bold;
+      color: #333;
+      font-size: 0.95em;
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 20px;
+      background: #e0e0e0;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #f093fb, #f5576c);
+      border-radius: 10px;
+      transition: width 0.5s ease;
+      width: 0%;
+    }
+
+    .question {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      margin-bottom: 15px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .question.completed {
+      border: 2px solid #28a745;
+      background: #f0fff4;
+    }
+
+    .question p {
+      font-size: 1.1em;
+      color: #333;
+      margin-bottom: 15px;
+      line-height: 1.5;
+    }
+
+    .options {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .option {
+      display: flex;
+      align-items: center;
+      padding: 12px 15px;
+      background: #f0f0f0;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .option:hover {
+      background: #e0e0e0;
+    }
+
+    .option input {
+      margin-right: 12px;
+      transform: scale(1.3);
+      cursor: pointer;
+    }
+
+    .option label {
+      cursor: pointer;
+      flex: 1;
+      font-size: 1em;
+    }
+
+    .option.correct {
+      background: #d4edda;
+      border: 2px solid #28a745;
+    }
+
+    .option.incorrect {
+      background: #f8d7da;
+      border: 2px solid #dc3545;
+    }
+
+    .check-btn {
+      background: linear-gradient(90deg, #f093fb, #f5576c);
+      color: white;
+      border: none;
+      padding: 12px 30px;
+      border-radius: 25px;
+      font-size: 1em;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 15px;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .check-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 20px rgba(245, 87, 108, 0.4);
+    }
+
+    .check-btn:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    .feedback {
+      margin-top: 15px;
+      padding: 15px;
+      border-radius: 8px;
+      display: none;
+      font-weight: 500;
+    }
+
+    .feedback.show {
+      display: block;
+    }
+
+    .feedback.correct {
+      background: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+    }
+
+    .feedback.incorrect {
+      background: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+    }
+
+    .attempts {
+      margin-top: 10px;
+      font-size: 0.9em;
+      color: #666;
+    }
+
+    .mastery-celebration {
+      display: none;
+      text-align: center;
+      padding: 40px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border-radius: 15px;
+      color: white;
+      margin-bottom: 30px;
+    }
+
+    .mastery-celebration.show {
+      display: block;
+      animation: celebrate 0.5s ease;
+    }
+
+    @keyframes celebrate {
+      0% { transform: scale(0.8); opacity: 0; }
+      50% { transform: scale(1.05); }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    .mastery-celebration h2 {
+      font-size: 2.5em;
+      margin-bottom: 15px;
+    }
+
+    .mastery-celebration p {
+      font-size: 1.2em;
+      margin-bottom: 10px;
+    }
+
+    .formula-box {
+      background: #fff3cd;
+      border: 1px solid #ffc107;
+      border-radius: 8px;
+      padding: 12px;
+      margin-bottom: 15px;
+      font-family: 'Courier New', monospace;
+      text-align: center;
+      font-size: 1.1em;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>⚡ Classifying Work and Energy</h1>
+
+    <div class="mastery-celebration" id="masteryCelebration">
+      <h2>🎉 MASTERY ACHIEVED!</h2>
+      <p>You've completed all sections of this unit!</p>
+      <p>Excellent understanding of work, energy, and power!</p>
+      <p>🌟 Ready for advanced applications!</p>
+    </div>
+
+    <!-- Section 1: Conceptual Understanding -->
+    <div class="section">
+      <h2>🧠 Conceptual Understanding</h2>
+      <div class="progress">
+        <div>
+          <span>Progress: <span id="prog1">0</span>/4</span>
+          <span id="pct1">0%</span>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-fill" id="fill1"></div>
+        </div>
+      </div>
+
+      <!-- Q1 -->
+      <div class="question" id="q1">
+        <p><strong>1.</strong> A person carrying a box lets it go and it falls to the ground. Is work being done on the box when it falls?</p>
+        <div class="options">
+          <div class="option">
+            <input type="radio" name="q1" id="q1a" value="0">
+            <label for="q1a">No, because the box is just falling on its own</label>
+          </div>
+          <div class="option">
+            <input type="radio" name="q1" id="q1b" value="1">
+            <label for="q1b">Yes, because the force due to gravity (external to the system) changes the kinetic energy of the box</label>
+          </div>
+          <div class="option">
+            <input type="radio" name="q1" id="q1c" value="2">
+            <label for="q1c">No, because there is no applied force from a person</label>
+          </div>
+          <div class="option">
+            <input type="radio" name="q1" id="q1d" value="3">
+            <label for="q1d">Yes, but only if the box is heavy</label>
+          </div>
+        </div>
+        <button class="check-btn" onclick="checkAnswer(1, 1, ['Incorrect. Just because no person is pushing doesn\'t mean no work is done!', 'Correct! Gravity is an external force that does work on the box, changing its kinetic energy as it falls.', 'Incorrect. Forces don\'t have to come from people—gravity is an external force doing work here.', 'Incorrect. Mass affects the amount of work, but work is done regardless of the box\'s weight.'])">Check Answer</button>
+        <div class="feedback" id="fb1"></div>
+        <div class="attempts" id="att1"></div>
+      </div>
+
+      <!-- Q2 -->
+      <div class="question" id="q2">
+        <p><strong>2.</strong> Which of the following is an example of positive work?</p>
+        <div class="options">
+          <div class="option">
+            <input type="radio" name="q2" id="q2a" value="0">
+            <label for="q2a">Friction slowing down a sliding box</label>
+          </div>
+          <div class="option">
+            <input type="radio" name="q2" id="q2b" value="1">
+            <label for="q2b">A duck floating along the water surface</label>
+          </div>
+          <div class="option">
+            <input type="radio" name="q2" id="q2c" value="2">
+            <label for="q2c">Kicking a ball (force and displacement in the same direction)</label>
+          </div>
+          <div class="option">
+            <input type="radio" name="q2" id="q2d" value="3">
+            <label for="q2d">Brakes stopping a car</label>
+          </div>
+        </div>
+        <button class="check-btn" onclick="checkAnswer(2, 2, ['Incorrect. Friction opposes motion, so force and displacement are in opposite directions—that\'s negative work.', 'Incorrect. The duck floating has force (gravity) perpendicular to displacement—that\'s zero work.', 'Correct! Positive work occurs when force and displacement are in the same direction.', 'Incorrect. Braking force opposes the car\'s motion—that\'s negative work.'])">Check Answer</button>
+        <div class="feedback" id="fb2"></div>
+        <div class="attempts" id="att2"></div>
+      </div>
+
+      <!-- Q3 -->
+      <div class="question" id="q3">
+        <p><strong>3.</strong> Which is an example of zero work being done?</p>
+        <div class="options">
+          <div class="option">
+            <input type="radio" name="q3" id="q3a" value="0">
+            <label for="q3a">A person pushing a cart forward</label>
+          </div>
+          <div class="option">
+            <input type="radio" name="q3" id="q3b" value="1">
+            <label for="q3b">The force of gravity on a duck floating horizontally along water</label>
+          </div>
+          <div class="option">
+            <input type="radio" name="q3" id="q3c" value="2">
+            <label for="q3c">A ball rolling downhill</label>
+          </div>
+          <div class="option">
+            <input type="radio" name="q3" id="q3d" value="3">
+            <label for="q3d">Friction slowing a hockey puck</label>
+          </div>
+        </div>
+        <button class="check-btn" onclick="checkAnswer(3, 1, ['Incorrect. Pushing in the direction of motion is positive work.', 'Correct! When force (gravity, downward) is perpendicular to displacement (horizontal), W = Fd cos(90°) = 0.', 'Incorrect. Gravity has a component in the direction of motion, so work is done.', 'Incorrect. Friction opposes motion—that\'s negative work, not zero.'])">Check Answer</button>
+        <div class="feedback" id="fb3"></div>
+        <div class="attempts" id="att3"></div>
+      </div>
+
+      <!-- Q4 -->
+      <div class="question" id="q4">
+        <p><strong>4.</strong> According to the work equation W = Fd cos θ, only the component of force acting in which direction contributes to work?</p>
+        <div class="options">
+          <div class="option">
+            <input type="radio" name="q4" id="q4a" value="0">
+            <label for="q4a">Perpendicular to the motion</label>
+          </div>
+          <div class="option">
+            <input type="radio" name="q4" id="q4b" value="1">
+            <label for="q4b">In the direction of motion</label>
+          </div>
+          <div class="option">
+            <input type="radio" name="q4" id="q4c" value="2">
+            <label for="q4c">Opposite to the motion</label>
+          </div>
+          <div class="option">
+            <input type="radio" name="q4" id="q4d" value="3">
+            <label for="q4d">At any angle to the motion</label>
+          </div>
+        </div>
+        <button class="check-btn" onclick="checkAnswer(4, 1, ['Incorrect. Perpendicular components (cos 90° = 0) contribute zero work.', 'Correct! Only F cos θ—the component parallel to displacement—does useful work.', 'Incorrect. Opposite direction gives negative work, but the question asks what contributes to work calculation.', 'Incorrect. The cos θ term specifically extracts the parallel component.'])">Check Answer</button>
+        <div class="feedback" id="fb4"></div>
+        <div class="attempts" id="att4"></div>
+      </div>
+    </div>
+
+    <!-- Section 2: Power Concepts -->
+    <div class="section">
+      <h2>⚡ Power Concepts</h2>
+      <div class="progress">
+        <div>
+          <span>Progress: <span id="prog2">0</span>/3</span>
+          <span id="pct2">0%</span>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-fill" id="fill2"></div>
+        </div>
+      </div>
+
+      <!-- Q5 -->
+      <div class="question" id="q5">
+        <div class="formula-box">P = W / Δt</div>
+        <p><strong>5.</strong> What are three ways to increase the power of a broom stroke?</p>
+        <div class="options">
+          <div class="option">
+            <input type="radio" name="q5" id="q5a" value="0">
+            <label for="q5a">Use more force, push over a longer distance, or reduce the time for each stroke</label>
+          </div>
+          <div class="option">
+            <input type="radio" name="q5" id="q5b" value="1">
+            <label for="q5b">Use less force, push over a shorter distance, or increase the time</label>
+          </div>
+          <div class="option">
+            <input type="radio" name="q5" id="q5c" value="2">
+            <label for="q5c">Only increasing force affects power</label>
+          </div>
+          <div class="option">
+            <input type="radio" name="q5" id="q5d" value="3">
+            <label for="q5d">Power cannot be changed for sweeping motions</label>
+          </div>
+        </div>
+        <button class="check-btn" onclick="checkAnswer(5, 0, ['Correct! P = W/Δt, and W = Fd. More force or distance increases W; less time increases P directly.', 'Incorrect. These would all decrease power, not increase it.', 'Incorrect. Force, distance, and time all affect power.', 'Incorrect. Power can always be changed by modifying force, distance, or time.'])">Check Answer</button>
+        <div class="feedback" id="fb5"></div>
+        <div class="attempts" id="att5"></div>
+      </div>
+
+      <!-- Q6 -->
+      <div class="question" id="q6">
+        <p><strong>6.</strong> According to the power equation, if the amount of work stays the same, will increasing the amount of time increase or decrease power?</p>
+        <div class="options">
+          <div class="option">
+            <input type="radio" name="q6" id="q6a" value="0">
+            <label for="q6a">Increase power</label>
+          </div>
+          <div class="option">
+            <input type="radio" name="q6" id="q6b" value="1">
+            <label for="q6b">Decrease power</label>
+          </div>
+          <div class="option">
+            <input type="radio" name="q6" id="q6c" value="2">
+            <label for="q6c">Power stays the same</label>
+          </div>
+          <div class="option">
+            <input type="radio" name="q6" id="q6d" value="3">
+            <label for="q6d">It depends on the force used</label>
+          </div>
+        </div>
+        <button class="check-btn" onclick="checkAnswer(6, 1, ['Incorrect. Time is in the denominator of P = W/Δt.', 'Correct! Since P = W/Δt, increasing time (denominator) while keeping W constant decreases power.', 'Incorrect. Power depends on time—they are inversely related.', 'Incorrect. If work is constant, only time affects power in this scenario.'])">Check Answer</button>
+        <div class="feedback" id="fb6"></div>
+        <div class="attempts" id="att6"></div>
+      </div>
+
+      <!-- Q7 -->
+      <div class="question" id="q7">
+        <p><strong>7.</strong> Two students lift identical boxes to the same height. Student A takes 2 seconds; Student B takes 4 seconds. Compare their power outputs.</p>
+        <div class="options">
+          <div class="option">
+            <input type="radio" name="q7" id="q7a" value="0">
+            <label for="q7a">Student A has twice the power of Student B</label>
+          </div>
+          <div class="option">
+            <input type="radio" name="q7" id="q7b" value="1">
+            <label for="q7b">Student B has twice the power of Student A</label>
+          </div>
+          <div class="option">
+            <input type="radio" name="q7" id="q7c" value="2">
+            <label for="q7c">Both have equal power</label>
+          </div>
+          <div class="option">
+            <input type="radio" name="q7" id="q7d" value="3">
+            <label for="q7d">Cannot determine without knowing the mass</label>
+          </div>
+        </div>
+        <button class="check-btn" onclick="checkAnswer(7, 0, ['Correct! Same work, half the time = twice the power. P = W/Δt, so Student A has 2× the power.', 'Incorrect. Less time means more power, not less.', 'Incorrect. Same work in different times means different power outputs.', 'Incorrect. Since both boxes are identical and lifted to the same height, the work is equal—we can compare power.'])">Check Answer</button>
+        <div class="feedback" id="fb7"></div>
+        <div class="attempts" id="att7"></div>
+      </div>
+    </div>
+
+    <!-- Section 3: Work-Energy Theorem -->
+    <div class="section">
+      <h2>📊 Work-Energy Theorem</h2>
+      <div class="progress">
+        <div>
+          <span>Progress: <span id="prog3">0</span>/3</span>
+          <span id="pct3">0%</span>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-fill" id="fill3"></div>
+        </div>
+      </div>
+
+      <!-- Q8 -->
+      <div class="question" id="q8">
+        <div class="formula-box">W<sub>total</sub> = ΔKE = KE<sub>f</sub> − KE<sub>i</sub></div>
+        <p><strong>8.</strong> According to the Work-Energy Theorem, increasing the final kinetic energy will only increase the total work done under what condition?</p>
+        <div class="options">
+          <div class="option">
+            <input type="radio" name="q8" id="q8a" value="0">
+            <label for="q8a">When the initial kinetic energy decreases</label>
+          </div>
+          <div class="option">
+            <input type="radio" name="q8" id="q8b" value="1">
+            <label for="q8b">When the initial kinetic energy has not also increased by the same amount</label>
+          </div>
+          <div class="option">
+            <input type="radio" name="q8" id="q8c" value="2">
+            <label for="q8c">When friction is present</label>
+          </div>
+          <div class="option">
+            <input type="radio" name="q8" id="q8d" value="3">
+            <label for="q8d">Always—increasing KE<sub>f</sub> always increases work</label>
+          </div>
+        </div>
+        <button class="check-btn" onclick="checkAnswer(8, 1, ['Incorrect. This would increase work, but it\'s not the only condition.', 'Correct! W = KE_f − KE_i, so if both increase equally, ΔKE (and thus W) stays the same.', 'Incorrect. Friction affects work, but doesn\'t determine this relationship.', 'Incorrect. If KE_i increases by the same amount, the change (ΔKE) stays constant.'])">Check Answer</button>
+        <div class="feedback" id="fb8"></div>
+        <div class="attempts" id="att8"></div>
+      </div>
+
+      <!-- Q9 -->
+      <div class="question" id="q9">
+        <p><strong>9.</strong> Which scenario will have the greatest amount of total work done on the system? (Assume all roller coasters have the same mass.)</p>
+        <div class="options">
+          <div class="option">
+            <input type="radio" name="q9" id="q9a" value="0">
+            <label for="q9a">A roller coaster going from 20 m/s to 35 m/s</label>
+          </div>
+          <div class="option">
+            <input type="radio" name="q9" id="q9b" value="1">
+            <label for="q9b">A roller coaster going from 35 m/s to 20 m/s</label>
+          </div>
+          <div class="option">
+            <input type="radio" name="q9" id="q9c" value="2">
+            <label for="q9c">A roller coaster going from 40 m/s to 50 m/s</label>
+          </div>
+          <div class="option">
+            <input type="radio" name="q9" id="q9d" value="3">
+            <label for="q9d">A roller coaster going from 50 m/s to 40 m/s</label>
+          </div>
+        </div>
+        <button class="check-btn" onclick="checkAnswer(9, 2, ['Incorrect. ΔKE ∝ (35² − 20²) = 1225 − 400 = 825 units.', 'Incorrect. This gives negative work (slowing down): (20² − 35²) = −825 units.', 'Correct! ΔKE ∝ (50² − 40²) = 2500 − 1600 = 900 units—the largest positive change!', 'Incorrect. This gives negative work: (40² − 50²) = −900 units.'])">Check Answer</button>
+        <div class="feedback" id="fb9"></div>
+        <div class="attempts" id="att9"></div>
+      </div>
+
+      <!-- Q10 -->
+      <div class="question" id="q10">
+        <p><strong>10.</strong> A car's brakes bring it to a complete stop. On an energy bar chart, how would the work done by brakes be represented?</p>
+        <div class="options">
+          <div class="option">
+            <input type="radio" name="q10" id="q10a" value="0">
+            <label for="q10a">A positive bar equal to the initial KE</label>
+          </div>
+          <div class="option">
+            <input type="radio" name="q10" id="q10b" value="1">
+            <label for="q10b">A negative bar equal in magnitude to the initial KE</label>
+          </div>
+          <div class="option">
+            <input type="radio" name="q10" id="q10c" value="2">
+            <label for="q10c">No bar—brakes don't do work</label>
+          </div>
+          <div class="option">
+            <input type="radio" name="q10" id="q10d" value="3">
+            <label for="q10d">A bar pointing both up and down</label>
+          </div>
+        </div>
+        <button class="check-btn" onclick="checkAnswer(10, 1, ['Incorrect. Brakes oppose motion, so their work is negative.', 'Correct! KE_i + W = KE_f. If KE_f = 0, then W = −KE_i (negative work removes all kinetic energy).', 'Incorrect. Brakes definitely do work—they remove kinetic energy from the system.', 'Incorrect. Work has a single sign (positive or negative).'])">Check Answer</button>
+        <div class="feedback" id="fb10"></div>
+        <div class="attempts" id="att10"></div>
+      </div>
+    </div>
+
+    <!-- Section 4: Calculations -->
+    <div class="section">
+      <h2>🔢 Skills Practice Calculations</h2>
+      <div class="progress">
+        <div>
+          <span>Progress: <span id="prog4">0</span>/3</span>
+          <span id="pct4">0%</span>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-fill" id="fill4"></div>
+        </div>
+      </div>
+
+      <!-- Q11 -->
+      <div class="question" id="q11">
+        <p><strong>11.</strong> A 1.04-kg binder at rest is pushed with 4.2 N while friction exerts 1.8 N. After being pushed 0.70 m, what is the final velocity?</p>
+        <div class="formula-box">KE<sub>i</sub> + W<sub>push</sub> + W<sub>friction</sub> = KE<sub>f</sub></div>
+        <p><em>Hint: Net work = (4.2 − 1.8) × 0.70 = 1.68 J. Then use KE = ½mv²</em></p>
+        <div class="options">
+          <div class="option">
+            <input type="radio" name="q11" id="q11a" value="0">
+            <label for="q11a">0.9 m/s</label>
+          </div>
+          <div class="option">
+            <input type="radio" name="q11" id="q11b" value="1">
+            <label for="q11b">1.8 m/s</label>
+          </div>
+          <div class="option">
+            <input type="radio" name="q11" id="q11c" value="2">
+            <label for="q11c">2.4 m/s</label>
+          </div>
+          <div class="option">
+            <input type="radio" name="q11" id="q11d" value="3">
+            <label for="q11d">3.2 m/s</label>
+          </div>
+        </div>
+        <button class="check-btn" onclick="checkAnswer(11, 1, ['Incorrect. Check your calculation: W_net = 1.68 J, then v = √(2W/m).', 'Correct! W_net = 2.4×0.70 = 1.68 J. v = √(2×1.68/1.04) = √3.23 ≈ 1.8 m/s', 'Incorrect. Make sure you\'re using the net force (4.2 − 1.8 = 2.4 N).', 'Incorrect. Double-check your algebra when solving for v.'])">Check Answer</button>
+        <div class="feedback" id="fb11"></div>
+        <div class="attempts" id="att11"></div>
+      </div>
+
+      <!-- Q12 -->
+      <div class="question" id="q12">
+        <p><strong>12.</strong> A 0.05-kg foosball at rest is pushed with 8.3 N while friction exerts 0.5 N. After being pushed 0.20 m, what is the final velocity?</p>
+        <p><em>Hint: Net work = (8.3 − 0.5) × 0.20 J. Then solve ½mv² = W_net for v.</em></p>
+        <div class="options">
+          <div class="option">
+            <input type="radio" name="q12" id="q12a" value="0">
+            <label for="q12a">5.6 m/s</label>
+          </div>
+          <div class="option">
+            <input type="radio" name="q12" id="q12b" value="1">
+            <label for="q12b">7.9 m/s</label>
+          </div>
+          <div class="option">
+            <input type="radio" name="q12" id="q12c" value="2">
+            <label for="q12c">9.2 m/s</label>
+          </div>
+          <div class="option">
+            <input type="radio" name="q12" id="q12d" value="3">
+            <label for="q12d">12.4 m/s</label>
+          </div>
+        </div>
+        <button class="check-btn" onclick="checkAnswer(12, 1, ['Incorrect. W_net = 7.8 × 0.20 = 1.56 J. Then v = √(2×1.56/0.05).', 'Correct! W_net = 1.56 J. v = √(2×1.56/0.05) = √62.4 ≈ 7.9 m/s', 'Incorrect. Check your net force calculation.', 'Incorrect. Make sure you\'re using the correct mass (0.05 kg).'])">Check Answer</button>
+        <div class="feedback" id="fb12"></div>
+        <div class="attempts" id="att12"></div>
+      </div>
+
+      <!-- Q13 -->
+      <div class="question" id="q13">
+        <p><strong>13.</strong> A 2.08-kg dinner platter at rest is pushed with 2.6 N while friction exerts 1.04 N. After being pushed 0.30 m, what is the final velocity?</p>
+        <div class="options">
+          <div class="option">
+            <input type="radio" name="q13" id="q13a" value="0">
+            <label for="q13a">−3.3 m/s</label>
+          </div>
+          <div class="option">
+            <input type="radio" name="q13" id="q13b" value="1">
+            <label for="q13b">−0.7 m/s</label>
+          </div>
+          <div class="option">
+            <input type="radio" name="q13" id="q13c" value="2">
+            <label for="q13c">0.7 m/s</label>
+          </div>
+          <div class="option">
+            <input type="radio" name="q13" id="q13d" value="3">
+            <label for="q13d">3.3 m/s</label>
+          </div>
+        </div>
+        <button class="check-btn" onclick="checkAnswer(13, 2, ['Incorrect. Velocity magnitude is positive; also check your calculation.', 'Incorrect. Velocity is positive since the object moves in the positive direction.', 'Correct! W_net = (2.6−1.04)×0.30 = 0.468 J. v = √(2×0.468/2.08) = √0.45 ≈ 0.7 m/s', 'Incorrect. Check your calculation—the numbers give a smaller velocity.'])">Check Answer</button>
+        <div class="feedback" id="fb13"></div>
+        <div class="attempts" id="att13"></div>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    const sectionConfig = {
+      1: { total: 4, questions: [1, 2, 3, 4] },
+      2: { total: 3, questions: [5, 6, 7] },
+      3: { total: 3, questions: [8, 9, 10] },
+      4: { total: 3, questions: [11, 12, 13] }
+    };
+
+    const completed = {};
+    const attempts = {};
+
+    function checkAnswer(qNum, correctIdx, feedback) {
+      const selected = document.querySelector(`input[name="q${qNum}"]:checked`);
+      if (!selected) {
+        alert('Please select an answer!');
+        return;
+      }
+
+      if (completed[qNum]) return;
+
+      const selectedIdx = parseInt(selected.value);
+      const feedbackDiv = document.getElementById(`fb${qNum}`);
+      const attemptsDiv = document.getElementById(`att${qNum}`);
+      const questionDiv = document.getElementById(`q${qNum}`);
+      const options = questionDiv.querySelectorAll('.option');
+
+      attempts[qNum] = (attempts[qNum] || 0) + 1;
+      const attemptNum = attempts[qNum];
+
+      if (selectedIdx === correctIdx) {
+        feedbackDiv.className = 'feedback show correct';
+        feedbackDiv.textContent = feedback[selectedIdx];
+        attemptsDiv.textContent = `✓ Completed in ${attemptNum} attempt${attemptNum > 1 ? 's' : ''}`;
+        
+        options[selectedIdx].classList.add('correct');
+        completed[qNum] = true;
+        questionDiv.classList.add('completed');
+        questionDiv.querySelector('.check-btn').disabled = true;
+        
+        updateProgress();
+      } else {
+        feedbackDiv.className = 'feedback show incorrect';
+        feedbackDiv.textContent = feedback[selectedIdx];
+        attemptsDiv.textContent = `Attempts: ${attemptNum}`;
+        options[selectedIdx].classList.add('incorrect');
+        
+        setTimeout(() => {
+          options[selectedIdx].classList.remove('incorrect');
+        }, 1500);
+      }
+    }
+
+    function updateProgress() {
+      let totalCompleted = 0;
+      const totalQuestions = 13;
+
+      for (let section = 1; section <= 4; section++) {
+        const config = sectionConfig[section];
+        let sectionCompleted = 0;
+        
+        config.questions.forEach(q => {
+          if (completed[q]) sectionCompleted++;
+        });
+
+        totalCompleted += sectionCompleted;
+        const pct = Math.round((sectionCompleted / config.total) * 100);
+        
+        document.getElementById(`prog${section}`).textContent = sectionCompleted;
+        document.getElementById(`pct${section}`).textContent = `${pct}%`;
+        document.getElementById(`fill${section}`).style.width = `${pct}%`;
+      }
+
+      if (totalCompleted === totalQuestions) {
+        document.getElementById('masteryCelebration').classList.add('show');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    }
+  </script>
+</body>
+</html>
