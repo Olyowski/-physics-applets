@@ -1,0 +1,1184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Collision Problems - Identify & Solve</title>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-gradient-1: #1a1a2e;
+      --bg-gradient-2: #16213e;
+      --bg-gradient-3: #0f3460;
+      --accent-cyan: #00f5d4;
+      --accent-pink: #e94560;
+      --accent-yellow: #f1c40f;
+      --accent-orange: #ff6b35;
+      --accent-blue: #3498db;
+      --card-bg: rgba(255,255,255,0.04);
+      --card-border: rgba(255,255,255,0.1);
+      --text-primary: #ffffff;
+      --text-secondary: rgba(255,255,255,0.7);
+      --success: #00f5d4;
+      --error: #e94560;
+      --warning: #f1c40f;
+    }
+    
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    
+    body {
+      font-family: 'Outfit', sans-serif;
+      background: linear-gradient(135deg, var(--bg-gradient-1) 0%, var(--bg-gradient-2) 50%, var(--bg-gradient-3) 100%);
+      min-height: 100vh;
+      color: var(--text-primary);
+      overflow-x: hidden;
+    }
+    
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+    
+    header {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+    
+    h1 {
+      font-size: 2.5rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, var(--accent-cyan), var(--accent-blue));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 0.5rem;
+    }
+    
+    .subtitle {
+      color: var(--text-secondary);
+      font-size: 1.1rem;
+    }
+    
+    .stats-bar {
+      display: flex;
+      justify-content: center;
+      gap: 2rem;
+      margin-bottom: 2rem;
+      flex-wrap: wrap;
+    }
+    
+    .stat {
+      text-align: center;
+      padding: 1rem 1.5rem;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+    }
+    
+    .stat-value {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: var(--accent-cyan);
+    }
+    
+    .stat-label {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    
+    .level-badge {
+      display: inline-block;
+      padding: 0.4rem 1rem;
+      border-radius: 20px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    
+    .level-easy { background: #27ae60; }
+    .level-medium { background: #f39c12; }
+    .level-hard { background: #e74c3c; }
+    
+    .problem-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 20px;
+      padding: 2rem;
+      margin-bottom: 1.5rem;
+      backdrop-filter: blur(10px);
+    }
+    
+    .problem-number {
+      font-size: 0.9rem;
+      color: var(--accent-cyan);
+      margin-bottom: 1rem;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+    }
+    
+    .problem-text {
+      font-size: 1.15rem;
+      line-height: 1.7;
+      margin-bottom: 1.5rem;
+    }
+    
+    .problem-text strong {
+      color: var(--accent-yellow);
+    }
+    
+    /* Step indicators */
+    .step-indicator {
+      display: flex;
+      justify-content: center;
+      gap: 0.5rem;
+      margin-bottom: 1.5rem;
+    }
+    
+    .step {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: var(--card-border);
+      transition: all 0.3s;
+    }
+    
+    .step.active {
+      background: var(--accent-cyan);
+      box-shadow: 0 0 10px var(--accent-cyan);
+    }
+    
+    .step.complete {
+      background: var(--success);
+    }
+    
+    /* Collision type selection */
+    .type-selection {
+      margin-bottom: 1.5rem;
+    }
+    
+    .type-selection h3 {
+      font-size: 1rem;
+      color: var(--text-secondary);
+      margin-bottom: 1rem;
+      text-align: center;
+    }
+    
+    .type-buttons {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1rem;
+    }
+    
+    .type-btn {
+      padding: 1rem;
+      border: 2px solid var(--card-border);
+      border-radius: 12px;
+      background: transparent;
+      color: var(--text-primary);
+      font-family: 'Outfit', sans-serif;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all 0.3s;
+      text-align: left;
+    }
+    
+    .type-btn:hover {
+      border-color: var(--accent-cyan);
+      background: rgba(0, 245, 212, 0.1);
+    }
+    
+    .type-btn.selected {
+      border-color: var(--accent-cyan);
+      background: rgba(0, 245, 212, 0.15);
+    }
+    
+    .type-btn.correct {
+      border-color: var(--success);
+      background: rgba(0, 245, 212, 0.2);
+    }
+    
+    .type-btn.incorrect {
+      border-color: var(--error);
+      background: rgba(233, 69, 96, 0.2);
+    }
+    
+    .type-name {
+      font-weight: 600;
+      margin-bottom: 0.3rem;
+    }
+    
+    .type-desc {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+    }
+    
+    /* Formula display */
+    .formula-section {
+      display: none;
+      background: rgba(52, 152, 219, 0.15);
+      border: 1px solid var(--accent-blue);
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+      text-align: center;
+    }
+    
+    .formula-section.visible {
+      display: block;
+      animation: slideIn 0.4s ease-out;
+    }
+    
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .formula-label {
+      font-size: 0.9rem;
+      color: var(--accent-blue);
+      margin-bottom: 0.5rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    
+    .formula {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1.4rem;
+      color: var(--text-primary);
+    }
+    
+    /* Answer section */
+    .answer-section {
+      display: none;
+      margin-top: 1.5rem;
+    }
+    
+    .answer-section.visible {
+      display: block;
+      animation: slideIn 0.4s ease-out;
+    }
+    
+    .input-group {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    
+    .answer-input {
+      width: 200px;
+      padding: 1rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1.2rem;
+      border: 2px solid var(--card-border);
+      border-radius: 10px;
+      background: rgba(0,0,0,0.3);
+      color: var(--text-primary);
+      text-align: center;
+    }
+    
+    .answer-input:focus {
+      outline: none;
+      border-color: var(--accent-cyan);
+    }
+    
+    .unit-label {
+      font-size: 1.1rem;
+      color: var(--text-secondary);
+    }
+    
+    .btn {
+      padding: 0.8rem 2rem;
+      border: none;
+      border-radius: 10px;
+      font-family: 'Outfit', sans-serif;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent-cyan), var(--accent-blue));
+      color: #000;
+    }
+    
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 20px rgba(0, 245, 212, 0.3);
+    }
+    
+    .btn-secondary {
+      background: var(--card-bg);
+      color: var(--text-primary);
+      border: 1px solid var(--card-border);
+    }
+    
+    /* Feedback */
+    .feedback {
+      margin-top: 1.5rem;
+      padding: 1.5rem;
+      border-radius: 12px;
+      display: none;
+    }
+    
+    .feedback.visible {
+      display: block;
+      animation: slideIn 0.3s ease-out;
+    }
+    
+    .feedback-correct {
+      background: rgba(0, 245, 212, 0.15);
+      border: 1px solid var(--success);
+    }
+    
+    .feedback-incorrect {
+      background: rgba(233, 69, 96, 0.15);
+      border: 1px solid var(--error);
+    }
+    
+    .feedback-title {
+      font-weight: 700;
+      font-size: 1.1rem;
+      margin-bottom: 0.5rem;
+    }
+    
+    .feedback-correct .feedback-title { color: var(--success); }
+    .feedback-incorrect .feedback-title { color: var(--error); }
+    
+    .sig-fig-hint {
+      margin-top: 1rem;
+      padding: 1rem;
+      background: rgba(241, 196, 15, 0.15);
+      border: 1px solid var(--warning);
+      border-radius: 8px;
+      font-size: 0.9rem;
+      display: none;
+    }
+    
+    .sig-fig-hint.visible {
+      display: block;
+    }
+    
+    .work-shown {
+      margin-top: 1rem;
+      padding: 1rem;
+      background: rgba(0,0,0,0.2);
+      border-radius: 8px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+    }
+    
+    .next-btn-container {
+      text-align: center;
+      margin-top: 1.5rem;
+      display: none;
+    }
+    
+    .next-btn-container.visible {
+      display: block;
+    }
+    
+    /* Mastery screen */
+    .mastery-screen {
+      display: none;
+      text-align: center;
+      padding: 3rem;
+    }
+    
+    .mastery-card {
+      background: var(--card-bg);
+      border: 2px solid var(--accent-cyan);
+      border-radius: 24px;
+      padding: 3rem;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .mastery-card::before {
+      content: '';
+      position: absolute;
+      top: -50%; left: -50%;
+      width: 200%; height: 200%;
+      background: conic-gradient(from 0deg, transparent, var(--accent-cyan), transparent, var(--accent-blue), transparent);
+      animation: rotate 4s linear infinite;
+      opacity: 0.1;
+      pointer-events: none;
+    }
+    
+    @keyframes rotate {
+      to { transform: rotate(360deg); }
+    }
+    
+    .trophy {
+      font-size: 5rem;
+      margin-bottom: 1rem;
+    }
+    
+    .mastery-title {
+      font-size: 2.5rem;
+      font-weight: 800;
+      margin-bottom: 1rem;
+      background: linear-gradient(135deg, var(--accent-cyan), var(--accent-yellow));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    
+    .mastery-stats {
+      display: flex;
+      justify-content: center;
+      gap: 3rem;
+      margin: 2rem 0;
+    }
+    
+    .mastery-stat {
+      text-align: center;
+    }
+    
+    .mastery-stat-value {
+      font-size: 3rem;
+      font-weight: 700;
+      color: var(--accent-cyan);
+    }
+    
+    .mastery-stat-label {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+    }
+    
+    .name-input-section {
+      margin: 2rem 0;
+      position: relative;
+      z-index: 10;
+    }
+    
+    .name-input {
+      padding: 1rem 2rem;
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.2rem;
+      border: 2px solid var(--card-border);
+      border-radius: 10px;
+      background: rgba(0,0,0,0.5);
+      color: var(--text-primary);
+      text-align: center;
+      width: 300px;
+      position: relative;
+      z-index: 10;
+    }
+    
+    .timestamp {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      margin-top: 1rem;
+    }
+    
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>💥 Collision Problems</h1>
+      <p class="subtitle">Identify the type → See the formula → Solve</p>
+    </header>
+    
+    <div class="stats-bar">
+      <div class="stat">
+        <div class="stat-value" id="correct-count">0</div>
+        <div class="stat-label">Correct</div>
+      </div>
+      <div class="stat">
+        <div class="stat-value" id="problem-progress">1/12</div>
+        <div class="stat-label">Progress</div>
+      </div>
+      <div class="stat">
+        <span class="level-badge level-easy" id="level-badge">Easy</span>
+        <div class="stat-label" style="margin-top: 0.5rem;">Level</div>
+      </div>
+      <div class="stat">
+        <div class="stat-value" id="streak">0</div>
+        <div class="stat-label">Streak</div>
+      </div>
+    </div>
+    
+    <div id="quiz-section">
+      <div class="problem-card">
+        <div class="problem-number" id="problem-number">Problem 1</div>
+        
+        <div class="step-indicator">
+          <div class="step active" id="step1"></div>
+          <div class="step" id="step2"></div>
+          <div class="step" id="step3"></div>
+        </div>
+        
+        <div class="problem-text" id="problem-text"></div>
+        
+        <!-- Step 1: Identify collision type -->
+        <div class="type-selection" id="type-selection">
+          <h3>Step 1: What type of collision is this?</h3>
+          <div class="type-buttons">
+            <button class="type-btn" data-type="inelastic" onclick="selectType(this)">
+              <div class="type-name">Inelastic</div>
+              <div class="type-desc">Objects stick together after collision</div>
+            </button>
+            <button class="type-btn" data-type="elastic" onclick="selectType(this)">
+              <div class="type-name">Elastic</div>
+              <div class="type-desc">Objects bounce off each other</div>
+            </button>
+          </div>
+          <div style="text-align: center; margin-top: 1rem;">
+            <button class="btn btn-primary" id="check-type-btn" onclick="checkType()" disabled>Check Type</button>
+          </div>
+        </div>
+        
+        <!-- Step 2: Show formula -->
+        <div class="formula-section" id="formula-section">
+          <div class="formula-label">Formula for this collision:</div>
+          <div class="formula" id="formula-display"></div>
+        </div>
+        
+        <!-- Step 3: Answer -->
+        <div class="answer-section" id="answer-section">
+          <h3 style="text-align: center; margin-bottom: 1rem; color: var(--text-secondary);">Step 3: Solve for the final velocity</h3>
+          <div class="input-group">
+            <input type="number" class="answer-input" id="answer-input" placeholder="Answer" step="any">
+            <span class="unit-label" id="unit-label">m/s</span>
+            <button class="btn btn-primary" id="check-answer-btn" onclick="checkAnswer()">Check</button>
+          </div>
+        </div>
+        
+        <!-- Feedback -->
+        <div class="feedback" id="feedback">
+          <div class="feedback-title" id="feedback-title"></div>
+          <div class="feedback-text" id="feedback-text"></div>
+          <div class="work-shown" id="work-shown"></div>
+          <div class="sig-fig-hint" id="sig-fig-hint"></div>
+        </div>
+        
+        <div class="next-btn-container" id="next-btn-container">
+          <button class="btn btn-primary" onclick="nextProblem()">Next Problem →</button>
+        </div>
+      </div>
+    </div>
+    
+    <div class="mastery-screen" id="mastery-screen">
+      <div class="mastery-card">
+        <div class="trophy">🏆</div>
+        <div class="mastery-title">Assessment Complete!</div>
+        <div class="mastery-stats">
+          <div class="mastery-stat">
+            <div class="mastery-stat-value"><span id="final-correct">0</span>/<span id="final-total">12</span></div>
+            <div class="mastery-stat-label">Score</div>
+          </div>
+          <div class="mastery-stat">
+            <div class="mastery-stat-value" id="final-streak">0</div>
+            <div class="mastery-stat-label">Best Streak</div>
+          </div>
+        </div>
+        <div class="name-input-section">
+          <input type="text" class="name-input" id="student-name" placeholder="Enter your name">
+        </div>
+        <div class="timestamp" id="timestamp"></div>
+      </div>
+    </div>
+  </div>
+
+<script>
+// ============ STATE ============
+let problemIndex = 0;
+let correctCount = 0;
+let streak = 0;
+let bestStreak = 0;
+let currentLevel = 'easy';
+let totalProblems = 12;
+let currentProblem = null;
+let selectedType = null;
+let typeCorrect = false;
+let answered = false;
+
+// ============ HELPERS ============
+function randomInt(min, max) {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+function randomDecimal(min, max, decimals) {
+  const val = Math.random() * (max - min) + min;
+  return parseFloat(val.toFixed(decimals));
+}
+
+function roundToSigFigs(num, sigFigs) {
+  if (num === 0) return 0;
+  const magnitude = Math.floor(Math.log10(Math.abs(num)));
+  const factor = Math.pow(10, sigFigs - magnitude - 1);
+  return Math.round(num * factor) / factor;
+}
+
+function countSigFigs(num) {
+  const str = num.toString().replace('-', '');
+  if (str.includes('.')) {
+    const parts = str.split('.');
+    if (parts[0] === '0') {
+      return parts[1].replace(/^0+/, '').length;
+    }
+    return parts[0].length + parts[1].length;
+  }
+  return str.replace(/0+$/, '').length || 1;
+}
+
+// ============ PROBLEM GENERATORS ============
+const problems = {
+  easy: [
+    // Perfectly inelastic - objects stick together
+    function() {
+      const m1 = randomInt(1000, 2000);
+      const v1 = randomInt(15, 30);
+      const m2 = randomInt(800, 1500);
+      const v2 = randomInt(10, 25);
+      const vf = (m1 * v1 + m2 * v2) / (m1 + m2);
+      
+      return {
+        text: `A <strong>${m1} kg</strong> car moving at <strong>${v1} m/s</strong> rear-ends a <strong>${m2} kg</strong> car moving at <strong>${v2} m/s</strong> in the same direction. The bumpers lock and they move together. What is their combined velocity?`,
+        type: 'inelastic',
+        formula: 'm<sub>1</sub>v<sub>1</sub> + m<sub>2</sub>v<sub>2</sub> = (m<sub>1</sub> + m<sub>2</sub>)v<sub>f</sub>',
+        answer: roundToSigFigs(vf, 2),
+        sigFigs: 2,
+        work: `(${m1})(${v1}) + (${m2})(${v2}) = (${m1} + ${m2})v_f → v_f = ${roundToSigFigs(vf, 2)} m/s`,
+        feedback: {
+          correct: `Correct! Since they stick together: v_f = (m₁v₁ + m₂v₂)/(m₁ + m₂) = ${roundToSigFigs(vf, 2)} m/s`,
+          wrongValue: `Use conservation of momentum: m₁v₁ + m₂v₂ = (m₁ + m₂)v_f. Solve for v_f.`
+        }
+      };
+    },
+    
+    // Perfectly inelastic - one stationary
+    function() {
+      const m1 = randomInt(2000, 3000);
+      const v1 = randomInt(8, 15);
+      const m2 = randomInt(1000, 1500);
+      const vf = (m1 * v1) / (m1 + m2);
+      
+      return {
+        text: `A <strong>${m1} kg</strong> truck moving at <strong>${v1} m/s</strong> hits a stationary <strong>${m2} kg</strong> car. They lock bumpers and move together. What is their combined velocity?`,
+        type: 'inelastic',
+        formula: 'm<sub>1</sub>v<sub>1</sub> + m<sub>2</sub>v<sub>2</sub> = (m<sub>1</sub> + m<sub>2</sub>)v<sub>f</sub>',
+        answer: roundToSigFigs(vf, 2),
+        sigFigs: 2,
+        work: `(${m1})(${v1}) + (${m2})(0) = (${m1} + ${m2})v_f → v_f = ${roundToSigFigs(vf, 2)} m/s`,
+        feedback: {
+          correct: `Correct! With one object at rest: v_f = m₁v₁/(m₁ + m₂) = ${roundToSigFigs(vf, 2)} m/s`,
+          wrongValue: `The car is stationary, so v₂ = 0. Use: v_f = m₁v₁/(m₁ + m₂)`
+        }
+      };
+    },
+    
+    // Perfectly inelastic - train cars
+    function() {
+      const m = randomInt(2000, 3500);
+      const v1 = randomInt(15, 30);
+      const vf = v1 / 2;
+      
+      return {
+        text: `A <strong>${m} kg</strong> train car moving at <strong>${v1} m/s</strong> couples with an identical stationary car. What is their combined velocity?`,
+        type: 'inelastic',
+        formula: 'm<sub>1</sub>v<sub>1</sub> + m<sub>2</sub>v<sub>2</sub> = (m<sub>1</sub> + m<sub>2</sub>)v<sub>f</sub>',
+        answer: roundToSigFigs(vf, 2),
+        sigFigs: 2,
+        work: `(${m})(${v1}) + (${m})(0) = (2 × ${m})v_f → v_f = ${v1}/2 = ${roundToSigFigs(vf, 2)} m/s`,
+        feedback: {
+          correct: `Correct! Equal masses, one at rest → final velocity is half the initial: ${roundToSigFigs(vf, 2)} m/s`,
+          wrongValue: `With equal masses and one at rest: v_f = v₁/2`
+        }
+      };
+    },
+    
+    // Perfectly inelastic - fisherman jumps into boat
+    function() {
+      const mPerson = randomInt(70, 95);
+      const mBoat = randomInt(100, 150);
+      const vPerson = randomDecimal(3, 5, 1);
+      const vf = (mPerson * vPerson) / (mPerson + mBoat);
+      
+      return {
+        text: `A <strong>${mPerson} kg</strong> fisherman jumps from a dock into a stationary <strong>${mBoat} kg</strong> rowboat at <strong>${vPerson} m/s</strong>. What is the final velocity of the fisherman and boat together?`,
+        type: 'inelastic',
+        formula: 'm<sub>1</sub>v<sub>1</sub> + m<sub>2</sub>v<sub>2</sub> = (m<sub>1</sub> + m<sub>2</sub>)v<sub>f</sub>',
+        answer: roundToSigFigs(vf, 2),
+        sigFigs: 2,
+        work: `(${mPerson})(${vPerson}) + (${mBoat})(0) = (${mPerson + mBoat})v_f → v_f = ${roundToSigFigs(vf, 2)} m/s`,
+        feedback: {
+          correct: `Correct! The fisherman lands in the boat and they move together at ${roundToSigFigs(vf, 2)} m/s`,
+          wrongValue: `Fisherman has momentum, boat is at rest. They stick together after.`
+        }
+      };
+    }
+  ],
+  
+  medium: [
+    // Elastic - football player and referee
+    function() {
+      const m1 = randomInt(90, 120);
+      const v1 = randomInt(6, 10);
+      const m2 = randomInt(70, 90);
+      const v2f = randomInt(4, 6);
+      const p1i = m1 * v1;
+      const p2f = m2 * v2f;
+      const p1f = p1i - p2f;
+      const v1f = p1f / m1;
+      
+      return {
+        text: `A <strong>${m1} kg</strong> football player runs at <strong>${v1} m/s</strong> and collides with an <strong>${m2} kg</strong> referee standing still. After the collision, the referee flies forward at <strong>${v2f} m/s</strong>. What is the football player's velocity after the collision?`,
+        type: 'elastic',
+        formula: 'm<sub>1</sub>v<sub>1</sub> + m<sub>2</sub>v<sub>2</sub> = m<sub>1</sub>v<sub>1</sub>&#8242; + m<sub>2</sub>v<sub>2</sub>&#8242;',
+        answer: roundToSigFigs(v1f, 2),
+        sigFigs: 2,
+        work: `(${m1})(${v1}) + (${m2})(0) = (${m1})v₁_f + (${m2})(${v2f}) → v₁_f = ${roundToSigFigs(v1f, 2)} m/s`,
+        feedback: {
+          correct: `Correct! Using conservation: ${p1i} = ${m1}v₁_f + ${p2f} → v₁_f = ${roundToSigFigs(v1f, 2)} m/s`,
+          wrongValue: `Total momentum before = Total momentum after. Solve for the player's final velocity.`
+        }
+      };
+    },
+    
+    // Elastic - bumper cars (given final velocity of one)
+    function() {
+      const m1 = randomInt(350, 400);
+      const v1 = randomInt(10, 15);
+      const m2 = randomInt(150, 200);
+      const v1f = randomDecimal(3, 6, 1);
+      const v2f = (m1 * v1 - m1 * v1f) / m2;
+      
+      return {
+        text: `A <strong>${m1} kg</strong> bumper car (with riders) traveling at <strong>${v1} m/s</strong> hits a stationary <strong>${m2} kg</strong> bumper car. After the collision, the first car continues at <strong>${v1f} m/s</strong>. How fast is the second car moving?`,
+        type: 'elastic',
+        formula: 'm<sub>1</sub>v<sub>1</sub> + m<sub>2</sub>v<sub>2</sub> = m<sub>1</sub>v<sub>1</sub>&#8242; + m<sub>2</sub>v<sub>2</sub>&#8242;',
+        answer: roundToSigFigs(v2f, 2),
+        sigFigs: 2,
+        work: `(${m1})(${v1}) + 0 = (${m1})(${v1f}) + (${m2})v₂_f → v₂_f = ${roundToSigFigs(v2f, 2)} m/s`,
+        feedback: {
+          correct: `Correct! Momentum conserved: v₂_f = (m₁v₁ᵢ - m₁v₁_f)/m₂ = ${roundToSigFigs(v2f, 2)} m/s`,
+          wrongValue: `Use conservation of momentum. You know both masses and three of the four velocities.`
+        }
+      };
+    },
+    
+    // Elastic - ball bounces back
+    function() {
+      const m1 = randomDecimal(0.4, 0.8, 2);
+      const v1 = randomInt(15, 25);
+      const m2 = randomDecimal(0.6, 1.2, 2);
+      const v1f = -randomInt(3, 6);
+      const v2f = (m1 * v1 + m1 * Math.abs(v1f)) / m2;
+      
+      return {
+        text: `A <strong>${m1} kg</strong> ball moving at <strong>${v1} m/s</strong> hits a <strong>${m2} kg</strong> bottle at rest. The ball bounces back at <strong>${Math.abs(v1f)} m/s</strong>. How fast does the bottle move forward?`,
+        type: 'elastic',
+        formula: 'm<sub>1</sub>v<sub>1</sub> + m<sub>2</sub>v<sub>2</sub> = m<sub>1</sub>v<sub>1</sub>&#8242; + m<sub>2</sub>v<sub>2</sub>&#8242;',
+        answer: roundToSigFigs(v2f, 2),
+        sigFigs: 2,
+        work: `(${m1})(${v1}) + 0 = (${m1})(${v1f}) + (${m2})v₂_f → v₂_f = ${roundToSigFigs(v2f, 2)} m/s`,
+        feedback: {
+          correct: `Correct! Ball bouncing back means v₁_f is negative. v₂_f = ${roundToSigFigs(v2f, 2)} m/s`,
+          wrongValue: `Remember: ball bouncing BACK means negative velocity. Watch your signs!`
+        }
+      };
+    },
+    
+    // Inelastic - sports car and truck
+    function() {
+      const m1 = randomInt(900, 1400);
+      const v1 = randomDecimal(10, 15, 1);
+      const m2 = randomInt(2500, 4000);
+      const v2 = randomDecimal(20, 28, 1);
+      const vf = (m1 * v1 + m2 * v2) / (m1 + m2);
+      
+      return {
+        text: `A <strong>${m1} kg</strong> sports car slows to <strong>${v1} m/s</strong> to check out an accident. A <strong>${m2} kg</strong> truck behind it continues at <strong>${v2} m/s</strong> and rear-ends it. If their bumpers lock, what is their combined velocity?`,
+        type: 'inelastic',
+        formula: 'm<sub>1</sub>v<sub>1</sub> + m<sub>2</sub>v<sub>2</sub> = (m<sub>1</sub> + m<sub>2</sub>)v<sub>f</sub>',
+        answer: roundToSigFigs(vf, 2),
+        sigFigs: 2,
+        work: `(${m1})(${v1}) + (${m2})(${v2}) = (${m1 + m2})v_f → v_f = ${roundToSigFigs(vf, 2)} m/s`,
+        feedback: {
+          correct: `Correct! Combined velocity = ${roundToSigFigs(vf, 2)} m/s`,
+          wrongValue: `Both objects moving same direction. Add their momenta, divide by total mass.`
+        }
+      };
+    }
+  ],
+  
+  hard: [
+    // Complex inelastic - moose and train
+    function() {
+      const mMoose = randomInt(500, 700);
+      const mTrain = randomInt(10000, 15000);
+      const vTrain = randomDecimal(12, 18, 1);
+      const vf = (mTrain * vTrain) / (mMoose + mTrain);
+      
+      return {
+        text: `A <strong>${mMoose} kg</strong> moose stands frozen on the tracks as an <strong>${mTrain} kg</strong> locomotive traveling at <strong>${vTrain} m/s</strong> hits it. The moose lands on the cowcatcher and rides along. What is the new velocity?`,
+        type: 'inelastic',
+        formula: 'm<sub>1</sub>v<sub>1</sub> + m<sub>2</sub>v<sub>2</sub> = (m<sub>1</sub> + m<sub>2</sub>)v<sub>f</sub>',
+        answer: roundToSigFigs(vf, 3),
+        sigFigs: 3,
+        work: `(${mTrain})(${vTrain}) + (${mMoose})(0) = (${mTrain + mMoose})v_f → v_f = ${roundToSigFigs(vf, 3)} m/s`,
+        feedback: {
+          correct: `Correct! The massive train barely slows: ${roundToSigFigs(vf, 3)} m/s`,
+          wrongValue: `Moose is stationary (v = 0). They stick together after collision.`
+        }
+      };
+    },
+    
+    // Reverse engineering - find impact speed
+    function() {
+      const mJet = randomInt(18000, 20000);
+      const mWall = randomInt(450000, 500000);
+      const vf = randomDecimal(7, 10, 2);
+      const vJet = ((mJet + mWall) * vf) / mJet;
+      
+      return {
+        text: `In a nuclear safety test, an <strong>${mJet} kg</strong> F-4 Phantom crashes into a <strong>${mWall} kg</strong> concrete wall on an air cushion. They move together at <strong>${vf} m/s</strong> after impact. What was the jet's speed before impact?`,
+        type: 'inelastic',
+        formula: 'm<sub>1</sub>v<sub>1</sub> + m<sub>2</sub>v<sub>2</sub> = (m<sub>1</sub> + m<sub>2</sub>)v<sub>f</sub>',
+        answer: roundToSigFigs(vJet, 3),
+        sigFigs: 3,
+        work: `(${mJet})v₁ + 0 = (${mJet + mWall})(${vf}) → v₁ = ${roundToSigFigs(vJet, 3)} m/s`,
+        feedback: {
+          correct: `Correct! Working backwards: v₁ = (m_total × v_f)/m_jet = ${roundToSigFigs(vJet, 3)} m/s`,
+          wrongValue: `Rearrange the momentum equation to solve for v₁: v₁ = (m₁ + m₂)v_f / m₁`
+        }
+      };
+    },
+    
+    // Elastic - rollerskating collision
+    function() {
+      const m1 = randomInt(70, 85);
+      const v1 = randomDecimal(3, 5, 1);
+      const m2 = randomInt(55, 70);
+      const v2 = randomDecimal(5, 7, 1);
+      const vf = (m1 * v1 + m2 * v2) / (m1 + m2);
+      
+      return {
+        text: `<strong>${m1} kg</strong> Anthony rollerskates at <strong>${v1} m/s</strong> when <strong>${m2} kg</strong> Sissy jumps into his arms moving <strong>${v2} m/s</strong> in the same direction. How fast do they roll together?`,
+        type: 'inelastic',
+        formula: 'm<sub>1</sub>v<sub>1</sub> + m<sub>2</sub>v<sub>2</sub> = (m<sub>1</sub> + m<sub>2</sub>)v<sub>f</sub>',
+        answer: roundToSigFigs(vf, 2),
+        sigFigs: 2,
+        work: `(${m1})(${v1}) + (${m2})(${v2}) = (${m1 + m2})v_f → v_f = ${roundToSigFigs(vf, 2)} m/s`,
+        feedback: {
+          correct: `Correct! They roll together at ${roundToSigFigs(vf, 2)} m/s`,
+          wrongValue: `Both moving same direction, then stick together. Add momenta, divide by total mass.`
+        }
+      };
+    },
+    
+    // Inelastic - football throw and catch
+    function() {
+      const mBall = randomDecimal(0.15, 0.25, 2);
+      const vBall = randomInt(18, 28);
+      const mReceiver = randomInt(75, 95);
+      const vf = (mBall * vBall) / (mBall + mReceiver);
+      
+      return {
+        text: `Tyrrell throws a <strong>${mBall} kg</strong> football at <strong>${vBall} m/s</strong>. A stationary <strong>${mReceiver} kg</strong> receiver catches and holds onto the ball. How fast does the receiver move backward?`,
+        type: 'inelastic',
+        formula: 'm<sub>1</sub>v<sub>1</sub> + m<sub>2</sub>v<sub>2</sub> = (m<sub>1</sub> + m<sub>2</sub>)v<sub>f</sub>',
+        answer: roundToSigFigs(vf, 2),
+        sigFigs: 2,
+        work: `(${mBall})(${vBall}) + (${mReceiver})(0) = (${mBall} + ${mReceiver})v_f → v_f = ${roundToSigFigs(vf, 2)} m/s`,
+        feedback: {
+          correct: `Correct! Receiver barely moves: ${roundToSigFigs(vf, 2)} m/s (mass difference is huge!)`,
+          wrongValue: `Ball has momentum, receiver is at rest. They move together after the catch.`
+        }
+      };
+    },
+    
+    // Bowling ball and pin
+    function() {
+      const mBall = randomDecimal(6.5, 8, 1);
+      const vBall = randomDecimal(8, 12, 1);
+      const mPin = randomDecimal(1.5, 2.5, 1);
+      const vPin = randomDecimal(12, 16, 1);
+      const vBallFinal = (mBall * vBall - mPin * vPin) / mBall;
+      
+      return {
+        text: `A <strong>${mBall} kg</strong> bowling ball moving at <strong>${vBall} m/s</strong> hits a <strong>${mPin} kg</strong> pin at rest. The pin flies forward at <strong>${vPin} m/s</strong>. What is the ball's new velocity?`,
+        type: 'elastic',
+        formula: 'm<sub>1</sub>v<sub>1</sub> + m<sub>2</sub>v<sub>2</sub> = m<sub>1</sub>v<sub>1</sub>&#8242; + m<sub>2</sub>v<sub>2</sub>&#8242;',
+        answer: roundToSigFigs(vBallFinal, 2),
+        sigFigs: 2,
+        work: `(${mBall})(${vBall}) + 0 = (${mBall})v₁_f + (${mPin})(${vPin}) → v₁_f = ${roundToSigFigs(vBallFinal, 2)} m/s`,
+        feedback: {
+          correct: `Correct! Ball slows to ${roundToSigFigs(vBallFinal, 2)} m/s after transferring momentum to pin.`,
+          wrongValue: `Solve: m_ball × v_ball_initial = m_ball × v_ball_final + m_pin × v_pin`
+        }
+      };
+    },
+    
+    // Bullfighter and bull
+    function() {
+      const mMiguel = randomInt(65, 80);
+      const vMiguel = randomDecimal(3.5, 5, 2);
+      const mBull = randomInt(500, 650);
+      const vBull = randomDecimal(10, 14, 1);
+      // They're moving toward each other, so opposite signs
+      const vf = (mBull * vBull - mMiguel * vMiguel) / (mMiguel + mBull);
+      
+      return {
+        text: `Miguel (<strong>${mMiguel} kg</strong>) runs toward an angry bull at <strong>${vMiguel} m/s</strong>. The <strong>${mBull} kg</strong> bull charges at <strong>${vBull} m/s</strong> toward Miguel. Miguel jumps on the bull's back. What is their combined velocity? (Take bull's direction as positive)`,
+        type: 'inelastic',
+        formula: 'm<sub>1</sub>v<sub>1</sub> + m<sub>2</sub>v<sub>2</sub> = (m<sub>1</sub> + m<sub>2</sub>)v<sub>f</sub>',
+        answer: roundToSigFigs(vf, 2),
+        sigFigs: 2,
+        work: `(${mBull})(${vBull}) + (${mMiguel})(-${vMiguel}) = (${mBull + mMiguel})v_f → v_f = ${roundToSigFigs(vf, 2)} m/s`,
+        feedback: {
+          correct: `Correct! Bull's momentum dominates: ${roundToSigFigs(vf, 2)} m/s in bull's original direction.`,
+          wrongValue: `Opposite directions = opposite signs! Bull positive, Miguel negative (or vice versa).`
+        }
+      };
+    }
+  ]
+};
+
+let lastProblemIndex = { easy: -1, medium: -1, hard: -1 };
+let usedProblems = { easy: [], medium: [], hard: [] };
+
+// ============ DISPLAY ============
+function displayProblem() {
+  // Fixed progression: problems 1-4 easy, 5-8 medium, 9-12 hard
+  if (problemIndex < 4) {
+    currentLevel = 'easy';
+  } else if (problemIndex < 8) {
+    currentLevel = 'medium';
+  } else {
+    currentLevel = 'hard';
+  }
+  
+  const levelProblems = problems[currentLevel];
+  
+  // Pick a problem we haven't used yet at this level
+  let problemIdx;
+  let attempts = 0;
+  do {
+    problemIdx = Math.floor(Math.random() * levelProblems.length);
+    attempts++;
+  } while (usedProblems[currentLevel].includes(problemIdx) && attempts < 20);
+  
+  usedProblems[currentLevel].push(problemIdx);
+  const generator = levelProblems[problemIdx];
+  currentProblem = generator();
+  
+  // Reset state
+  selectedType = null;
+  typeCorrect = false;
+  answered = false;
+  
+  // Update display
+  document.getElementById('problem-number').textContent = `Problem ${problemIndex + 1}`;
+  document.getElementById('problem-progress').textContent = `${problemIndex + 1}/${totalProblems}`;
+  document.getElementById('problem-text').innerHTML = currentProblem.text;
+  
+  // Update level badge
+  const badge = document.getElementById('level-badge');
+  badge.textContent = currentLevel.charAt(0).toUpperCase() + currentLevel.slice(1);
+  badge.className = `level-badge level-${currentLevel}`;
+  
+  // Reset steps
+  document.getElementById('step1').className = 'step active';
+  document.getElementById('step2').className = 'step';
+  document.getElementById('step3').className = 'step';
+  
+  // Reset UI
+  document.getElementById('type-selection').style.display = 'block';
+  document.getElementById('formula-section').classList.remove('visible');
+  document.getElementById('answer-section').classList.remove('visible');
+  document.getElementById('feedback').classList.remove('visible');
+  document.getElementById('next-btn-container').classList.remove('visible');
+  document.getElementById('check-type-btn').disabled = true;
+  
+  // Reset type buttons
+  document.querySelectorAll('.type-btn').forEach(btn => {
+    btn.classList.remove('selected', 'correct', 'incorrect');
+  });
+  
+  // Clear inputs
+  document.getElementById('answer-input').value = '';
+}
+
+function selectType(btn) {
+  document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  selectedType = btn.dataset.type;
+  document.getElementById('check-type-btn').disabled = false;
+}
+
+function checkType() {
+  const buttons = document.querySelectorAll('.type-btn');
+  
+  if (selectedType === currentProblem.type) {
+    typeCorrect = true;
+    buttons.forEach(btn => {
+      if (btn.dataset.type === currentProblem.type) {
+        btn.classList.add('correct');
+      }
+    });
+    
+    // Show formula and move to step 2
+    document.getElementById('step1').className = 'step complete';
+    document.getElementById('step2').className = 'step active';
+    
+    document.getElementById('formula-display').innerHTML = currentProblem.formula;
+    document.getElementById('formula-section').classList.add('visible');
+    
+    // Hide type selection, show answer section
+    document.getElementById('type-selection').style.display = 'none';
+    document.getElementById('answer-section').classList.add('visible');
+    
+    setTimeout(() => {
+      document.getElementById('answer-input').focus();
+    }, 300);
+    
+  } else {
+    buttons.forEach(btn => {
+      if (btn.dataset.type === selectedType) {
+        btn.classList.add('incorrect');
+      }
+      if (btn.dataset.type === currentProblem.type) {
+        btn.classList.add('correct');
+      }
+    });
+    
+    // Show correct type and formula anyway
+    setTimeout(() => {
+      document.getElementById('step1').className = 'step complete';
+      document.getElementById('step2').className = 'step active';
+      
+      document.getElementById('formula-display').innerHTML = currentProblem.formula;
+      document.getElementById('formula-section').classList.add('visible');
+      
+      document.getElementById('type-selection').style.display = 'none';
+      document.getElementById('answer-section').classList.add('visible');
+      
+      setTimeout(() => {
+        document.getElementById('answer-input').focus();
+      }, 300);
+    }, 1500);
+  }
+}
+
+function checkAnswer() {
+  if (answered) return;
+  
+  const userInput = document.getElementById('answer-input').value.trim();
+  const userAnswer = parseFloat(userInput);
+  
+  if (isNaN(userAnswer)) {
+    showFeedback(false, 'Please enter a valid number.');
+    return;
+  }
+  
+  answered = true;
+  document.getElementById('step2').className = 'step complete';
+  document.getElementById('step3').className = 'step complete';
+  
+  const correctAnswer = currentProblem.answer;
+  const tolerance = Math.max(Math.abs(correctAnswer) * 0.05, 0.1);
+  const isExactMatch = Math.abs(userAnswer - correctAnswer) <= tolerance;
+  
+  // Check if value is correct but sig figs wrong
+  const roundedUser = roundToSigFigs(userAnswer, currentProblem.sigFigs);
+  const isSigFigIssue = !isExactMatch && Math.abs(roundedUser - correctAnswer) < tolerance;
+  
+  if (isExactMatch || isSigFigIssue) {
+    handleCorrect();
+    showFeedback(true, currentProblem.feedback.correct, isSigFigIssue);
+  } else {
+    handleIncorrect();
+    showFeedback(false, currentProblem.feedback.wrongValue);
+  }
+  
+  // Show work
+  document.getElementById('work-shown').innerHTML = `<strong>Solution:</strong> ${currentProblem.work}`;
+  
+  document.getElementById('next-btn-container').classList.add('visible');
+  updateStats();
+}
+
+function showFeedback(isCorrect, message, showSigFigHint = false) {
+  const feedback = document.getElementById('feedback');
+  const feedbackTitle = document.getElementById('feedback-title');
+  const feedbackText = document.getElementById('feedback-text');
+  const sigFigHint = document.getElementById('sig-fig-hint');
+  
+  feedback.classList.add('visible');
+  feedback.classList.remove('feedback-correct', 'feedback-incorrect');
+  feedback.classList.add(isCorrect ? 'feedback-correct' : 'feedback-incorrect');
+  
+  feedbackTitle.innerHTML = isCorrect ? '✓ Correct!' : '✗ Not Quite';
+  feedbackText.textContent = message;
+  
+  if (showSigFigHint) {
+    sigFigHint.classList.add('visible');
+    sigFigHint.innerHTML = `<strong>Sig Fig Note:</strong> Great physics! Round to ${currentProblem.sigFigs} sig figs → ${currentProblem.answer}`;
+  } else {
+    sigFigHint.classList.remove('visible');
+  }
+}
+
+function handleCorrect() {
+  correctCount++;
+  streak++;
+  if (streak > bestStreak) bestStreak = streak;
+}
+
+function handleIncorrect() {
+  streak = 0;
+}
+
+function updateStats() {
+  document.getElementById('correct-count').textContent = correctCount;
+  document.getElementById('streak').textContent = streak;
+}
+
+function nextProblem() {
+  problemIndex++;
+  
+  if (problemIndex >= totalProblems) {
+    showMastery();
+  } else {
+    displayProblem();
+  }
+}
+
+function showMastery() {
+  document.getElementById('quiz-section').classList.add('hidden');
+  document.getElementById('mastery-screen').style.display = 'block';
+  
+  document.getElementById('final-correct').textContent = correctCount;
+  document.getElementById('final-total').textContent = totalProblems;
+  document.getElementById('final-streak').textContent = bestStreak;
+  
+  const now = new Date();
+  document.getElementById('timestamp').textContent = `Completed: ${now.toLocaleDateString()} at ${now.toLocaleTimeString()}`;
+}
+
+// ============ INITIALIZE ============
+document.addEventListener('DOMContentLoaded', () => {
+  displayProblem();
+  
+  document.getElementById('answer-input').addEventListener('keypress', (e) => {
+    if (e.key === 'Enter' && !answered) {
+      checkAnswer();
+    }
+  });
+});
+</script>
+</body>
+</html>
