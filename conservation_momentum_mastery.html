@@ -1,0 +1,1088 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Conservation of Momentum Mastery Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-gradient-1: #1a1a2e;
+      --bg-gradient-2: #16213e;
+      --bg-gradient-3: #0f3460;
+      --accent-cyan: #00f5d4;
+      --accent-pink: #e94560;
+      --accent-yellow: #f1c40f;
+      --accent-orange: #ff6b35;
+      --accent-blue: #3498db;
+      --accent-purple: #9b59b6;
+      --card-bg: rgba(255,255,255,0.04);
+      --card-border: rgba(255,255,255,0.1);
+      --text-primary: #ffffff;
+      --text-secondary: rgba(255,255,255,0.7);
+      --success: #00f5d4;
+      --error: #e94560;
+    }
+    
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    
+    body {
+      font-family: 'Outfit', sans-serif;
+      background: linear-gradient(135deg, var(--bg-gradient-1) 0%, var(--bg-gradient-2) 50%, var(--bg-gradient-3) 100%);
+      min-height: 100vh;
+      color: var(--text-primary);
+      overflow-x: hidden;
+    }
+    
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+    
+    header {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+    
+    h1 {
+      font-size: 2.5rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, var(--accent-cyan), var(--accent-blue));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 0.5rem;
+    }
+    
+    .subtitle {
+      color: var(--text-secondary);
+      font-size: 1.1rem;
+    }
+    
+    /* Progress Dashboard */
+    .progress-dashboard {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+    
+    .progress-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 1rem;
+      text-align: center;
+    }
+    
+    .progress-card h3 {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      margin-bottom: 0.5rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    
+    .progress-bar-container {
+      width: 100%;
+      height: 8px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 4px;
+      overflow: hidden;
+      margin-bottom: 0.5rem;
+    }
+    
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent-cyan), var(--accent-blue));
+      border-radius: 4px;
+      transition: width 0.5s ease;
+      width: 0%;
+    }
+    
+    .progress-text {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--accent-cyan);
+    }
+    
+    /* Section styling */
+    .section {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 2rem;
+      margin-bottom: 2rem;
+    }
+    
+    .section h2 {
+      font-size: 1.5rem;
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    
+    .section-icon {
+      font-size: 1.5rem;
+    }
+    
+    /* Question styling */
+    .question-container {
+      background: rgba(255,255,255,0.02);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+      transition: all 0.3s ease;
+    }
+    
+    .question-container.completed {
+      border-color: var(--success);
+      background: rgba(0, 245, 212, 0.05);
+    }
+    
+    .question-text {
+      font-size: 1.1rem;
+      margin-bottom: 1rem;
+      line-height: 1.6;
+    }
+    
+    .options {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+    
+    .option {
+      display: flex;
+      align-items: center;
+      padding: 1rem;
+      background: rgba(255,255,255,0.03);
+      border: 2px solid var(--card-border);
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    
+    .option:hover {
+      background: rgba(255,255,255,0.08);
+      border-color: var(--accent-cyan);
+    }
+    
+    .option.selected {
+      border-color: var(--accent-blue);
+      background: rgba(52, 152, 219, 0.15);
+    }
+    
+    .option.correct {
+      border-color: var(--success);
+      background: rgba(0, 245, 212, 0.15);
+    }
+    
+    .option.incorrect {
+      border-color: var(--error);
+      background: rgba(233, 69, 96, 0.15);
+    }
+    
+    .option input[type="radio"] {
+      display: none;
+    }
+    
+    .option-label {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      width: 100%;
+      cursor: pointer;
+    }
+    
+    .option-marker {
+      width: 28px;
+      height: 28px;
+      border: 2px solid var(--card-border);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: 0.85rem;
+      flex-shrink: 0;
+      transition: all 0.2s ease;
+    }
+    
+    .option.selected .option-marker {
+      border-color: var(--accent-blue);
+      background: var(--accent-blue);
+      color: white;
+    }
+    
+    .option.correct .option-marker {
+      border-color: var(--success);
+      background: var(--success);
+      color: var(--bg-gradient-1);
+    }
+    
+    .option.incorrect .option-marker {
+      border-color: var(--error);
+      background: var(--error);
+      color: white;
+    }
+    
+    .check-btn {
+      margin-top: 1rem;
+      padding: 0.75rem 2rem;
+      background: linear-gradient(135deg, var(--accent-cyan), var(--accent-blue));
+      border: none;
+      border-radius: 8px;
+      color: var(--bg-gradient-1);
+      font-family: 'Outfit', sans-serif;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    
+    .check-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(0, 245, 212, 0.3);
+    }
+    
+    .check-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+    
+    .feedback {
+      margin-top: 1rem;
+      padding: 1rem;
+      border-radius: 8px;
+      display: none;
+      animation: fadeIn 0.3s ease;
+    }
+    
+    .feedback.show {
+      display: block;
+    }
+    
+    .feedback.correct {
+      background: rgba(0, 245, 212, 0.1);
+      border: 1px solid var(--success);
+      color: var(--success);
+    }
+    
+    .feedback.incorrect {
+      background: rgba(233, 69, 96, 0.1);
+      border: 1px solid var(--error);
+      color: var(--error);
+    }
+    
+    .attempts {
+      margin-top: 0.5rem;
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    /* Mastery Celebration */
+    #masteryCelebration {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.9);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+      animation: fadeIn 0.5s ease;
+    }
+    
+    #masteryCelebration.show {
+      display: flex;
+    }
+    
+    .mastery-content {
+      text-align: center;
+      padding: 3rem;
+      background: linear-gradient(135deg, var(--bg-gradient-2), var(--bg-gradient-3));
+      border: 2px solid var(--accent-cyan);
+      border-radius: 24px;
+      max-width: 500px;
+      margin: 1rem;
+    }
+    
+    .mastery-content h2 {
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+      background: linear-gradient(135deg, var(--accent-cyan), var(--accent-yellow));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    
+    .mastery-content p {
+      font-size: 1.2rem;
+      margin-bottom: 1.5rem;
+      color: var(--text-secondary);
+    }
+    
+    .mastery-stats {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+    
+    .mastery-stat {
+      background: var(--card-bg);
+      padding: 1rem;
+      border-radius: 12px;
+    }
+    
+    .mastery-stat-value {
+      font-size: 2rem;
+      font-weight: 800;
+      color: var(--accent-cyan);
+    }
+    
+    .mastery-stat-label {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+    }
+    
+    .timestamp {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      margin-top: 1rem;
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+      h1 { font-size: 1.8rem; }
+      .container { padding: 1rem; }
+      .section { padding: 1.5rem; }
+      .progress-dashboard { grid-template-columns: repeat(2, 1fr); }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>🚗 Conservation of Momentum</h1>
+      <p class="subtitle">Savvas Physics - Experience 2 | Investigation 8: Collisions</p>
+    </header>
+    
+    <!-- Progress Dashboard -->
+    <div class="progress-dashboard">
+      <div class="progress-card">
+        <h3>🧠 Conceptual</h3>
+        <div class="progress-bar-container">
+          <div class="progress-fill" id="fill1"></div>
+        </div>
+        <span class="progress-text"><span id="prog1">0</span>/4</span>
+      </div>
+      <div class="progress-card">
+        <h3>🔬 Systems & Impulse</h3>
+        <div class="progress-bar-container">
+          <div class="progress-fill" id="fill2"></div>
+        </div>
+        <span class="progress-text"><span id="prog2">0</span>/3</span>
+      </div>
+      <div class="progress-card">
+        <h3>🔢 Skills Practice</h3>
+        <div class="progress-bar-container">
+          <div class="progress-fill" id="fill3"></div>
+        </div>
+        <span class="progress-text"><span id="prog3">0</span>/2</span>
+      </div>
+      <div class="progress-card">
+        <h3>⚡ Bar Charts</h3>
+        <div class="progress-bar-container">
+          <div class="progress-fill" id="fill4"></div>
+        </div>
+        <span class="progress-text"><span id="prog4">0</span>/3</span>
+      </div>
+    </div>
+    
+    <!-- Section 1: Conceptual Understanding -->
+    <div class="section" id="section1">
+      <h2><span class="section-icon">🧠</span> Conceptual Understanding</h2>
+      
+      <!-- Q1 -->
+      <div class="question-container" id="q1-container">
+        <p class="question-text"><strong>Q1:</strong> The law of conservation of linear momentum states that if no external force acts on a system of particles or objects, the total linear momentum of the system...</p>
+        <div class="options" id="q1-options">
+          <div class="option" onclick="selectOption(1, 0)">
+            <label class="option-label">
+              <input type="radio" name="q1" value="0">
+              <span class="option-marker">A</span>
+              <span>increases over time</span>
+            </label>
+          </div>
+          <div class="option" onclick="selectOption(1, 1)">
+            <label class="option-label">
+              <input type="radio" name="q1" value="1">
+              <span class="option-marker">B</span>
+              <span>does not change</span>
+            </label>
+          </div>
+          <div class="option" onclick="selectOption(1, 2)">
+            <label class="option-label">
+              <input type="radio" name="q1" value="2">
+              <span class="option-marker">C</span>
+              <span>decreases over time</span>
+            </label>
+          </div>
+          <div class="option" onclick="selectOption(1, 3)">
+            <label class="option-label">
+              <input type="radio" name="q1" value="3">
+              <span class="option-marker">D</span>
+              <span>becomes zero</span>
+            </label>
+          </div>
+        </div>
+        <button class="check-btn" onclick="checkAnswer(1)">Check Answer</button>
+        <div class="feedback" id="q1-feedback"></div>
+        <div class="attempts" id="q1-attempts"></div>
+      </div>
+      
+      <!-- Q2 -->
+      <div class="question-container" id="q2-container">
+        <p class="question-text"><strong>Q2:</strong> For an isolated system during a collision, what happens to kinetic energy versus momentum?</p>
+        <div class="options" id="q2-options">
+          <div class="option" onclick="selectOption(2, 0)">
+            <label class="option-label">
+              <input type="radio" name="q2" value="0">
+              <span class="option-marker">A</span>
+              <span>Both kinetic energy and momentum are always conserved</span>
+            </label>
+          </div>
+          <div class="option" onclick="selectOption(2, 1)">
+            <label class="option-label">
+              <input type="radio" name="q2" value="1">
+              <span class="option-marker">B</span>
+              <span>Kinetic energy can change, but total momentum remains constant</span>
+            </label>
+          </div>
+          <div class="option" onclick="selectOption(2, 2)">
+            <label class="option-label">
+              <input type="radio" name="q2" value="2">
+              <span class="option-marker">C</span>
+              <span>Momentum can change, but kinetic energy is always conserved</span>
+            </label>
+          </div>
+          <div class="option" onclick="selectOption(2, 3)">
+            <label class="option-label">
+              <input type="radio" name="q2" value="3">
+              <span class="option-marker">D</span>
+              <span>Neither is conserved in any collision</span>
+            </label>
+          </div>
+        </div>
+        <button class="check-btn" onclick="checkAnswer(2)">Check Answer</button>
+        <div class="feedback" id="q2-feedback"></div>
+        <div class="attempts" id="q2-attempts"></div>
+      </div>
+      
+      <!-- Q3 -->
+      <div class="question-container" id="q3-container">
+        <p class="question-text"><strong>Q3:</strong> The impulse-momentum theorem states that the change in momentum of a system is equal to:</p>
+        <div class="options" id="q3-options">
+          <div class="option" onclick="selectOption(3, 0)">
+            <label class="option-label">
+              <input type="radio" name="q3" value="0">
+              <span class="option-marker">A</span>
+              <span>the total kinetic energy of the system</span>
+            </label>
+          </div>
+          <div class="option" onclick="selectOption(3, 1)">
+            <label class="option-label">
+              <input type="radio" name="q3" value="1">
+              <span class="option-marker">B</span>
+              <span>the net external impulse acting on it</span>
+            </label>
+          </div>
+          <div class="option" onclick="selectOption(3, 2)">
+            <label class="option-label">
+              <input type="radio" name="q3" value="2">
+              <span class="option-marker">C</span>
+              <span>the mass times the final velocity</span>
+            </label>
+          </div>
+          <div class="option" onclick="selectOption(3, 3)">
+            <label class="option-label">
+              <input type="radio" name="q3" value="3">
+              <span class="option-marker">D</span>
+              <span>the force divided by time</span>
+            </label>
+          </div>
+        </div>
+        <button class="check-btn" onclick="checkAnswer(3)">Check Answer</button>
+        <div class="feedback" id="q3-feedback"></div>
+        <div class="attempts" id="q3-attempts"></div>
+      </div>
+      
+      <!-- Q4 -->
+      <div class="question-container" id="q4-container">
+        <p class="question-text"><strong>Q4:</strong> In an inelastic collision, kinetic energy is transformed into what forms of energy?</p>
+        <div class="options" id="q4-options">
+          <div class="option" onclick="selectOption(4, 0)">
+            <label class="option-label">
+              <input type="radio" name="q4" value="0">
+              <span class="option-marker">A</span>
+              <span>Only potential energy</span>
+            </label>
+          </div>
+          <div class="option" onclick="selectOption(4, 1)">
+            <label class="option-label">
+              <input type="radio" name="q4" value="1">
+              <span class="option-marker">B</span>
+              <span>Sound energy, thermal energy, or work</span>
+            </label>
+          </div>
+          <div class="option" onclick="selectOption(4, 2)">
+            <label class="option-label">
+              <input type="radio" name="q4" value="2">
+              <span class="option-marker">C</span>
+              <span>Only electrical energy</span>
+            </label>
+          </div>
+          <div class="option" onclick="selectOption(4, 3)">
+            <label class="option-label">
+              <input type="radio" name="q4" value="3">
+              <span class="option-marker">D</span>
+              <span>Nuclear energy</span>
+            </label>
+          </div>
+        </div>
+        <button class="check-btn" onclick="checkAnswer(4)">Check Answer</button>
+        <div class="feedback" id="q4-feedback"></div>
+        <div class="attempts" id="q4-attempts"></div>
+      </div>
+    </div>
+    
+    <!-- Section 2: Systems & Impulse -->
+    <div class="section" id="section2">
+      <h2><span class="section-icon">🔬</span> Systems & Impulse Analysis</h2>
+      
+      <!-- Q5 -->
+      <div class="question-container" id="q5-container">
+        <p class="question-text"><strong>Q5:</strong> Scientists are testing particle collisions in the lab with two particles. If the system they are analyzing includes BOTH particles, what is the total external impulse of the system?</p>
+        <div class="options" id="q5-options">
+          <div class="option" onclick="selectOption(5, 0)">
+            <label class="option-label">
+              <input type="radio" name="q5" value="0">
+              <span class="option-marker">A</span>
+              <span>Zero - the forces are internal to the system and momentum is conserved</span>
+            </label>
+          </div>
+          <div class="option" onclick="selectOption(5, 1)">
+            <label class="option-label">
+              <input type="radio" name="q5" value="1">
+              <span class="option-marker">B</span>
+              <span>Equal to the momentum of the first particle</span>
+            </label>
+          </div>
+          <div class="option" onclick="selectOption(5, 2)">
+            <label class="option-label">
+              <input type="radio" name="q5" value="2">
+              <span class="option-marker">C</span>
+              <span>Equal to the sum of both particles' momenta</span>
+            </label>
+          </div>
+          <div class="option" onclick="selectOption(5, 3)">
+            <label class="option-label">
+              <input type="radio" name="q5" value="3">
+              <span class="option-marker">D</span>
+              <span>Cannot be determined without knowing the masses</span>
+            </label>
+          </div>
+        </div>
+        <button class="check-btn" onclick="checkAnswer(5)">Check Answer</button>
+        <div class="feedback" id="q5-feedback"></div>
+        <div class="attempts" id="q5-attempts"></div>
+      </div>
+      
+      <!-- Q6 -->
+      <div class="question-container" id="q6-container">
+        <p class="question-text"><strong>Q6:</strong> If the system were changed to include ONLY the first particle, how would the external impulse change?</p>
+        <div class="options" id="q6-options">
+          <div class="option" onclick="selectOption(6, 0)">
+            <label class="option-label">
+              <input type="radio" name="q6" value="0">
+              <span class="option-marker">A</span>
+              <span>It would still be zero</span>
+            </label>
+          </div>
+          <div class="option" onclick="selectOption(6, 1)">
+            <label class="option-label">
+              <input type="radio" name="q6" value="1">
+              <span class="option-marker">B</span>
+              <span>The force from the second particle becomes external, creating a non-zero impulse</span>
+            </label>
+          </div>
+          <div class="option" onclick="selectOption(6, 2)">
+            <label class="option-label">
+              <input type="radio" name="q6" value="2">
+              <span class="option-marker">C</span>
+              <span>The impulse would be negative</span>
+            </label>
+          </div>
+          <div class="option" onclick="selectOption(6, 3)">
+            <label class="option-label">
+              <input type="radio" name="q6" value="3">
+              <span class="option-marker">D</span>
+              <span>The impulse would be infinite</span>
+            </label>
+          </div>
+        </div>
+        <button class="check-btn" onclick="checkAnswer(6)">Check Answer</button>
+        <div class="feedback" id="q6-feedback"></div>
+        <div class="attempts" id="q6-attempts"></div>
+      </div>
+      
+      <!-- Q7 -->
+      <div class="question-container" id="q7-container">
+        <p class="question-text"><strong>Q7:</strong> Fill in the blanks: A ___________ system of a totally ___________ car collision will result in the largest external impulse.</p>
+        <div class="options" id="q7-options">
+          <div class="option" onclick="selectOption(7, 0)">
+            <label class="option-label">
+              <input type="radio" name="q7" value="0">
+              <span class="option-marker">A</span>
+              <span>2-car; inelastic</span>
+            </label>
+          </div>
+          <div class="option" onclick="selectOption(7, 1)">
+            <label class="option-label">
+              <input type="radio" name="q7" value="1">
+              <span class="option-marker">B</span>
+              <span>2-car; elastic</span>
+            </label>
+          </div>
+          <div class="option" onclick="selectOption(7, 2)">
+            <label class="option-label">
+              <input type="radio" name="q7" value="2">
+              <span class="option-marker">C</span>
+              <span>1-car; inelastic</span>
+            </label>
+          </div>
+          <div class="option" onclick="selectOption(7, 3)">
+            <label class="option-label">
+              <input type="radio" name="q7" value="3">
+              <span class="option-marker">D</span>
+              <span>1-car; elastic</span>
+            </label>
+          </div>
+        </div>
+        <button class="check-btn" onclick="checkAnswer(7)">Check Answer</button>
+        <div class="feedback" id="q7-feedback"></div>
+        <div class="attempts" id="q7-attempts"></div>
+      </div>
+    </div>
+    
+    <!-- Section 3: Skills Practice -->
+    <div class="section" id="section3">
+      <h2><span class="section-icon">🔢</span> Skills Practice Calculations</h2>
+      
+      <!-- Q8: Tennis Ball Problem -->
+      <div class="question-container" id="q8-container">
+        <p class="question-text"><strong>Q8 (Tennis Ball):</strong> A tennis player serves a 0.058-kg ball at 62.2 m/s. The opposing player returns the ball at 67.4 m/s. If the ball was in contact with the racket for 5.51 ms, what is the average force the racket exerted on the ball?</p>
+        <div class="options" id="q8-options">
+          <div class="option" onclick="selectOption(8, 0)">
+            <label class="option-label">
+              <input type="radio" name="q8" value="0">
+              <span class="option-marker">A</span>
+              <span>654 N</span>
+            </label>
+          </div>
+          <div class="option" onclick="selectOption(8, 1)">
+            <label class="option-label">
+              <input type="radio" name="q8" value="1">
+              <span class="option-marker">B</span>
+              <span>1,360 N</span>
+            </label>
+          </div>
+          <div class="option" onclick="selectOption(8, 2)">
+            <label class="option-label">
+              <input type="radio" name="q8" value="2">
+              <span class="option-marker">C</span>
+              <span>710 N</span>
+            </label>
+          </div>
+          <div class="option" onclick="selectOption(8, 3)">
+            <label class="option-label">
+              <input type="radio" name="q8" value="3">
+              <span class="option-marker">D</span>
+              <span>56 N</span>
+            </label>
+          </div>
+        </div>
+        <button class="check-btn" onclick="checkAnswer(8)">Check Answer</button>
+        <div class="feedback" id="q8-feedback"></div>
+        <div class="attempts" id="q8-attempts"></div>
+      </div>
+      
+      <!-- Q9: Truck & Car Collision -->
+      <div class="question-container" id="q9-container">
+        <p class="question-text"><strong>Q9 (2D Collision):</strong> A 1610-kg truck traveling east at 24 m/s collides with a 1080-kg car traveling south at 14 m/s. After the collision, the vehicles do not separate. What is the x-component of the final velocity?</p>
+        <div class="options" id="q9-options">
+          <div class="option" onclick="selectOption(9, 0)">
+            <label class="option-label">
+              <input type="radio" name="q9" value="0">
+              <span class="option-marker">A</span>
+              <span>24 m/s</span>
+            </label>
+          </div>
+          <div class="option" onclick="selectOption(9, 1)">
+            <label class="option-label">
+              <input type="radio" name="q9" value="1">
+              <span class="option-marker">B</span>
+              <span>14 m/s</span>
+            </label>
+          </div>
+          <div class="option" onclick="selectOption(9, 2)">
+            <label class="option-label">
+              <input type="radio" name="q9" value="2">
+              <span class="option-marker">C</span>
+              <span>19 m/s</span>
+            </label>
+          </div>
+          <div class="option" onclick="selectOption(9, 3)">
+            <label class="option-label">
+              <input type="radio" name="q9" value="3">
+              <span class="option-marker">D</span>
+              <span>5.6 m/s</span>
+            </label>
+          </div>
+        </div>
+        <button class="check-btn" onclick="checkAnswer(9)">Check Answer</button>
+        <div class="feedback" id="q9-feedback"></div>
+        <div class="attempts" id="q9-attempts"></div>
+      </div>
+      
+    </div>
+    
+    <!-- Section 4: Bar Chart Analysis -->
+    <div class="section" id="section4">
+      <h2><span class="section-icon">⚡</span> Momentum Bar Chart Analysis</h2>
+      
+      <!-- Q10 -->
+      <div class="question-container" id="q10-container">
+        <p class="question-text"><strong>Q10:</strong> According to the momentum bar chart for the two-car collision (where both cars have similar masses and velocities toward each other, then move together at a slower speed), how would you describe the motion of the cars after the collision?</p>
+        <div class="options" id="q10-options">
+          <div class="option" onclick="selectOption(10, 0)">
+            <label class="option-label">
+              <input type="radio" name="q10" value="0">
+              <span class="option-marker">A</span>
+              <span>The cars are moving in the forward direction with the same velocity, traveling together</span>
+            </label>
+          </div>
+          <div class="option" onclick="selectOption(10, 1)">
+            <label class="option-label">
+              <input type="radio" name="q10" value="1">
+              <span class="option-marker">B</span>
+              <span>The cars bounce backward in opposite directions</span>
+            </label>
+          </div>
+          <div class="option" onclick="selectOption(10, 2)">
+            <label class="option-label">
+              <input type="radio" name="q10" value="2">
+              <span class="option-marker">C</span>
+              <span>Only one car is moving; the other stops completely</span>
+            </label>
+          </div>
+          <div class="option" onclick="selectOption(10, 3)">
+            <label class="option-label">
+              <input type="radio" name="q10" value="3">
+              <span class="option-marker">D</span>
+              <span>Both cars stop completely</span>
+            </label>
+          </div>
+        </div>
+        <button class="check-btn" onclick="checkAnswer(10)">Check Answer</button>
+        <div class="feedback" id="q10-feedback"></div>
+        <div class="attempts" id="q10-attempts"></div>
+      </div>
+      
+      <!-- Q11 -->
+      <div class="question-container" id="q11-container">
+        <p class="question-text"><strong>Q11:</strong> An automotive engineer tests a 2500-kg car that decreases from 20 m/s to 5 m/s during a bumper test with a crumple time of 0.4 s. Using the momentum bar chart approach (system = one car only), what represents the external impulse?</p>
+        <div class="options" id="q11-options">
+          <div class="option" onclick="selectOption(11, 0)">
+            <label class="option-label">
+              <input type="radio" name="q11" value="0">
+              <span class="option-marker">A</span>
+              <span>The impulse from the red car (barrier) - it's negative and external to the system</span>
+            </label>
+          </div>
+          <div class="option" onclick="selectOption(11, 1)">
+            <label class="option-label">
+              <input type="radio" name="q11" value="1">
+              <span class="option-marker">B</span>
+              <span>The impulse is zero because momentum is conserved</span>
+            </label>
+          </div>
+          <div class="option" onclick="selectOption(11, 2)">
+            <label class="option-label">
+              <input type="radio" name="q11" value="2">
+              <span class="option-marker">C</span>
+              <span>The impulse is equal to the initial momentum</span>
+            </label>
+          </div>
+          <div class="option" onclick="selectOption(11, 3)">
+            <label class="option-label">
+              <input type="radio" name="q11" value="3">
+              <span class="option-marker">D</span>
+              <span>The impulse equals the kinetic energy lost</span>
+            </label>
+          </div>
+        </div>
+        <button class="check-btn" onclick="checkAnswer(11)">Check Answer</button>
+        <div class="feedback" id="q11-feedback"></div>
+        <div class="attempts" id="q11-attempts"></div>
+      </div>
+      
+      <!-- Q12 -->
+      <div class="question-container" id="q12-container">
+        <p class="question-text"><strong>Q12:</strong> Using the sample problem data (m = 2500 kg, v<sub>i</sub> = 20 m/s, v<sub>f</sub> = 5 m/s, Δt = 0.4 s), what is the average impact force F<sub>2 on 1</sub>?</p>
+        <div class="options" id="q12-options">
+          <div class="option" onclick="selectOption(12, 0)">
+            <label class="option-label">
+              <input type="radio" name="q12" value="0">
+              <span class="option-marker">A</span>
+              <span>31,250 N</span>
+            </label>
+          </div>
+          <div class="option" onclick="selectOption(12, 1)">
+            <label class="option-label">
+              <input type="radio" name="q12" value="1">
+              <span class="option-marker">B</span>
+              <span>93,750 N</span>
+            </label>
+          </div>
+          <div class="option" onclick="selectOption(12, 2)">
+            <label class="option-label">
+              <input type="radio" name="q12" value="2">
+              <span class="option-marker">C</span>
+              <span>37,500 N</span>
+            </label>
+          </div>
+          <div class="option" onclick="selectOption(12, 3)">
+            <label class="option-label">
+              <input type="radio" name="q12" value="3">
+              <span class="option-marker">D</span>
+              <span>12,500 N</span>
+            </label>
+          </div>
+        </div>
+        <button class="check-btn" onclick="checkAnswer(12)">Check Answer</button>
+        <div class="feedback" id="q12-feedback"></div>
+        <div class="attempts" id="q12-attempts"></div>
+      </div>
+    </div>
+    
+    <!-- Mastery Celebration -->
+    <div id="masteryCelebration">
+      <div class="mastery-content">
+        <h2>🎉 MASTERY ACHIEVED!</h2>
+        <p>You've successfully completed the Conservation of Momentum review!</p>
+        <div class="mastery-stats">
+          <div class="mastery-stat">
+            <div class="mastery-stat-value" id="final-correct">0</div>
+            <div class="mastery-stat-label">Questions Correct</div>
+          </div>
+          <div class="mastery-stat">
+            <div class="mastery-stat-value" id="final-total">12</div>
+            <div class="mastery-stat-label">Total Questions</div>
+          </div>
+        </div>
+        <p class="timestamp" id="timestamp"></p>
+      </div>
+    </div>
+  </div>
+  
+  <script>
+    // Answer key and feedback
+    const answerKey = {
+      1: { correct: 1, feedback: {
+        0: "Not quite. If momentum increased, it wouldn't be 'conserved.' Think about what conservation means.",
+        1: "Correct! The law of conservation of momentum states that without external forces, total momentum stays constant.",
+        2: "Not quite. If momentum decreased, it wouldn't be 'conserved.' Think about what conservation means.",
+        3: "Not quite. Zero momentum would only happen in specific cases, not as a general rule of conservation."
+      }},
+      2: { correct: 1, feedback: {
+        0: "Not quite. Kinetic energy is only conserved in elastic collisions, not all collisions.",
+        1: "Correct! In an isolated system, total momentum is always conserved, but kinetic energy can be transferred or transformed (especially in inelastic collisions).",
+        2: "Not quite. It's the opposite - momentum is always conserved in isolated systems, while kinetic energy can change.",
+        3: "Not quite. Momentum IS conserved in isolated systems."
+      }},
+      3: { correct: 1, feedback: {
+        0: "Not quite. The impulse-momentum theorem relates to change in momentum, not total kinetic energy.",
+        1: "Correct! The impulse-momentum theorem: Δp = J (change in momentum equals net external impulse).",
+        2: "Not quite. That would just be final momentum (p = mv), not the theorem about change.",
+        3: "Not quite. Force divided by time doesn't give you impulse - impulse is Force × time (J = FΔt)."
+      }},
+      4: { correct: 1, feedback: {
+        0: "Not quite. While potential energy can be involved, inelastic collisions typically convert KE to other forms.",
+        1: "Correct! In inelastic collisions, kinetic energy is transformed into sound, thermal energy, and work done to deform objects.",
+        2: "Not quite. Electrical energy isn't typically produced in mechanical collisions.",
+        3: "Not quite. Nuclear energy requires nuclear reactions, not mechanical collisions."
+      }},
+      5: { correct: 0, feedback: {
+        0: "Correct! Since both particles are in the system, the forces they exert on each other are internal. The external impulse is zero, so total momentum is conserved.",
+        1: "Not quite. When both particles are in the system, we look at total momentum, not just one particle's.",
+        2: "Not quite. The sum of momenta is the total momentum, not the external impulse.",
+        3: "Not quite. We can determine this - when all interacting objects are in the system, external impulse is zero."
+      }},
+      6: { correct: 1, feedback: {
+        0: "Not quite. If only one particle is the system, the other particle's force becomes external.",
+        1: "Correct! When we define the system as only the first particle, the force from the second particle is now external to the system, creating a non-zero external impulse.",
+        2: "The sign depends on direction, but the key point is that there IS now an external impulse.",
+        3: "Not quite. The impulse has a finite value based on the force and collision time."
+      }},
+      7: { correct: 2, feedback: {
+        0: "Not quite. A 2-car system has zero external impulse because both cars' forces are internal.",
+        1: "Not quite. A 2-car system has zero external impulse regardless of collision type.",
+        2: "Correct! A 1-car system means the other car's force is external. Inelastic collisions (cars stick together) have the largest momentum change for the single car system.",
+        3: "Not quite. While 1-car is correct, inelastic typically produces larger impulses than elastic for a single-car system."
+      }},
+      8: { correct: 1, feedback: {
+        0: "Not quite. Check your calculation: F = Δp/Δt = m(v_f - v_i)/Δt. Remember the ball reverses direction!",
+        1: "Correct! F = m(v_f - v_i)/Δt = 0.058×(67.4-(-62.2))/0.00551 ≈ 1,360 N. The ball reverses, so velocities have opposite signs.",
+        2: "Not quite. Did you account for the direction change? The ball goes from +62.2 to -67.4 (or vice versa).",
+        3: "Not quite. Check your units - time should be in seconds (5.51 ms = 0.00551 s)."
+      }},
+      9: { correct: 1, feedback: {
+        0: "Not quite. That's the truck's initial velocity, not the combined final velocity.",
+        1: "Correct! p_x conserved: m₁v₁ = (m₁+m₂)v_fx → 1610×24 = 2690×v_fx → v_fx = 14 m/s east.",
+        2: "Not quite. Check your conservation of momentum calculation for the x-direction.",
+        3: "Not quite. That's the y-component (car's contribution), not the x-component."
+      }},
+      10: { correct: 0, feedback: {
+        0: "Correct! The bar chart shows the combined cars moving forward with equal momenta (similar masses, same velocity), traveling together after the inelastic collision.",
+        1: "Not quite. In a perfectly inelastic collision (stick together), they don't bounce apart.",
+        2: "Not quite. Both cars have momentum after the collision and move together.",
+        3: "Not quite. The bar chart shows positive final momentum, meaning they're still moving."
+      }},
+      11: { correct: 0, feedback: {
+        0: "Correct! Since the system includes only the test car, the force from the barrier (red car) is external to the system. This external impulse is negative (opposes motion).",
+        1: "Not quite. Momentum is only conserved if there's no external impulse. Here, the barrier provides an external force.",
+        2: "Not quite. The impulse equals the CHANGE in momentum (final - initial), not just the initial.",
+        3: "Not quite. Impulse is measured in N·s (momentum units), not Joules (energy units)."
+      }},
+      12: { correct: 1, feedback: {
+        0: "Not quite. Check your calculation: F = -m(v_f - v_i)/Δt.",
+        1: "Correct! F = -(2500)(5-20)/0.4 = -(2500)(-15)/0.4 = 37,500/0.4 = 93,750 N.",
+        2: "Not quite. This would be the change in momentum divided by 1 second, not 0.4 s.",
+        3: "Not quite. Check your momentum change calculation: Δp = m(v_f - v_i)."
+      }}
+    };
+    
+    // Section configuration
+    const sectionConfig = {
+      1: { questions: [1, 2, 3, 4], total: 4 },
+      2: { questions: [5, 6, 7], total: 3 },
+      3: { questions: [8, 9], total: 2 },
+      4: { questions: [10, 11, 12], total: 3 }
+    };
+    
+    // Track state
+    const completed = {};
+    const attempts = {};
+    const selected = {};
+    
+    function selectOption(qNum, optionIndex) {
+      if (completed[qNum]) return;
+      
+      const options = document.querySelectorAll(`#q${qNum}-options .option`);
+      options.forEach((opt, idx) => {
+        opt.classList.remove('selected');
+        if (idx === optionIndex) {
+          opt.classList.add('selected');
+        }
+      });
+      selected[qNum] = optionIndex;
+    }
+    
+    function checkAnswer(qNum) {
+      if (completed[qNum]) return;
+      if (selected[qNum] === undefined) {
+        alert('Please select an answer first!');
+        return;
+      }
+      
+      if (!attempts[qNum]) attempts[qNum] = 0;
+      attempts[qNum]++;
+      
+      const correctIdx = answerKey[qNum].correct;
+      const selectedIdx = selected[qNum];
+      const isCorrect = selectedIdx === correctIdx;
+      
+      const feedbackDiv = document.getElementById(`q${qNum}-feedback`);
+      const attemptsDiv = document.getElementById(`q${qNum}-attempts`);
+      const options = document.querySelectorAll(`#q${qNum}-options .option`);
+      const questionDiv = document.getElementById(`q${qNum}-container`);
+      
+      feedbackDiv.className = 'feedback show ' + (isCorrect ? 'correct' : 'incorrect');
+      feedbackDiv.textContent = answerKey[qNum].feedback[selectedIdx];
+      
+      if (isCorrect) {
+        const attemptText = attempts[qNum] === 1 ? 'attempt' : 'attempts';
+        attemptsDiv.textContent = `✓ Completed in ${attempts[qNum]} ${attemptText}`;
+        
+        options[selectedIdx].classList.remove('selected');
+        options[selectedIdx].classList.add('correct');
+        completed[qNum] = true;
+        questionDiv.classList.add('completed');
+        questionDiv.querySelector('.check-btn').disabled = true;
+        
+        updateProgress();
+      } else {
+        attemptsDiv.textContent = `Attempts: ${attempts[qNum]}`;
+        options[selectedIdx].classList.add('incorrect');
+        
+        setTimeout(() => {
+          options[selectedIdx].classList.remove('incorrect', 'selected');
+          selected[qNum] = undefined;
+        }, 1500);
+      }
+    }
+    
+    function updateProgress() {
+      let totalCompleted = 0;
+      const totalQuestions = 12;
+      
+      for (let section = 1; section <= 4; section++) {
+        const config = sectionConfig[section];
+        let sectionCompleted = 0;
+        
+        config.questions.forEach(q => {
+          if (completed[q]) sectionCompleted++;
+        });
+        
+        totalCompleted += sectionCompleted;
+        const pct = Math.round((sectionCompleted / config.total) * 100);
+        
+        document.getElementById(`prog${section}`).textContent = sectionCompleted;
+        document.getElementById(`fill${section}`).style.width = `${pct}%`;
+      }
+      
+      if (totalCompleted === totalQuestions) {
+        document.getElementById('final-correct').textContent = totalCompleted;
+        const now = new Date();
+        document.getElementById('timestamp').textContent = `Completed: ${now.toLocaleDateString()} at ${now.toLocaleTimeString()}`;
+        document.getElementById('masteryCelebration').classList.add('show');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    }
+  </script>
+</body>
+</html>
