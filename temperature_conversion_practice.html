@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Temperature Conversion Practice</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Quicksand:wght@500;600&display=swap');
+    
+    * { box-sizing: border-box; }
+    
+    body {
+      font-family: 'Quicksand', sans-serif;
+      margin: 0;
+      padding: 20px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+    }
+    
+    .container { max-width: 900px; margin: 0 auto; }
+    
+    h1 {
+      font-family: 'Poppins', sans-serif;
+      text-align: center;
+      color: white;
+      font-size: 2.2rem;
+      text-shadow: 3px 3px 6px rgba(0,0,0,0.3);
+      margin-bottom: 10px;
+    }
+    
+    .subtitle {
+      text-align: center;
+      color: rgba(255,255,255,0.9);
+      font-size: 1rem;
+      margin-bottom: 20px;
+    }
+    
+    .formulas {
+      background: rgba(255,255,255,0.95);
+      border-radius: 12px;
+      padding: 15px 20px;
+      margin-bottom: 20px;
+      text-align: center;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+    
+    .formulas h3 {
+      margin: 0 0 10px 0;
+      font-family: 'Poppins', sans-serif;
+      color: #333;
+    }
+    
+    .formula-grid {
+      display: flex;
+      justify-content: center;
+      gap: 30px;
+      flex-wrap: wrap;
+    }
+    
+    .formula {
+      background: #f0f4ff;
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-family: 'Courier New', monospace;
+      font-size: 1rem;
+      color: #444;
+    }
+    
+    .progress-section {
+      background: rgba(255,255,255,0.95);
+      border-radius: 12px;
+      padding: 15px 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+    
+    .progress-section h3 {
+      margin: 0 0 15px 0;
+      font-family: 'Poppins', sans-serif;
+      color: #333;
+      text-align: center;
+    }
+    
+    .progress-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 10px;
+    }
+    
+    .progress-item {
+      background: #f5f5f5;
+      padding: 10px;
+      border-radius: 8px;
+      text-align: center;
+    }
+    
+    .progress-item.complete {
+      background: #d4edda;
+      border: 2px solid #28a745;
+    }
+    
+    .progress-label {
+      font-size: 0.85rem;
+      color: #666;
+      margin-bottom: 5px;
+    }
+    
+    .progress-count {
+      font-family: 'Poppins', sans-serif;
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: #333;
+    }
+    
+    .progress-item.complete .progress-count {
+      color: #28a745;
+    }
+    
+    .section {
+      background: rgba(255,255,255,0.95);
+      border-radius: 15px;
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    }
+    
+    .section h2 {
+      font-family: 'Poppins', sans-serif;
+      color: #333;
+      margin: 0 0 15px 0;
+      padding-bottom: 10px;
+      border-bottom: 3px solid #667eea;
+      font-size: 1.2rem;
+    }
+    
+    .question-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 15px;
+      margin-bottom: 8px;
+      background: #f8f9ff;
+      border-radius: 10px;
+      border-left: 4px solid #667eea;
+    }
+    
+    .question-row.correct {
+      border-left-color: #28a745;
+      background: #f0fff0;
+    }
+    
+    .question-num {
+      font-family: 'Poppins', sans-serif;
+      font-weight: 600;
+      color: #667eea;
+      min-width: 35px;
+    }
+    
+    .question-row.correct .question-num {
+      color: #28a745;
+    }
+    
+    .given-temp {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #333;
+      min-width: 70px;
+    }
+    
+    .arrow {
+      color: #999;
+      font-size: 1.2rem;
+    }
+    
+    .answer-group {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    
+    .answer-input {
+      width: 70px;
+      padding: 6px 8px;
+      border: 2px solid #ddd;
+      border-radius: 6px;
+      font-size: 0.95rem;
+      font-family: 'Quicksand', sans-serif;
+      text-align: center;
+    }
+    
+    .answer-input:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+    
+    .answer-input.correct {
+      border-color: #28a745;
+      background: #d4edda;
+    }
+    
+    .answer-input.incorrect {
+      border-color: #dc3545;
+      background: #f8d7da;
+    }
+    
+    .answer-input:disabled {
+      background: #d4edda;
+      border-color: #28a745;
+      color: #155724;
+    }
+    
+    .unit-label {
+      font-weight: 600;
+      color: #555;
+      font-size: 0.9rem;
+    }
+    
+    .check-btn {
+      padding: 6px 12px;
+      background: #667eea;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-family: 'Quicksand', sans-serif;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-size: 0.9rem;
+    }
+    
+    .check-btn:hover:not(:disabled) {
+      background: #5a6fd6;
+    }
+    
+    .check-btn:disabled {
+      background: #28a745;
+      cursor: default;
+    }
+    
+    .feedback {
+      font-size: 0.85rem;
+      font-weight: 600;
+      min-width: 100px;
+    }
+    
+    .feedback.correct { color: #28a745; }
+    .feedback.incorrect { color: #dc3545; }
+    
+    .mastery-screen {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.8);
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+    
+    .mastery-screen.show { display: flex; }
+    
+    .mastery-content {
+      background: white;
+      padding: 40px;
+      border-radius: 25px;
+      text-align: center;
+      max-width: 450px;
+      width: 90%;
+      animation: popIn 0.5s ease;
+    }
+    
+    @keyframes popIn {
+      from { transform: scale(0.5); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+    
+    .mastery-content h2 {
+      font-family: 'Poppins', sans-serif;
+      color: #28a745;
+      font-size: 2rem;
+      margin: 10px 0;
+    }
+    
+    .trophy { font-size: 4rem; }
+    
+    .reset-btn {
+      background: #667eea;
+      color: white;
+      border: none;
+      padding: 12px 25px;
+      border-radius: 8px;
+      font-family: 'Poppins', sans-serif;
+      font-weight: 600;
+      font-size: 1rem;
+      cursor: pointer;
+      margin-top: 15px;
+      transition: all 0.3s ease;
+    }
+    
+    .reset-btn:hover {
+      background: #5a6fd6;
+      transform: scale(1.05);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🌡️ Temperature Conversion Practice</h1>
+    <p class="subtitle">Get 5 correct in each conversion type to achieve mastery!</p>
+    
+    <div class="formulas">
+      <h3>Formulas</h3>
+      <div class="formula-grid">
+        <div class="formula">K = °C + 273</div>
+        <div class="formula">°F = (9/5)°C + 32</div>
+        <div class="formula">°C = (5/9)(°F - 32)</div>
+      </div>
+    </div>
+    
+    <div class="progress-section">
+      <h3>Progress Tracker</h3>
+      <div class="progress-grid">
+        <div class="progress-item" id="prog-cf">
+          <div class="progress-label">°C → °F</div>
+          <div class="progress-count"><span id="count-cf">0</span>/5</div>
+        </div>
+        <div class="progress-item" id="prog-ck">
+          <div class="progress-label">°C → K</div>
+          <div class="progress-count"><span id="count-ck">0</span>/5</div>
+        </div>
+        <div class="progress-item" id="prog-fc">
+          <div class="progress-label">°F → °C</div>
+          <div class="progress-count"><span id="count-fc">0</span>/5</div>
+        </div>
+        <div class="progress-item" id="prog-fk">
+          <div class="progress-label">°F → K</div>
+          <div class="progress-count"><span id="count-fk">0</span>/5</div>
+        </div>
+        <div class="progress-item" id="prog-kc">
+          <div class="progress-label">K → °C</div>
+          <div class="progress-count"><span id="count-kc">0</span>/5</div>
+        </div>
+        <div class="progress-item" id="prog-kf">
+          <div class="progress-label">K → °F</div>
+          <div class="progress-count"><span id="count-kf">0</span>/5</div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="section">
+      <h2>Convert Celsius to Fahrenheit and Kelvin</h2>
+      <div id="section1"></div>
+    </div>
+    
+    <div class="section">
+      <h2>Convert Fahrenheit to Celsius and Kelvin</h2>
+      <div id="section2"></div>
+    </div>
+    
+    <div class="section">
+      <h2>Convert Celsius to Kelvin and Fahrenheit</h2>
+      <div id="section3"></div>
+    </div>
+    
+    <div class="section">
+      <h2>Convert Kelvin to Celsius and Fahrenheit</h2>
+      <div id="section4"></div>
+    </div>
+  </div>
+  
+  <div class="mastery-screen" id="masteryScreen">
+    <div class="mastery-content">
+      <div class="trophy">🏆</div>
+      <h2>MASTERY ACHIEVED!</h2>
+      <p>You've mastered all temperature conversions!</p>
+      <div id="submitForm">
+        <input type="text" id="studentName" placeholder="Enter your name" style="width:100%;padding:12px;margin:8px 0;border:2px solid #ddd;border-radius:8px;font-size:1rem;font-family:'Quicksand',sans-serif;">
+        <button onclick="showCertificate()" style="width:100%;padding:12px;margin:10px 0;background:#28a745;color:white;border:none;border-radius:8px;font-size:1.1rem;font-weight:600;cursor:pointer;font-family:'Poppins',sans-serif;">Submit</button>
+      </div>
+      <div id="certificate" style="display:none;"></div>
+    </div>
+  </div>
+  
+  <script>
+    // Questions data
+    const questions = {
+      section1: [ // C to F and K
+        { id: 1, given: 10, unit: "C", toF: 50, toK: 283 },
+        { id: 2, given: 30, unit: "C", toF: 86, toK: 303 },
+        { id: 3, given: 46, unit: "C", toF: 114.8, toK: 319 },
+        { id: 4, given: 37, unit: "C", toF: 98.6, toK: 310 },
+        { id: 5, given: 0, unit: "C", toF: 32, toK: 273 }
+      ],
+      section2: [ // F to C and K
+        { id: 6, given: 32, unit: "F", toC: 0, toK: 273 },
+        { id: 7, given: 45, unit: "F", toC: 7.2, toK: 280.2 },
+        { id: 8, given: 70, unit: "F", toC: 21.1, toK: 294.1 },
+        { id: 9, given: 451, unit: "F", toC: 232.8, toK: 505.8 },
+        { id: 10, given: 90, unit: "F", toC: 32.2, toK: 305.2 },
+        { id: 11, given: 212, unit: "F", toC: 100, toK: 373 }
+      ],
+      section3: [ // C to K and F
+        { id: 12, given: 0, unit: "C", toK: 273, toF: 32 },
+        { id: 13, given: -50, unit: "C", toK: 223, toF: -58 },
+        { id: 14, given: 90, unit: "C", toK: 363, toF: 194 },
+        { id: 15, given: -20, unit: "C", toK: 253, toF: -4 }
+      ],
+      section4: [ // K to C and F
+        { id: 16, given: 100, unit: "K", toC: -173, toF: -279.4 },
+        { id: 17, given: 200, unit: "K", toC: -73, toF: -99.4 },
+        { id: 18, given: 273, unit: "K", toC: 0, toF: 32 },
+        { id: 19, given: 350, unit: "K", toC: 77, toF: 170.6 },
+        { id: 20, given: 512, unit: "K", toC: 239, toF: 462.2 }
+      ]
+    };
+    
+    // Track correct answers by conversion type
+    const progress = {
+      cf: 0, // Celsius to Fahrenheit
+      ck: 0, // Celsius to Kelvin
+      fc: 0, // Fahrenheit to Celsius
+      fk: 0, // Fahrenheit to Kelvin
+      kc: 0, // Kelvin to Celsius
+      kf: 0  // Kelvin to Fahrenheit
+    };
+    
+    const answered = {};
+    
+    function checkRow(id, correct1, correct2, type1, type2) {
+      const row = document.getElementById(`row-${id}`);
+      const inputs = row.querySelectorAll('.answer-input');
+      const input1 = inputs[0];
+      const input2 = inputs[1];
+      const feedback = document.getElementById(`fb-${id}`);
+      const btn = document.getElementById(`btn-${id}`);
+      
+      const val1 = parseFloat(input1.value);
+      const val2 = parseFloat(input2.value);
+      
+      if (isNaN(val1) || isNaN(val2)) {
+        feedback.textContent = "Fill in both answers";
+        feedback.className = "feedback incorrect";
+        return;
+      }
+      
+      const tol1 = Math.abs(correct1) * 0.02 + 0.5;
+      const tol2 = Math.abs(correct2) * 0.02 + 0.5;
+      const is1Correct = Math.abs(val1 - correct1) <= tol1;
+      const is2Correct = Math.abs(val2 - correct2) <= tol2;
+      
+      if (is1Correct) {
+        input1.classList.remove('incorrect');
+        input1.classList.add('correct');
+      } else {
+        input1.classList.remove('correct');
+        input1.classList.add('incorrect');
+      }
+      
+      if (is2Correct) {
+        input2.classList.remove('incorrect');
+        input2.classList.add('correct');
+      } else {
+        input2.classList.remove('correct');
+        input2.classList.add('incorrect');
+      }
+      
+      if (is1Correct && is2Correct) {
+        input1.disabled = true;
+        input2.disabled = true;
+        btn.disabled = true;
+        btn.textContent = "✓";
+        row.classList.add('correct');
+        feedback.textContent = "Correct!";
+        feedback.className = "feedback correct";
+        
+        // Update progress
+        const key1 = `${id}-${type1}`;
+        const key2 = `${id}-${type2}`;
+        if (!answered[key1]) {
+          answered[key1] = true;
+          progress[type1]++;
+        }
+        if (!answered[key2]) {
+          answered[key2] = true;
+          progress[type2]++;
+        }
+        updateProgress();
+        checkMastery();
+      } else {
+        let hint = "Try again: ";
+        if (!is1Correct) hint += `1st = ${correct1}`;
+        if (!is1Correct && !is2Correct) hint += ", ";
+        if (!is2Correct) hint += `2nd = ${correct2}`;
+        feedback.textContent = hint;
+        feedback.className = "feedback incorrect";
+      }
+    }
+    
+    function updateProgress() {
+      for (const type in progress) {
+        const count = Math.min(progress[type], 5);
+        document.getElementById(`count-${type}`).textContent = count;
+        const item = document.getElementById(`prog-${type}`);
+        if (count >= 5) {
+          item.classList.add('complete');
+        }
+      }
+    }
+    
+    function checkMastery() {
+      const allComplete = Object.values(progress).every(p => p >= 5);
+      if (allComplete) {
+        setTimeout(() => {
+          document.getElementById('masteryScreen').classList.add('show');
+        }, 500);
+      }
+    }
+    
+    function showCertificate() {
+      const name = document.getElementById('studentName').value.trim();
+      
+      if (!name) {
+        alert('Please enter your name.');
+        return;
+      }
+      
+      const date = new Date().toLocaleDateString();
+      const total = Object.values(progress).reduce((a, b) => a + Math.min(b, 5), 0);
+      
+      document.getElementById('submitForm').style.display = 'none';
+      document.getElementById('certificate').style.display = 'block';
+      document.getElementById('certificate').innerHTML = `
+        <div style="background: linear-gradient(135deg, #28a745, #20c997); padding: 25px; border-radius: 15px; color: white; text-align: center;">
+          <div style="font-size: 2.5rem; margin-bottom: 10px;">🌡️🏆</div>
+          <h2 style="margin: 0 0 5px 0; font-family: 'Poppins', sans-serif;">MASTERY CERTIFICATE</h2>
+          <p style="margin: 0 0 15px 0; font-size: 1rem;">Temperature Conversions</p>
+          <div style="background: rgba(255,255,255,0.2); padding: 15px; border-radius: 10px; margin: 15px 0;">
+            <div style="font-size: 1.3rem; font-weight: bold;">${name}</div>
+          </div>
+          <div style="font-size: 1rem; margin: 10px 0;">All 6 conversion types mastered!</div>
+          <div style="font-size: 0.9rem; opacity: 0.9;">Completed: ${date}</div>
+          <div style="margin-top: 20px; padding: 15px; background: rgba(255,255,255,0.15); border-radius: 10px;">
+            <div style="font-size: 0.95rem;">📸 Take a screenshot and submit on Schoology</div>
+          </div>
+        </div>
+        <button onclick="location.reload()" class="reset-btn" style="margin-top: 15px; width: 100%;">Try Again</button>
+      `;
+    }
+    
+    function buildSection1() {
+      const container = document.getElementById('section1');
+      questions.section1.forEach((q, idx) => {
+        const row = document.createElement('div');
+        row.className = 'question-row';
+        row.id = `row-${q.id}`;
+        row.innerHTML = `
+          <span class="question-num">${idx + 1})</span>
+          <span class="given-temp">${q.given}°C</span>
+          <span class="arrow">→</span>
+          <div class="answer-group">
+            <input type="number" step="any" class="answer-input" id="input-${q.id}-f" placeholder="?">
+            <span class="unit-label">°F</span>
+          </div>
+          <div class="answer-group">
+            <input type="number" step="any" class="answer-input" id="input-${q.id}-k" placeholder="?">
+            <span class="unit-label">K</span>
+          </div>
+          <button class="check-btn" id="btn-${q.id}" onclick="checkRow(${q.id}, ${q.toF}, ${q.toK}, 'cf', 'ck')">Check</button>
+          <span class="feedback" id="fb-${q.id}"></span>
+        `;
+        container.appendChild(row);
+      });
+    }
+    
+    function buildSection2() {
+      const container = document.getElementById('section2');
+      questions.section2.forEach((q, idx) => {
+        const row = document.createElement('div');
+        row.className = 'question-row';
+        row.id = `row-${q.id}`;
+        row.innerHTML = `
+          <span class="question-num">${idx + 6})</span>
+          <span class="given-temp">${q.given}°F</span>
+          <span class="arrow">→</span>
+          <div class="answer-group">
+            <input type="number" step="any" class="answer-input" id="input-${q.id}-c" placeholder="?">
+            <span class="unit-label">°C</span>
+          </div>
+          <div class="answer-group">
+            <input type="number" step="any" class="answer-input" id="input-${q.id}-k" placeholder="?">
+            <span class="unit-label">K</span>
+          </div>
+          <button class="check-btn" id="btn-${q.id}" onclick="checkRow(${q.id}, ${q.toC}, ${q.toK}, 'fc', 'fk')">Check</button>
+          <span class="feedback" id="fb-${q.id}"></span>
+        `;
+        container.appendChild(row);
+      });
+    }
+    
+    function buildSection3() {
+      const container = document.getElementById('section3');
+      questions.section3.forEach((q, idx) => {
+        const row = document.createElement('div');
+        row.className = 'question-row';
+        row.id = `row-${q.id}`;
+        row.innerHTML = `
+          <span class="question-num">${idx + 12})</span>
+          <span class="given-temp">${q.given}°C</span>
+          <span class="arrow">→</span>
+          <div class="answer-group">
+            <input type="number" step="any" class="answer-input" id="input-${q.id}-k" placeholder="?">
+            <span class="unit-label">K</span>
+          </div>
+          <div class="answer-group">
+            <input type="number" step="any" class="answer-input" id="input-${q.id}-f" placeholder="?">
+            <span class="unit-label">°F</span>
+          </div>
+          <button class="check-btn" id="btn-${q.id}" onclick="checkRow(${q.id}, ${q.toK}, ${q.toF}, 'ck', 'cf')">Check</button>
+          <span class="feedback" id="fb-${q.id}"></span>
+        `;
+        container.appendChild(row);
+      });
+    }
+    
+    function buildSection4() {
+      const container = document.getElementById('section4');
+      questions.section4.forEach((q, idx) => {
+        const row = document.createElement('div');
+        row.className = 'question-row';
+        row.id = `row-${q.id}`;
+        row.innerHTML = `
+          <span class="question-num">${idx + 16})</span>
+          <span class="given-temp">${q.given} K</span>
+          <span class="arrow">→</span>
+          <div class="answer-group">
+            <input type="number" step="any" class="answer-input" id="input-${q.id}-c" placeholder="?">
+            <span class="unit-label">°C</span>
+          </div>
+          <div class="answer-group">
+            <input type="number" step="any" class="answer-input" id="input-${q.id}-f" placeholder="?">
+            <span class="unit-label">°F</span>
+          </div>
+          <button class="check-btn" id="btn-${q.id}" onclick="checkRow(${q.id}, ${q.toC}, ${q.toF}, 'kc', 'kf')">Check</button>
+          <span class="feedback" id="fb-${q.id}"></span>
+        `;
+        container.appendChild(row);
+      });
+    }
+    
+    // Build all sections
+    buildSection1();
+    buildSection2();
+    buildSection3();
+    buildSection4();
+  </script>
+</body>
+</html>
