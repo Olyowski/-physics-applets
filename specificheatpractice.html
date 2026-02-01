@@ -1,0 +1,848 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Specific Heat Problems Practice</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Exo+2:wght@300;400;600&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Exo 2', sans-serif;
+            background: linear-gradient(135deg, #1a0a2e 0%, #4a1942 50%, #2d1b4e 100%);
+            min-height: 100vh;
+            color: #e0e0e0;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            font-family: 'Orbitron', sans-serif;
+            text-align: center;
+            font-size: 2.2em;
+            color: #ff6b6b;
+            text-shadow: 0 0 20px rgba(255, 107, 107, 0.5);
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: #f8b4b4;
+            margin-bottom: 25px;
+            font-size: 1.1em;
+        }
+        
+        .constants-box {
+            background: rgba(255, 255, 255, 0.08);
+            border: 2px solid #ff6b6b;
+            border-radius: 12px;
+            padding: 15px 20px;
+            margin-bottom: 25px;
+            box-shadow: 0 0 20px rgba(255, 107, 107, 0.2);
+        }
+        
+        .constants-title {
+            font-family: 'Orbitron', sans-serif;
+            color: #ff6b6b;
+            font-size: 1.1em;
+            margin-bottom: 10px;
+        }
+        
+        .constants-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 8px;
+            font-size: 0.9em;
+        }
+        
+        .constant-item {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 8px 12px;
+            border-radius: 6px;
+            border-left: 3px solid #ffd93d;
+        }
+        
+        .formula-box {
+            background: rgba(255, 217, 61, 0.1);
+            border: 2px solid #ffd93d;
+            border-radius: 12px;
+            padding: 15px 20px;
+            margin-bottom: 25px;
+            text-align: center;
+        }
+        
+        .formula-title {
+            font-family: 'Orbitron', sans-serif;
+            color: #ffd93d;
+            font-size: 1.1em;
+            margin-bottom: 10px;
+        }
+        
+        .formulas {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+            font-size: 1.2em;
+            font-weight: 600;
+        }
+        
+        .formula {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 10px 20px;
+            border-radius: 8px;
+        }
+        
+        .formula-note {
+            font-size: 0.85em;
+            color: #f8b4b4;
+            margin-top: 10px;
+        }
+        
+        .progress-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .score-display {
+            display: flex;
+            gap: 25px;
+        }
+        
+        .score-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 12px 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        
+        .score-label {
+            font-size: 0.85em;
+            color: #f8b4b4;
+            margin-bottom: 5px;
+        }
+        
+        .score-value {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.5em;
+            font-weight: 700;
+        }
+        
+        .correct-score { color: #6bff6b; }
+        .wrong-score { color: #ff6b6b; }
+        .remaining-score { color: #ffd93d; }
+        
+        .problem-card {
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+        
+        .problem-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .problem-number {
+            font-family: 'Orbitron', sans-serif;
+            color: #ff6b6b;
+            font-size: 1.3em;
+        }
+        
+        .problem-type {
+            background: rgba(255, 217, 61, 0.2);
+            color: #ffd93d;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+        
+        .problem-text {
+            font-size: 1.15em;
+            line-height: 1.6;
+            margin-bottom: 20px;
+            color: #f0e6f6;
+        }
+        
+        .answer-section {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .answer-input {
+            flex: 1;
+            min-width: 200px;
+            padding: 12px 18px;
+            font-size: 1.1em;
+            border: 2px solid #c77dff;
+            border-radius: 10px;
+            background: rgba(0, 0, 0, 0.3);
+            color: white;
+            font-family: 'Exo 2', sans-serif;
+        }
+        
+        .answer-input:focus {
+            outline: none;
+            border-color: #ff6b6b;
+            box-shadow: 0 0 15px rgba(255, 107, 107, 0.3);
+        }
+        
+        .unit-label {
+            color: #f8b4b4;
+            font-size: 1.1em;
+            min-width: 60px;
+        }
+        
+        .submit-btn {
+            padding: 12px 30px;
+            font-size: 1.1em;
+            font-family: 'Orbitron', sans-serif;
+            background: linear-gradient(135deg, #ff6b6b, #ee5a5a);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 700;
+            transition: all 0.3s ease;
+        }
+        
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(255, 107, 107, 0.4);
+        }
+        
+        .submit-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .feedback {
+            margin-top: 20px;
+            padding: 15px 20px;
+            border-radius: 10px;
+            font-size: 1.05em;
+            display: none;
+        }
+        
+        .feedback.correct {
+            display: block;
+            background: rgba(107, 255, 107, 0.2);
+            border: 2px solid #6bff6b;
+            color: #6bff6b;
+        }
+        
+        .feedback.incorrect {
+            display: block;
+            background: rgba(255, 107, 107, 0.2);
+            border: 2px solid #ff6b6b;
+            color: #ffb4b4;
+        }
+        
+        .hint {
+            margin-top: 10px;
+            padding: 10px 15px;
+            background: rgba(255, 217, 61, 0.15);
+            border-left: 4px solid #ffd93d;
+            border-radius: 0 8px 8px 0;
+            color: #ffd93d;
+        }
+        
+        /* Completion Screen */
+        .completion-screen {
+            display: none;
+            text-align: center;
+            padding: 40px;
+            background: linear-gradient(135deg, rgba(107, 255, 107, 0.2), rgba(255, 217, 61, 0.2));
+            border: 3px solid #6bff6b;
+            border-radius: 20px;
+            box-shadow: 0 0 50px rgba(107, 255, 107, 0.3);
+        }
+        
+        .completion-screen.show {
+            display: block;
+        }
+        
+        .completion-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2.5em;
+            color: #6bff6b;
+            text-shadow: 0 0 30px rgba(107, 255, 107, 0.5);
+            margin-bottom: 20px;
+        }
+        
+        .completion-emoji {
+            font-size: 4em;
+            margin-bottom: 20px;
+        }
+        
+        .completion-stats {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 20px 30px;
+            border-radius: 15px;
+            display: inline-block;
+            margin-bottom: 25px;
+        }
+        
+        .completion-stats p {
+            font-size: 1.3em;
+            margin: 10px 0;
+        }
+        
+        .submission-box {
+            background: rgba(255, 217, 61, 0.2);
+            border: 2px solid #ffd93d;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 25px 0;
+        }
+        
+        .submission-box h3 {
+            font-family: 'Orbitron', sans-serif;
+            color: #ffd93d;
+            margin-bottom: 10px;
+        }
+        
+        .restart-btn {
+            padding: 15px 40px;
+            font-size: 1.2em;
+            font-family: 'Orbitron', sans-serif;
+            background: linear-gradient(135deg, #c77dff, #9d4edd);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 700;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+        }
+        
+        .restart-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 25px rgba(199, 125, 255, 0.4);
+        }
+        
+        .main-content {
+            display: block;
+        }
+        
+        .main-content.hidden {
+            display: none;
+        }
+        
+        @media (max-width: 600px) {
+            h1 { font-size: 1.6em; }
+            .score-display { flex-direction: column; gap: 10px; }
+            .formulas { font-size: 1em; }
+            .constants-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔥 Specific Heat Problems</h1>
+        <p class="subtitle">Master thermal energy calculations • Complete all 10 problems</p>
+        
+        <div class="main-content" id="mainContent">
+            <div class="formula-box">
+                <div class="formula-title">📐 FORMULA</div>
+                <div class="formulas">
+                    <span class="formula">Q = mc(T<sub>h</sub> - T<sub>c</sub>)</span>
+                    <span class="formula">mc(T<sub>h</sub> - T<sub>c</sub>) = mc(T<sub>h</sub> - T<sub>c</sub>)</span>
+                </div>
+                <p class="formula-note">Q = Heat (J) • m = Mass (kg) • c = Specific Heat (J/kg·°C) • T<sub>h</sub> = Hot temp • T<sub>c</sub> = Cold temp</p>
+            </div>
+            
+            <div class="constants-box">
+                <div class="constants-title">📊 SPECIFIC HEAT VALUES (J/kg·°C)</div>
+                <div class="constants-grid">
+                    <div class="constant-item">Aluminum: 899</div>
+                    <div class="constant-item">Brass: 384</div>
+                    <div class="constant-item">Copper: 387</div>
+                    <div class="constant-item">Glass: 837</div>
+                    <div class="constant-item">Gold: 129</div>
+                    <div class="constant-item">Ice: 2090</div>
+                    <div class="constant-item">Iron: 448</div>
+                    <div class="constant-item">Lead: 128</div>
+                    <div class="constant-item">Mercury: 234</div>
+                    <div class="constant-item">Steam: 2010</div>
+                    <div class="constant-item">Water: 4186</div>
+                    <div class="constant-item">Zinc: 387</div>
+                </div>
+            </div>
+            
+            <div class="progress-section">
+                <div class="score-display">
+                    <div class="score-item">
+                        <div class="score-label">Correct</div>
+                        <div class="score-value correct-score" id="correctCount">0</div>
+                    </div>
+                    <div class="score-item">
+                        <div class="score-label">Wrong</div>
+                        <div class="score-value wrong-score" id="wrongCount">0</div>
+                    </div>
+                    <div class="score-item">
+                        <div class="score-label">Remaining</div>
+                        <div class="score-value remaining-score" id="remainingCount">10</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="problem-card" id="problemCard">
+                <div class="problem-header">
+                    <span class="problem-number" id="problemNumber">Problem 1</span>
+                    <span class="problem-type" id="problemType">Q = mcΔT</span>
+                </div>
+                <p class="problem-text" id="problemText"></p>
+                <div class="answer-section">
+                    <input type="text" class="answer-input" id="answerInput" placeholder="Enter your answer">
+                    <span class="unit-label" id="unitLabel">J</span>
+                    <button class="submit-btn" id="submitBtn" onclick="checkAnswer()">Check</button>
+                </div>
+                <div class="feedback" id="feedback"></div>
+            </div>
+        </div>
+        
+        <div class="completion-screen" id="completionScreen">
+            <div class="completion-emoji">🎉🔥🎉</div>
+            <h2 class="completion-title">ALL PROBLEMS COMPLETE!</h2>
+            <div class="completion-stats">
+                <p>✅ <span id="finalCorrect">10</span> Correct</p>
+                <p>❌ <span id="finalWrong">0</span> Wrong</p>
+                <p>📊 Score: <span id="finalPercent">100</span>%</p>
+            </div>
+            <div class="submission-box">
+                <h3>📸 SUBMISSION INSTRUCTIONS</h3>
+                <p>Take a screenshot of this screen and submit it on <strong>Schoology</strong></p>
+            </div>
+            <button class="restart-btn" onclick="resetQuiz()">🔄 Practice Again</button>
+        </div>
+    </div>
+
+    <script>
+        // Specific heat values
+        const specificHeats = {
+            aluminum: 899,
+            brass: 384,
+            copper: 387,
+            glass: 837,
+            gold: 129,
+            ice: 2090,
+            iron: 448,
+            lead: 128,
+            mercury: 234,
+            steam: 2010,
+            water: 4186,
+            zinc: 387
+        };
+
+        // Problem templates
+        const problemTemplates = [
+            {
+                id: 1,
+                type: "Q = mcΔT",
+                generate: () => {
+                    const mass = (Math.random() * 4 + 3).toFixed(1); // 3-7 kg
+                    const t1 = Math.round(Math.random() * 15 + 20); // 20-35°C
+                    const t2 = Math.round(Math.random() * 30 + 80); // 80-110°C
+                    const answer = mass * specificHeats.gold * (t2 - t1);
+                    return {
+                        text: `How much thermal energy is required to raise the temperature of ${mass} kg of Gold from ${t1}°C to ${t2}°C?`,
+                        answer: answer,
+                        unit: "J",
+                        hint: "Use Q = mc(Th - Tc) with c for Gold = 129 J/kg·°C"
+                    };
+                }
+            },
+            {
+                id: 2,
+                type: "Q = mcΔT",
+                generate: () => {
+                    const mass = (Math.random() * 8 + 6).toFixed(1); // 6-14 kg
+                    const t1 = Math.round(Math.random() * 15 + 18); // 18-33°C
+                    const t2 = Math.round(Math.random() * 80 + 120); // 120-200°C
+                    const answer = mass * specificHeats.copper * (t2 - t1);
+                    return {
+                        text: `How much thermal energy is required to raise the temperature of ${mass} kg of Copper from ${t1}°C to ${t2}°C?`,
+                        answer: answer,
+                        unit: "J",
+                        hint: "Use Q = mc(Th - Tc) with c for Copper = 387 J/kg·°C"
+                    };
+                }
+            },
+            {
+                id: 3,
+                type: "Q = mcΔT",
+                generate: () => {
+                    const mass = (Math.random() * 4 + 3).toFixed(1); // 3-7 kg
+                    const t1 = Math.round(Math.random() * 15 + 20); // 20-35°C
+                    const t2 = Math.round(Math.random() * 30 + 80); // 80-110°C
+                    const answer = mass * specificHeats.water * (t2 - t1);
+                    return {
+                        text: `How much thermal energy is required to raise the temperature of ${mass} kg of Water from ${t1}°C to ${t2}°C?`,
+                        answer: answer,
+                        unit: "J",
+                        hint: "Use Q = mc(Th - Tc) with c for Water = 4186 J/kg·°C"
+                    };
+                }
+            },
+            {
+                id: 4,
+                type: "Find c (equilibrium)",
+                generate: () => {
+                    const massBrass = (Math.random() * 0.4 + 0.4).toFixed(2); // 0.4-0.8 kg
+                    const massWater = (Math.random() * 1.5 + 2).toFixed(1); // 2-3.5 kg
+                    const tBrass = Math.round(Math.random() * 20 + 90); // 90-110°C
+                    const tWater = Math.round(Math.random() * 8 + 3); // 3-11°C
+                    // Calculate equilibrium temp that gives ~384 for brass
+                    const tEq = (tWater + (Math.random() * 3 + 1)).toFixed(1); // slightly above water temp
+                    // Q lost by brass = Q gained by water
+                    // massBrass * cBrass * (tBrass - tEq) = massWater * 4186 * (tEq - tWater)
+                    const cBrass = (massWater * 4186 * (tEq - tWater)) / (massBrass * (tBrass - tEq));
+                    return {
+                        text: `Brass is an alloy made from copper and zinc. A ${massBrass} kg brass sample at ${tBrass}°C is dropped into ${massWater} kg of water at ${tWater}°C. If the equilibrium temperature is ${tEq}°C, calculate the specific heat capacity of brass for this experiment.`,
+                        answer: cBrass,
+                        unit: "J/kg·°C",
+                        hint: "Heat lost by brass = Heat gained by water. Solve for c of brass."
+                    };
+                }
+            },
+            {
+                id: 5,
+                type: "Find c & Identify",
+                generate: () => {
+                    // Pick a random metal
+                    const metals = ['gold', 'lead', 'mercury', 'iron', 'aluminum'];
+                    const metal = metals[Math.floor(Math.random() * metals.length)];
+                    const cMetal = specificHeats[metal];
+                    
+                    const massMetal = (Math.random() * 0.3 + 0.4).toFixed(2); // 0.4-0.7 kg
+                    const massWater = (Math.random() * 0.5 + 0.8).toFixed(1); // 0.8-1.3 kg
+                    const tMetal = Math.round(Math.random() * 20 + 90); // 90-110°C
+                    const tWater = Math.round(Math.random() * 5 + 20); // 20-25°C
+                    
+                    // Calculate equilibrium temp
+                    // massMetal * cMetal * (tMetal - tEq) = massWater * 4186 * (tEq - tWater)
+                    const tEq = ((massMetal * cMetal * tMetal) + (massWater * 4186 * tWater)) / ((massMetal * cMetal) + (massWater * 4186));
+                    
+                    return {
+                        text: `A ${massMetal} kg metal bolt is heated to ${tMetal}°C. It is then dropped into a bucket containing ${massWater} kg of water with an initial temperature of ${tWater}°C. If the final temperature of the bolt and water is ${tEq.toFixed(1)}°C, find the specific heat capacity of the metal.`,
+                        answer: cMetal,
+                        unit: "J/kg·°C",
+                        hint: "Heat lost by metal = Heat gained by water. Then identify using the table.",
+                        identify: metal.charAt(0).toUpperCase() + metal.slice(1)
+                    };
+                }
+            },
+            {
+                id: 6,
+                type: "Find c & Identify",
+                generate: () => {
+                    const metals = ['copper', 'zinc', 'brass', 'glass'];
+                    const metal = metals[Math.floor(Math.random() * metals.length)];
+                    const cMetal = specificHeats[metal];
+                    
+                    const massMetal = (Math.random() * 0.15 + 0.2).toFixed(2); // 0.2-0.35 kg
+                    const massWater = (Math.random() * 0.4 + 1).toFixed(1); // 1-1.4 kg
+                    const tMetal = Math.round(Math.random() * 20 + 90); // 90-110°C
+                    const tWater = Math.round(Math.random() * 5 + 21); // 21-26°C
+                    
+                    const tEq = ((massMetal * cMetal * tMetal) + (massWater * 4186 * tWater)) / ((massMetal * cMetal) + (massWater * 4186));
+                    
+                    return {
+                        text: `A ${massMetal} kg metal bolt is heated to ${tMetal}°C. It is then dropped into a bucket containing ${massWater} kg of water with an initial temperature of ${tWater}°C. If the final temperature of the bolt and water is ${tEq.toFixed(1)}°C, find the specific heat capacity of the metal.`,
+                        answer: cMetal,
+                        unit: "J/kg·°C",
+                        hint: "Heat lost by metal = Heat gained by water. Then identify using the table.",
+                        identify: metal.charAt(0).toUpperCase() + metal.slice(1)
+                    };
+                }
+            },
+            {
+                id: 7,
+                type: "Find c & Identify",
+                generate: () => {
+                    const metals = ['iron', 'aluminum', 'gold', 'lead'];
+                    const metal = metals[Math.floor(Math.random() * metals.length)];
+                    const cMetal = specificHeats[metal];
+                    
+                    const massMetal = (Math.random() * 0.2 + 0.25).toFixed(2); // 0.25-0.45 kg
+                    const massWater = (Math.random() * 0.6 + 1.5).toFixed(1); // 1.5-2.1 kg
+                    const tMetal = Math.round(Math.random() * 20 + 90); // 90-110°C
+                    const tWater = Math.round(Math.random() * 6 + 22); // 22-28°C
+                    
+                    const tEq = ((massMetal * cMetal * tMetal) + (massWater * 4186 * tWater)) / ((massMetal * cMetal) + (massWater * 4186));
+                    
+                    return {
+                        text: `A ${massMetal} kg metal bolt is heated to ${tMetal}°C. It is then dropped into a bucket containing ${massWater} kg of water with an initial temperature of ${tWater}°C. If the final temperature of the bolt and water is ${tEq.toFixed(1)}°C, find the specific heat capacity of the metal.`,
+                        answer: cMetal,
+                        unit: "J/kg·°C",
+                        hint: "Heat lost by metal = Heat gained by water. Then identify using the table.",
+                        identify: metal.charAt(0).toUpperCase() + metal.slice(1)
+                    };
+                }
+            },
+            {
+                id: 8,
+                type: "Find mass of water",
+                generate: () => {
+                    const massGold = (Math.random() * 2 + 2).toFixed(1); // 2-4 kg
+                    const tGold = Math.round(Math.random() * 20 + 90); // 90-110°C
+                    const tWater = Math.round(Math.random() * 8 + 22); // 22-30°C
+                    const tFinal = Math.round(Math.random() * 8 + 26); // 26-34°C (must be > tWater and < tGold)
+                    
+                    // Q lost by gold = Q gained by water
+                    // massGold * 129 * (tGold - tFinal) = massWater * 4186 * (tFinal - tWater)
+                    const massWater = (massGold * 129 * (tGold - tFinal)) / (4186 * (tFinal - tWater));
+                    
+                    return {
+                        text: `How many kilograms of water at ${tWater}°C must come to thermal equilibrium with a ${massGold} kg gold bar at ${tGold}°C in order to lower the bar's temperature to ${tFinal}°C?`,
+                        answer: massWater,
+                        unit: "kg",
+                        hint: "Heat lost by gold = Heat gained by water. Solve for mass of water."
+                    };
+                }
+            },
+            {
+                id: 9,
+                type: "Find mass of water",
+                generate: () => {
+                    const massLead = (Math.random() * 2 + 2).toFixed(1); // 2-4 kg
+                    const tLead = Math.round(Math.random() * 20 + 95); // 95-115°C
+                    const tWater = Math.round(Math.random() * 8 + 22); // 22-30°C
+                    const tFinal = Math.round(Math.random() * 20 + 40); // 40-60°C
+                    
+                    const massWater = (massLead * 128 * (tLead - tFinal)) / (4186 * (tFinal - tWater));
+                    
+                    return {
+                        text: `How many kilograms of water at ${tWater}°C must come to thermal equilibrium with a ${massLead} kg lead bar at ${tLead}°C in order to lower the bar's temperature to ${tFinal}°C?`,
+                        answer: massWater,
+                        unit: "kg",
+                        hint: "Heat lost by lead = Heat gained by water. Solve for mass of water."
+                    };
+                }
+            },
+            {
+                id: 10,
+                type: "Find mass of water",
+                generate: () => {
+                    const massAlum = (Math.random() * 2 + 2).toFixed(1); // 2-4 kg
+                    const tAlum = Math.round(Math.random() * 30 + 120); // 120-150°C
+                    const tWater = Math.round(Math.random() * 8 + 22); // 22-30°C
+                    const tFinal = Math.round(Math.random() * 10 + 32); // 32-42°C
+                    
+                    const massWater = (massAlum * 899 * (tAlum - tFinal)) / (4186 * (tFinal - tWater));
+                    
+                    return {
+                        text: `How many kilograms of water at ${tWater}°C must come to thermal equilibrium with a ${massAlum} kg aluminum bar at ${tAlum}°C in order to lower the bar's temperature to ${tFinal}°C?`,
+                        answer: massWater,
+                        unit: "kg",
+                        hint: "Heat lost by aluminum = Heat gained by water. Solve for mass of water."
+                    };
+                }
+            }
+        ];
+
+        // Game state
+        let problems = [];
+        let currentProblem = 0;
+        let correctCount = 0;
+        let wrongCount = 0;
+        let answered = [];
+
+        // Initialize the quiz
+        function initQuiz() {
+            problems = problemTemplates.map(template => template.generate());
+            answered = new Array(10).fill(null);
+            currentProblem = 0;
+            correctCount = 0;
+            wrongCount = 0;
+            
+            showProblem(0);
+            updateScores();
+        }
+
+        function showProblem(index) {
+            currentProblem = index;
+            const problem = problems[index];
+            
+            document.getElementById('problemNumber').textContent = `Problem ${index + 1} of 10`;
+            document.getElementById('problemType').textContent = problemTemplates[index].type;
+            document.getElementById('problemText').textContent = problem.text;
+            document.getElementById('answerInput').value = '';
+            document.getElementById('feedback').className = 'feedback';
+            document.getElementById('feedback').innerHTML = '';
+            document.getElementById('unitLabel').textContent = problem.unit;
+            
+            // Disable input if already answered
+            const input = document.getElementById('answerInput');
+            const submitBtn = document.getElementById('submitBtn');
+            if (answered[index] !== null) {
+                input.disabled = true;
+                submitBtn.disabled = true;
+                showPreviousFeedback(index);
+            } else {
+                input.disabled = false;
+                submitBtn.disabled = false;
+                input.focus();
+            }
+        }
+
+        function showPreviousFeedback(index) {
+            const feedback = document.getElementById('feedback');
+            const problem = problems[index];
+            
+            if (answered[index] === true) {
+                feedback.className = 'feedback correct';
+                feedback.innerHTML = `✅ Correct! The answer is ${formatNumber(problem.answer)} ${problem.unit}`;
+            } else {
+                feedback.className = 'feedback incorrect';
+                feedback.innerHTML = `❌ Incorrect. The correct answer was ${formatNumber(problem.answer)} ${problem.unit}<div class="hint">💡 ${problem.hint}</div>`;
+            }
+        }
+
+        function checkAnswer() {
+            if (answered[currentProblem] !== null) return;
+            
+            const input = document.getElementById('answerInput').value.trim();
+            const problem = problems[currentProblem];
+            const feedback = document.getElementById('feedback');
+            
+            // Parse user answer
+            let userAnswer = parseFloat(input.replace(/[,\s]/g, ''));
+            
+            // Handle scientific notation input
+            if (input.toLowerCase().includes('e') || input.includes('×') || input.includes('x')) {
+                const match = input.match(/([0-9.]+)\s*[×xeE]\s*10\s*[\^]?\s*([0-9]+)/);
+                if (match) {
+                    userAnswer = parseFloat(match[1]) * Math.pow(10, parseInt(match[2]));
+                }
+            }
+            
+            // Check if answer is within 5% tolerance
+            const tolerance = Math.abs(problem.answer * 0.05);
+            const isCorrect = Math.abs(userAnswer - problem.answer) <= tolerance;
+            
+            if (isCorrect) {
+                answered[currentProblem] = true;
+                correctCount++;
+                feedback.className = 'feedback correct';
+                let msg = `✅ Correct! The answer is ${formatNumber(problem.answer)} ${problem.unit}`;
+                if (problem.identify) {
+                    msg += ` (${problem.identify})`;
+                }
+                feedback.innerHTML = msg;
+            } else {
+                answered[currentProblem] = false;
+                wrongCount++;
+                feedback.className = 'feedback incorrect';
+                let msg = `❌ Incorrect. The correct answer was ${formatNumber(problem.answer)} ${problem.unit}`;
+                if (problem.identify) {
+                    msg += ` (${problem.identify})`;
+                }
+                msg += `<div class="hint">💡 ${problem.hint}</div>`;
+                feedback.innerHTML = msg;
+            }
+            
+            // Disable input
+            document.getElementById('answerInput').disabled = true;
+            document.getElementById('submitBtn').disabled = true;
+            
+            updateScores();
+            checkEndConditions();
+        }
+
+        function formatNumber(num) {
+            if (Math.abs(num) >= 1e6) {
+                return (num / 1e6).toFixed(2) + ' × 10⁶';
+            } else if (Math.abs(num) >= 1e5) {
+                return (num / 1e5).toFixed(2) + ' × 10⁵';
+            } else if (Math.abs(num) >= 1e4) {
+                return num.toLocaleString(undefined, {maximumFractionDigits: 0});
+            } else if (Math.abs(num) >= 100) {
+                return num.toFixed(1);
+            } else if (Math.abs(num) >= 1) {
+                return num.toFixed(2);
+            } else {
+                return num.toFixed(3);
+            }
+        }
+
+        function updateScores() {
+            document.getElementById('correctCount').textContent = correctCount;
+            document.getElementById('wrongCount').textContent = wrongCount;
+            const remaining = 10 - (correctCount + wrongCount);
+            document.getElementById('remainingCount').textContent = remaining;
+        }
+
+        function checkEndConditions() {
+            // Check if all problems answered
+            const allAnswered = answered.every(a => a !== null);
+            
+            if (allAnswered) {
+                setTimeout(showCompletion, 1500);
+                return;
+            }
+            
+            // Auto-advance to next unanswered problem
+            setTimeout(() => {
+                for (let i = 0; i < 10; i++) {
+                    if (answered[i] === null) {
+                        showProblem(i);
+                        return;
+                    }
+                }
+            }, 4000);
+        }
+
+        function showCompletion() {
+            document.getElementById('mainContent').classList.add('hidden');
+            document.getElementById('completionScreen').classList.add('show');
+            
+            const percent = Math.round((correctCount / 10) * 100);
+            
+            document.getElementById('finalCorrect').textContent = correctCount;
+            document.getElementById('finalWrong').textContent = wrongCount;
+            document.getElementById('finalPercent').textContent = percent;
+        }
+
+        function resetQuiz() {
+            document.getElementById('mainContent').classList.remove('hidden');
+            document.getElementById('completionScreen').classList.remove('show');
+            initQuiz();
+        }
+
+        // Handle Enter key
+        document.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && !document.getElementById('submitBtn').disabled) {
+                checkAnswer();
+            }
+        });
+
+        // Initialize on load
+        initQuiz();
+    </script>
+</body>
+</html>
