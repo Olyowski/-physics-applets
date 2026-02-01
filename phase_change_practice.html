@@ -1,0 +1,891 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phase Change Problems Practice</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Exo+2:wght@300;400;600&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Exo 2', sans-serif;
+            background: linear-gradient(135deg, #0c1445 0%, #1a237e 50%, #0d47a1 100%);
+            min-height: 100vh;
+            color: #e0e0e0;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            font-family: 'Orbitron', sans-serif;
+            text-align: center;
+            font-size: 2.2em;
+            color: #00e5ff;
+            text-shadow: 0 0 20px rgba(0, 229, 255, 0.5);
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: #90caf9;
+            margin-bottom: 25px;
+            font-size: 1.1em;
+        }
+        
+        .constants-box {
+            background: rgba(255, 255, 255, 0.08);
+            border: 2px solid #00e5ff;
+            border-radius: 12px;
+            padding: 15px 20px;
+            margin-bottom: 25px;
+            box-shadow: 0 0 20px rgba(0, 229, 255, 0.2);
+        }
+        
+        .constants-title {
+            font-family: 'Orbitron', sans-serif;
+            color: #00e5ff;
+            font-size: 1.1em;
+            margin-bottom: 10px;
+        }
+        
+        .constants-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 8px;
+            font-size: 0.95em;
+        }
+        
+        .constant-item {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 8px 12px;
+            border-radius: 6px;
+            border-left: 3px solid #ffab00;
+        }
+        
+        .formula-box {
+            background: rgba(255, 171, 0, 0.1);
+            border: 2px solid #ffab00;
+            border-radius: 12px;
+            padding: 15px 20px;
+            margin-bottom: 25px;
+            text-align: center;
+        }
+        
+        .formula-title {
+            font-family: 'Orbitron', sans-serif;
+            color: #ffab00;
+            font-size: 1.1em;
+            margin-bottom: 10px;
+        }
+        
+        .formulas {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+            font-size: 1.2em;
+            font-weight: 600;
+        }
+        
+        .formula {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 10px 20px;
+            border-radius: 8px;
+        }
+        
+        .progress-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .score-display {
+            display: flex;
+            gap: 25px;
+        }
+        
+        .score-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 12px 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        
+        .score-label {
+            font-size: 0.85em;
+            color: #90caf9;
+            margin-bottom: 5px;
+        }
+        
+        .score-value {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.5em;
+            font-weight: 700;
+        }
+        
+        .correct-score { color: #69f0ae; }
+        .wrong-score { color: #ff5252; }
+        .remaining-score { color: #00e5ff; }
+        
+
+        
+        .problem-card {
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+        
+        .problem-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .problem-number {
+            font-family: 'Orbitron', sans-serif;
+            color: #00e5ff;
+            font-size: 1.3em;
+        }
+        
+        .problem-type {
+            background: rgba(255, 171, 0, 0.2);
+            color: #ffab00;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+        
+        .problem-text {
+            font-size: 1.15em;
+            line-height: 1.6;
+            margin-bottom: 20px;
+            color: #e3f2fd;
+        }
+        
+        .multi-step-note {
+            background: rgba(255, 82, 82, 0.2);
+            border: 1px solid #ff5252;
+            color: #ff8a80;
+            padding: 10px 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+        
+        .answer-section {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .answer-input {
+            flex: 1;
+            min-width: 200px;
+            padding: 12px 18px;
+            font-size: 1.1em;
+            border: 2px solid #64b5f6;
+            border-radius: 10px;
+            background: rgba(0, 0, 0, 0.3);
+            color: white;
+            font-family: 'Exo 2', sans-serif;
+        }
+        
+        .answer-input:focus {
+            outline: none;
+            border-color: #00e5ff;
+            box-shadow: 0 0 15px rgba(0, 229, 255, 0.3);
+        }
+        
+        .unit-label {
+            color: #90caf9;
+            font-size: 1.1em;
+            min-width: 40px;
+        }
+        
+        .submit-btn {
+            padding: 12px 30px;
+            font-size: 1.1em;
+            font-family: 'Orbitron', sans-serif;
+            background: linear-gradient(135deg, #00e5ff, #00b8d4);
+            color: #0c1445;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 700;
+            transition: all 0.3s ease;
+        }
+        
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(0, 229, 255, 0.4);
+        }
+        
+        .submit-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .feedback {
+            margin-top: 20px;
+            padding: 15px 20px;
+            border-radius: 10px;
+            font-size: 1.05em;
+            display: none;
+        }
+        
+        .feedback.correct {
+            display: block;
+            background: rgba(105, 240, 174, 0.2);
+            border: 2px solid #69f0ae;
+            color: #69f0ae;
+        }
+        
+        .feedback.incorrect {
+            display: block;
+            background: rgba(255, 82, 82, 0.2);
+            border: 2px solid #ff5252;
+            color: #ff8a80;
+        }
+        
+        .hint {
+            margin-top: 10px;
+            padding: 10px 15px;
+            background: rgba(255, 171, 0, 0.15);
+            border-left: 4px solid #ffab00;
+            border-radius: 0 8px 8px 0;
+            color: #ffd54f;
+        }
+        
+        /* Completion Screen */
+        .completion-screen {
+            display: none;
+            text-align: center;
+            padding: 40px;
+            background: linear-gradient(135deg, rgba(105, 240, 174, 0.2), rgba(0, 229, 255, 0.2));
+            border: 3px solid #69f0ae;
+            border-radius: 20px;
+            box-shadow: 0 0 50px rgba(105, 240, 174, 0.3);
+        }
+        
+        .completion-screen.show {
+            display: block;
+        }
+        
+        .completion-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2.5em;
+            color: #69f0ae;
+            text-shadow: 0 0 30px rgba(105, 240, 174, 0.5);
+            margin-bottom: 20px;
+        }
+        
+        .completion-emoji {
+            font-size: 4em;
+            margin-bottom: 20px;
+        }
+        
+        .completion-stats {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 20px 30px;
+            border-radius: 15px;
+            display: inline-block;
+            margin-bottom: 25px;
+        }
+        
+        .completion-stats p {
+            font-size: 1.3em;
+            margin: 10px 0;
+        }
+        
+        .submission-box {
+            background: rgba(255, 171, 0, 0.2);
+            border: 2px solid #ffab00;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 25px 0;
+        }
+        
+        .submission-box h3 {
+            font-family: 'Orbitron', sans-serif;
+            color: #ffab00;
+            margin-bottom: 10px;
+        }
+        
+        .restart-btn {
+            padding: 15px 40px;
+            font-size: 1.2em;
+            font-family: 'Orbitron', sans-serif;
+            background: linear-gradient(135deg, #ff5252, #d32f2f);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 700;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+        }
+        
+        .restart-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 25px rgba(255, 82, 82, 0.4);
+        }
+        
+        /* Fail Screen */
+        .fail-screen {
+            display: none;
+            text-align: center;
+            padding: 40px;
+            background: linear-gradient(135deg, rgba(255, 82, 82, 0.2), rgba(211, 47, 47, 0.2));
+            border: 3px solid #ff5252;
+            border-radius: 20px;
+        }
+        
+        .fail-screen.show {
+            display: block;
+        }
+        
+        .fail-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2em;
+            color: #ff5252;
+            margin-bottom: 15px;
+        }
+        
+        .fail-message {
+            font-size: 1.2em;
+            color: #ff8a80;
+            margin-bottom: 20px;
+        }
+        
+        .main-content {
+            display: block;
+        }
+        
+        .main-content.hidden {
+            display: none;
+        }
+        
+        @media (max-width: 600px) {
+            h1 { font-size: 1.6em; }
+            .problem-btn { width: 35px; height: 35px; font-size: 0.9em; }
+            .score-display { flex-direction: column; gap: 10px; }
+            .formulas { font-size: 1em; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>⚗️ Phase Change Problems</h1>
+        <p class="subtitle">Master heat calculations • Get 10 correct to pass • Max 5 wrong</p>
+        
+        <div class="main-content" id="mainContent">
+            <div class="formula-box">
+                <div class="formula-title">📐 FORMULAS</div>
+                <div class="formulas">
+                    <span class="formula">Q = mcΔT</span>
+                    <span class="formula">Q = mH<sub>f</sub></span>
+                    <span class="formula">Q = mH<sub>v</sub></span>
+                </div>
+            </div>
+            
+            <div class="constants-box">
+                <div class="constants-title">📊 CONSTANTS FOR WATER</div>
+                <div class="constants-grid">
+                    <div class="constant-item">H<sub>v</sub> = 2.26 × 10<sup>6</sup> J/kg</div>
+                    <div class="constant-item">H<sub>f</sub> = 3.35 × 10<sup>5</sup> J/kg</div>
+                    <div class="constant-item">c (water) = 4186 J/kg·°C</div>
+                    <div class="constant-item">c (steam) = 2010 J/kg·°C</div>
+                    <div class="constant-item">c (ice) = 2093 J/kg·°C</div>
+                </div>
+            </div>
+            
+            <div class="progress-section">
+                <div class="score-display">
+                    <div class="score-item">
+                        <div class="score-label">Correct</div>
+                        <div class="score-value correct-score" id="correctCount">0</div>
+                    </div>
+                    <div class="score-item">
+                        <div class="score-label">Wrong</div>
+                        <div class="score-value wrong-score" id="wrongCount">0</div>
+                    </div>
+                    <div class="score-item">
+                        <div class="score-label">Need</div>
+                        <div class="score-value remaining-score" id="remainingCount">10</div>
+                    </div>
+                </div>
+            </div>
+            
+
+            <div class="problem-card" id="problemCard">
+                <div class="problem-header">
+                    <span class="problem-number" id="problemNumber">Problem 1</span>
+                    <span class="problem-type" id="problemType">Q=mcΔT</span>
+                </div>
+                <div class="multi-step-note" id="multiStepNote" style="display: none;">
+                    ⚠️ MULTI-STEP PROBLEM - Use multiple formulas!
+                </div>
+                <p class="problem-text" id="problemText"></p>
+                <div class="answer-section">
+                    <input type="text" class="answer-input" id="answerInput" placeholder="Enter your answer">
+                    <span class="unit-label">J</span>
+                    <button class="submit-btn" id="submitBtn" onclick="checkAnswer()">Check</button>
+                </div>
+                <div class="feedback" id="feedback"></div>
+            </div>
+        </div>
+        
+        <div class="completion-screen" id="completionScreen">
+            <div class="completion-emoji">🎉🏆🎉</div>
+            <h2 class="completion-title">MASTERY ACHIEVED!</h2>
+            <div class="completion-stats">
+                <p>✅ <span id="finalCorrect">10</span> Correct</p>
+                <p>❌ <span id="finalWrong">0</span> Wrong</p>
+                <p>📊 Score: <span id="finalPercent">100</span>%</p>
+            </div>
+            <div class="submission-box">
+                <h3>📸 SUBMISSION INSTRUCTIONS</h3>
+                <p>Take a screenshot of this screen and submit it on <strong>Schoology</strong></p>
+            </div>
+            <button class="restart-btn" onclick="resetQuiz()">🔄 Practice Again</button>
+        </div>
+        
+        <div class="fail-screen" id="failScreen">
+            <div class="completion-emoji">😕</div>
+            <h2 class="fail-title">Too Many Mistakes</h2>
+            <p class="fail-message">You got more than 5 wrong. Review the formulas and try again!</p>
+            <div class="hint" style="text-align: left; max-width: 400px; margin: 20px auto;">
+                <strong>Tips:</strong><br>
+                • Convert grams to kg (divide by 1000)<br>
+                • Use correct specific heat for each phase<br>
+                • For phase changes, use H<sub>f</sub> or H<sub>v</sub><br>
+                • Multi-step problems need multiple formulas
+            </div>
+            <button class="restart-btn" onclick="resetQuiz()">🔄 Try Again</button>
+        </div>
+    </div>
+
+    <script>
+        // Problem templates with variable ranges
+        const problemTemplates = [
+            {
+                id: 1,
+                type: "Q=mHf",
+                template: (m) => `How much energy is released when ${m} kg of liquid water at 0°C turns into ice?`,
+                generate: () => {
+                    const mass = (Math.random() * 0.8 + 0.3).toFixed(1); // 0.3 to 1.1 kg
+                    const answer = mass * 3.35e5;
+                    return { mass, answer, hint: "Use Q = mHf with Hf = 3.35 × 10⁵ J/kg" };
+                }
+            },
+            {
+                id: 2,
+                type: "Q=mcΔT",
+                template: (m) => `How many joules are required to heat ${m} kg of liquid water from 0°C to 100°C?`,
+                generate: () => {
+                    const mass = (Math.random() * 0.2 + 0.15).toFixed(2); // 0.15-0.35 kg
+                    const answer = mass * 4186 * 100;
+                    return { mass, answer, hint: "Use Q = mcΔT. c = 4186 J/kg·°C" };
+                }
+            },
+            {
+                id: 3,
+                type: "Q=mHf",
+                template: (m) => `How many joules are required to melt ${m} kg of ice?`,
+                generate: () => {
+                    const mass = (Math.random() * 0.15 + 0.05).toFixed(2); // 0.05-0.20 kg
+                    const answer = mass * 3.35e5;
+                    return { mass, answer, hint: "Use Q = mHf. Hf = 3.35 × 10⁵ J/kg" };
+                }
+            },
+            {
+                id: 4,
+                type: "Q=mHv",
+                template: (m) => `How many joules are required to boil ${m} kg of water?`,
+                generate: () => {
+                    const mass = (Math.random() * 0.15 + 0.1).toFixed(2); // 0.10-0.25 kg
+                    const answer = mass * 2.26e6;
+                    return { mass, answer, hint: "Use Q = mHv. Hv = 2.26 × 10⁶ J/kg" };
+                }
+            },
+            {
+                id: 5,
+                type: "Q=mcΔT",
+                template: (m, t1, t2) => `How many joules are required to heat ${m} kg of water from ${t1}°C to ${t2}°C?`,
+                generate: () => {
+                    const mass = (Math.random() * 0.15 + 0.15).toFixed(2); // 0.15-0.30 kg
+                    const t1 = Math.round(Math.random() * 30 + 15); // 15-45°C
+                    const t2 = Math.round(Math.random() * 20 + 80); // 80-100°C
+                    const answer = mass * 4186 * (t2 - t1);
+                    return { mass, t1, t2, answer, hint: "Use Q = mcΔT. Remember ΔT = final - initial" };
+                }
+            },
+            {
+                id: 6,
+                type: "Q=mcΔT",
+                template: (m, t1, t2) => `How many joules are given off when ${m} kg of water are cooled from ${t1}°C to ${t2}°C?`,
+                generate: () => {
+                    const mass = (Math.random() * 0.1 + 0.08).toFixed(2); // 0.08-0.18 kg
+                    const t1 = Math.round(Math.random() * 40 + 25); // 25-65°C
+                    const t2 = Math.round(Math.random() * 10); // 0-10°C
+                    const answer = mass * 4186 * (t1 - t2);
+                    return { mass, t1, t2, answer, hint: "Use Q = mcΔT. Energy released = positive value" };
+                }
+            },
+            {
+                id: 7,
+                type: "Q=mcΔT",
+                template: (m, t1, t2) => `How many joules are required to heat ${m} kg of water from ${t1}°C to ${t2}°C?`,
+                generate: () => {
+                    const mass = (Math.random() * 0.05 + 0.05).toFixed(2); // 0.05-0.10 kg
+                    const t1 = Math.round(Math.random() * 20 + 70); // 70-90°C
+                    const t2 = 100;
+                    const answer = mass * 4186 * (t2 - t1);
+                    return { mass, t1, t2, answer, hint: "Use Q = mcΔT. ΔT = 100 - starting temp" };
+                }
+            },
+            {
+                id: 8,
+                type: "Multi-Step",
+                template: (m, t1, t2) => `How many joules are required to heat a frozen can of juice (${m} kg) from ${t1}°C to ${t2}°C?`,
+                generate: () => {
+                    const mass = (Math.random() * 0.1 + 0.3).toFixed(2); // 0.30-0.40 kg
+                    const t1 = -Math.round(Math.random() * 10 + 3); // -3 to -13°C
+                    const t2 = Math.round(Math.random() * 20 + 105); // 105-125°C
+                    // Heat ice from t1 to 0
+                    const q1 = mass * 2093 * Math.abs(t1);
+                    // Melt ice
+                    const q2 = mass * 3.35e5;
+                    // Heat water from 0 to 100
+                    const q3 = mass * 4186 * 100;
+                    // Boil water
+                    const q4 = mass * 2.26e6;
+                    // Heat steam from 100 to t2
+                    const q5 = mass * 2010 * (t2 - 100);
+                    const answer = q1 + q2 + q3 + q4 + q5;
+                    return { mass, t1, t2, answer, multiStep: true, hint: "5 steps: heat ice + melt + heat water + boil + heat steam" };
+                }
+            },
+            {
+                id: 9,
+                type: "Q=mHf",
+                template: (m) => `How many joules are needed to completely melt ${m} kg of ice at 0°C?`,
+                generate: () => {
+                    const mass = (Math.random() * 0.03 + 0.015).toFixed(3); // 0.015-0.045 kg
+                    const answer = mass * 3.35e5;
+                    return { mass, answer, hint: "Use Q = mHf" };
+                }
+            },
+            {
+                id: 10,
+                type: "Multi-Step",
+                template: (m, t1, t2) => `How many joules are released as ${m} kg of steam at ${t1}°C cools to produce water at ${t2}°C?`,
+                generate: () => {
+                    const mass = (Math.random() * 0.01 + 0.005).toFixed(3); // 0.005-0.015 kg
+                    const t1 = Math.round(Math.random() * 15 + 105); // 105-120°C
+                    const t2 = Math.round(Math.random() * 30 + 20); // 20-50°C
+                    // Cool steam from t1 to 100
+                    const q1 = mass * 2010 * (t1 - 100);
+                    // Condense steam
+                    const q2 = mass * 2.26e6;
+                    // Cool water from 100 to t2
+                    const q3 = mass * 4186 * (100 - t2);
+                    const answer = q1 + q2 + q3;
+                    return { mass, t1, t2, answer, multiStep: true, hint: "3 steps: cool steam + condense + cool water" };
+                }
+            },
+            {
+                id: 11,
+                type: "Q=mHf",
+                template: (blocks, mass) => `An igloo is made of ${blocks} blocks of ice at 0°C, each with a mass of ${mass} kg. How much heat must be gained to melt the igloo?`,
+                generate: () => {
+                    const blocks = Math.round(Math.random() * 150 + 150); // 150-300 blocks
+                    const massPerBlock = Math.round(Math.random() * 8 + 8); // 8-16 kg each
+                    const totalMass = blocks * massPerBlock;
+                    const answer = totalMass * 3.35e5;
+                    return { blocks, massPerBlock, answer, hint: "Total mass = blocks × mass per block, then Q = mHf" };
+                }
+            },
+            {
+                id: 12,
+                type: "Q=mHv",
+                template: (m) => `How much energy is required to vaporize ${m} kg of water?`,
+                generate: () => {
+                    const mass = (Math.random() * 0.2 + 0.15).toFixed(2); // 0.15-0.35 kg
+                    const answer = mass * 2.26e6;
+                    return { mass, answer, hint: "Use Q = mHv" };
+                }
+            },
+            {
+                id: 13,
+                type: "Find Hv",
+                template: (q, m) => `If ${q} joules are required to vaporize ${m} kg of a substance, what is the heat of vaporization of that substance (in J/kg)?`,
+                generate: () => {
+                    const mass = (Math.random() * 0.03 + 0.015).toFixed(3); // 0.015-0.045 kg
+                    const hv = Math.round(Math.random() * 500000 + 800000); // 800000-1300000 J/kg
+                    const q = mass * hv;
+                    return { q: q.toFixed(0), mass, answer: hv, unit: "J/kg", hint: "Rearrange Q = mHv to solve for Hv = Q/m" };
+                }
+            },
+            {
+                id: 14,
+                type: "Q=mHf",
+                template: (m, hf) => `Calculate the heat energy required to melt ${m} kg of ice at 0.0°C. The heat of fusion of ice is ${hf} J/kg.`,
+                generate: () => {
+                    const mass = (Math.random() * 0.4 + 0.3).toFixed(2); // 0.30-0.70 kg
+                    const hf = Math.round(Math.random() * 20000 + 325000); // 325000-345000 J/kg
+                    const answer = mass * hf;
+                    return { mass, hf, answer, hint: "Q = m × Hf" };
+                }
+            },
+            {
+                id: 15,
+                type: "Q=mHv",
+                template: (m) => `Calculate the number of joules needed to turn ${m} kg of water at 100°C to steam at 100°C.`,
+                generate: () => {
+                    const mass = (Math.random() * 0.2 + 0.25).toFixed(2); // 0.25-0.45 kg
+                    const answer = mass * 2.26e6;
+                    return { mass, answer, hint: "Phase change only - use Q = mHv" };
+                }
+            }
+        ];
+
+        // Game state
+        let problems = [];
+        let currentProblem = 0;
+        let correctCount = 0;
+        let wrongCount = 0;
+        let answered = [];
+
+        // Initialize the quiz
+        function initQuiz() {
+            problems = problemTemplates.map((template, index) => {
+                const data = template.generate();
+                let text;
+                
+                // Generate problem text based on template
+                switch(index) {
+                    case 0: text = template.template(data.mass); break;
+                    case 1: text = template.template(data.mass); break;
+                    case 2: text = template.template(data.mass); break;
+                    case 3: text = template.template(data.mass); break;
+                    case 4: text = template.template(data.mass, data.t1, data.t2); break;
+                    case 5: text = template.template(data.mass, data.t1, data.t2); break;
+                    case 6: text = template.template(data.mass, data.t1, data.t2); break;
+                    case 7: text = template.template(data.mass, data.t1, data.t2); break;
+                    case 8: text = template.template(data.mass); break;
+                    case 9: text = template.template(data.mass, data.t1, data.t2); break;
+                    case 10: text = template.template(data.blocks, data.massPerBlock); break;
+                    case 11: text = template.template(data.mass); break;
+                    case 12: text = template.template(data.q, data.mass); break;
+                    case 13: text = template.template(data.mass, data.hf); break;
+                    case 14: text = template.template(data.mass); break;
+                    default: text = "";
+                }
+                
+                return {
+                    id: index + 1,
+                    type: template.type,
+                    text: text,
+                    answer: data.answer,
+                    hint: data.hint,
+                    multiStep: data.multiStep || false,
+                    unit: data.unit || "J"
+                };
+            });
+            
+            answered = new Array(15).fill(null);
+            currentProblem = 0;
+            correctCount = 0;
+            wrongCount = 0;
+            
+            showProblem(0);
+            updateScores();
+        }
+
+        function showProblem(index) {
+            currentProblem = index;
+            const problem = problems[index];
+            
+            document.getElementById('problemNumber').textContent = `Problem ${index + 1}`;
+            document.getElementById('problemType').textContent = problem.type;
+            document.getElementById('problemText').textContent = problem.text;
+            document.getElementById('multiStepNote').style.display = problem.multiStep ? 'block' : 'none';
+            document.getElementById('answerInput').value = '';
+            document.getElementById('feedback').className = 'feedback';
+            document.getElementById('feedback').innerHTML = '';
+            
+            // Update unit label
+            document.querySelector('.unit-label').textContent = problem.unit || 'J';
+            
+            // Disable input if already answered
+            const input = document.getElementById('answerInput');
+            const submitBtn = document.getElementById('submitBtn');
+            if (answered[index] !== null) {
+                input.disabled = true;
+                submitBtn.disabled = true;
+                showPreviousFeedback(index);
+            } else {
+                input.disabled = false;
+                submitBtn.disabled = false;
+                input.focus();
+            }
+        }
+
+        function showPreviousFeedback(index) {
+            const feedback = document.getElementById('feedback');
+            const problem = problems[index];
+            
+            if (answered[index] === true) {
+                feedback.className = 'feedback correct';
+                feedback.innerHTML = `✅ Correct! The answer is ${formatNumber(problem.answer)} ${problem.unit || 'J'}`;
+            } else {
+                feedback.className = 'feedback incorrect';
+                feedback.innerHTML = `❌ Incorrect. The correct answer was ${formatNumber(problem.answer)} ${problem.unit || 'J'}<div class="hint">💡 ${problem.hint}</div>`;
+            }
+        }
+
+        function checkAnswer() {
+            if (answered[currentProblem] !== null) return;
+            
+            const input = document.getElementById('answerInput').value.trim();
+            const problem = problems[currentProblem];
+            const feedback = document.getElementById('feedback');
+            
+            // Parse user answer
+            let userAnswer = parseFloat(input.replace(/[,\s]/g, ''));
+            
+            // Handle scientific notation input
+            if (input.toLowerCase().includes('e') || input.includes('×') || input.includes('x')) {
+                const match = input.match(/([0-9.]+)\s*[×xeE]\s*10\s*[\^]?\s*([0-9]+)/);
+                if (match) {
+                    userAnswer = parseFloat(match[1]) * Math.pow(10, parseInt(match[2]));
+                }
+            }
+            
+            // Check if answer is within 5% tolerance (for rounding differences)
+            const tolerance = Math.abs(problem.answer * 0.05);
+            const isCorrect = Math.abs(userAnswer - problem.answer) <= tolerance;
+            
+            if (isCorrect) {
+                answered[currentProblem] = true;
+                correctCount++;
+                feedback.className = 'feedback correct';
+                feedback.innerHTML = `✅ Correct! The answer is ${formatNumber(problem.answer)} ${problem.unit || 'J'}`;
+            } else {
+                answered[currentProblem] = false;
+                wrongCount++;
+                feedback.className = 'feedback incorrect';
+                feedback.innerHTML = `❌ Incorrect. The correct answer was ${formatNumber(problem.answer)} ${problem.unit || 'J'}<div class="hint">💡 ${problem.hint}</div>`;
+            }
+            
+            // Disable input
+            document.getElementById('answerInput').disabled = true;
+            document.getElementById('submitBtn').disabled = true;
+            
+            updateScores();
+            checkEndConditions();
+        }
+
+        function formatNumber(num) {
+            if (num >= 1e6) {
+                return (num / 1e6).toFixed(2) + ' × 10⁶';
+            } else if (num >= 1e5) {
+                return (num / 1e5).toFixed(2) + ' × 10⁵';
+            } else if (num >= 1e4) {
+                return (num / 1e4).toFixed(2) + ' × 10⁴';
+            } else if (num >= 1000) {
+                return num.toLocaleString(undefined, {maximumFractionDigits: 0});
+            } else {
+                return num.toFixed(1);
+            }
+        }
+
+        function updateScores() {
+            document.getElementById('correctCount').textContent = correctCount;
+            document.getElementById('wrongCount').textContent = wrongCount;
+            document.getElementById('remainingCount').textContent = Math.max(0, 10 - correctCount);
+        }
+
+        function checkEndConditions() {
+            // Win condition: 10 correct
+            if (correctCount >= 10) {
+                showCompletion();
+                return;
+            }
+            
+            // Fail condition: more than 5 wrong
+            if (wrongCount > 5) {
+                showFail();
+                return;
+            }
+            
+            // Auto-advance to next unanswered problem
+            setTimeout(() => {
+                for (let i = 0; i < 15; i++) {
+                    if (answered[i] === null) {
+                        showProblem(i);
+                        return;
+                    }
+                }
+            }, 1500);
+        }
+
+        function showCompletion() {
+            document.getElementById('mainContent').classList.add('hidden');
+            document.getElementById('completionScreen').classList.add('show');
+            document.getElementById('failScreen').classList.remove('show');
+            
+            const totalAnswered = correctCount + wrongCount;
+            const percent = Math.round((correctCount / totalAnswered) * 100);
+            
+            document.getElementById('finalCorrect').textContent = correctCount;
+            document.getElementById('finalWrong').textContent = wrongCount;
+            document.getElementById('finalPercent').textContent = percent;
+        }
+
+        function showFail() {
+            document.getElementById('mainContent').classList.add('hidden');
+            document.getElementById('failScreen').classList.add('show');
+            document.getElementById('completionScreen').classList.remove('show');
+        }
+
+        function resetQuiz() {
+            document.getElementById('mainContent').classList.remove('hidden');
+            document.getElementById('completionScreen').classList.remove('show');
+            document.getElementById('failScreen').classList.remove('show');
+            initQuiz();
+        }
+
+        // Handle Enter key
+        document.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && !document.getElementById('submitBtn').disabled) {
+                checkAnswer();
+            }
+        });
+
+        // Initialize on load
+        initQuiz();
+    </script>
+</body>
+</html>
