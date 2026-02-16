@@ -1,0 +1,1214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kirchhoff's Circuit Problems</title>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Outfit:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0f1923;
+      --panel: #1a2736;
+      --panel-light: #223344;
+      --accent: #00e5ff;
+      --accent-dim: #00a0b2;
+      --success: #00e676;
+      --warning: #ffab00;
+      --danger: #ff5252;
+      --text: #e0e8f0;
+      --text-dim: #7a8fa0;
+      --border: #2a3a4a;
+      --glow: rgba(0, 229, 255, 0.15);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Outfit', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* Background circuit pattern */
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: 
+        radial-gradient(circle at 20% 30%, rgba(0, 229, 255, 0.03) 0%, transparent 50%),
+        radial-gradient(circle at 80% 70%, rgba(0, 230, 118, 0.03) 0%, transparent 50%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .app {
+      position: relative;
+      z-index: 1;
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    /* Header */
+    .header {
+      text-align: center;
+      margin-bottom: 30px;
+      padding: 30px 20px;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .header::after {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--accent), var(--success), var(--accent));
+    }
+
+    .header h1 {
+      font-size: 2em;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      margin-bottom: 6px;
+      background: linear-gradient(135deg, var(--accent), var(--success));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .header p {
+      color: var(--text-dim);
+      font-size: 0.95em;
+    }
+
+    /* Stats bar */
+    .stats-bar {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+
+    .stat-card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      text-align: center;
+    }
+
+    .stat-card .label {
+      font-size: 0.7em;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: var(--text-dim);
+      margin-bottom: 4px;
+    }
+
+    .stat-card .value {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1.6em;
+      font-weight: 700;
+      color: var(--accent);
+    }
+
+    .stat-card.level .value {
+      font-size: 1em;
+      padding: 4px 12px;
+      border-radius: 20px;
+      display: inline-block;
+    }
+
+    .stat-card.level .value.easy { background: rgba(0, 230, 118, 0.15); color: var(--success); }
+    .stat-card.level .value.medium { background: rgba(255, 171, 0, 0.15); color: var(--warning); }
+    .stat-card.level .value.hard { background: rgba(255, 82, 82, 0.15); color: var(--danger); }
+
+    /* Progress bar */
+    .progress-container {
+      margin-bottom: 24px;
+    }
+
+    .progress-header {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 8px;
+      font-size: 0.85em;
+      color: var(--text-dim);
+    }
+
+    .progress-track {
+      height: 8px;
+      background: var(--panel-light);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent), var(--success));
+      border-radius: 4px;
+      transition: width 0.5s ease;
+    }
+
+    /* Question card */
+    .question-card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 30px;
+      margin-bottom: 20px;
+      position: relative;
+    }
+
+    .question-card .q-number {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75em;
+      color: var(--accent-dim);
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      margin-bottom: 14px;
+    }
+
+    .question-card .q-text {
+      font-size: 1.1em;
+      line-height: 1.7;
+      margin-bottom: 20px;
+    }
+
+    .question-card .q-text strong {
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    /* Circuit diagram */
+    .circuit-svg {
+      display: block;
+      margin: 20px auto;
+      max-width: 100%;
+    }
+
+    /* Input area */
+    .input-group {
+      margin-bottom: 12px;
+    }
+
+    .input-group label {
+      display: block;
+      font-size: 0.85em;
+      color: var(--text-dim);
+      margin-bottom: 6px;
+      font-weight: 600;
+    }
+
+    .input-row {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .input-row input {
+      flex: 1;
+      background: var(--bg);
+      border: 2px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 16px;
+      color: var(--text);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1em;
+      outline: none;
+      transition: border-color 0.3s;
+    }
+
+    .input-row input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--glow);
+    }
+
+    .input-row .unit {
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--text-dim);
+      font-size: 0.9em;
+      min-width: 30px;
+    }
+
+    /* Direction select */
+    .direction-select {
+      display: flex;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .direction-btn {
+      flex: 1;
+      padding: 10px;
+      border: 2px solid var(--border);
+      border-radius: 10px;
+      background: var(--bg);
+      color: var(--text-dim);
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.9em;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-align: center;
+    }
+
+    .direction-btn:hover {
+      border-color: var(--accent-dim);
+      color: var(--text);
+    }
+
+    .direction-btn.selected {
+      border-color: var(--accent);
+      background: var(--glow);
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    /* Submit button */
+    .submit-btn {
+      width: 100%;
+      padding: 14px;
+      margin-top: 16px;
+      background: linear-gradient(135deg, var(--accent-dim), var(--accent));
+      border: none;
+      border-radius: 12px;
+      color: var(--bg);
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.05em;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s;
+      letter-spacing: 0.5px;
+    }
+
+    .submit-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0, 229, 255, 0.3);
+    }
+
+    .submit-btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    /* Feedback */
+    .feedback {
+      margin-top: 16px;
+      padding: 16px 20px;
+      border-radius: 12px;
+      font-size: 0.95em;
+      line-height: 1.6;
+      display: none;
+      animation: fadeSlide 0.3s ease;
+    }
+
+    @keyframes fadeSlide {
+      from { opacity: 0; transform: translateY(-8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .feedback.correct {
+      display: block;
+      background: rgba(0, 230, 118, 0.1);
+      border: 1px solid rgba(0, 230, 118, 0.3);
+      color: var(--success);
+    }
+
+    .feedback.incorrect {
+      display: block;
+      background: rgba(255, 82, 82, 0.1);
+      border: 1px solid rgba(255, 82, 82, 0.3);
+      color: var(--danger);
+    }
+
+    .feedback.sigfig {
+      display: block;
+      background: rgba(255, 171, 0, 0.1);
+      border: 1px solid rgba(255, 171, 0, 0.3);
+      color: var(--warning);
+    }
+
+    .feedback .work {
+      margin-top: 10px;
+      padding: 12px;
+      background: rgba(0, 0, 0, 0.2);
+      border-radius: 8px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.88em;
+      white-space: pre-wrap;
+    }
+
+    /* Next button */
+    .next-btn {
+      width: 100%;
+      padding: 14px;
+      margin-top: 12px;
+      background: var(--panel-light);
+      border: 2px solid var(--accent);
+      border-radius: 12px;
+      color: var(--accent);
+      font-family: 'Outfit', sans-serif;
+      font-size: 1em;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      display: none;
+    }
+
+    .next-btn:hover {
+      background: var(--glow);
+      transform: translateY(-2px);
+    }
+
+    /* Formula reference */
+    .formula-ref {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 18px 24px;
+      margin-bottom: 24px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85em;
+      color: var(--text-dim);
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      justify-content: center;
+    }
+
+    .formula-ref span {
+      color: var(--accent);
+    }
+
+    /* Mastery overlay */
+    .mastery-overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(15, 25, 35, 0.95);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+      animation: fadeIn 0.5s ease;
+    }
+
+    .mastery-overlay.show {
+      display: flex;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .mastery-card {
+      background: var(--panel);
+      border: 2px solid var(--accent);
+      border-radius: 20px;
+      padding: 40px;
+      text-align: center;
+      max-width: 520px;
+      width: 90%;
+      box-shadow: 0 0 60px rgba(0, 229, 255, 0.2);
+      animation: scaleIn 0.5s ease;
+    }
+
+    @keyframes scaleIn {
+      from { transform: scale(0.8); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+
+    .mastery-card .trophy {
+      font-size: 4em;
+      margin-bottom: 16px;
+    }
+
+    .mastery-card h2 {
+      font-size: 2em;
+      font-weight: 800;
+      background: linear-gradient(135deg, var(--accent), var(--success));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 10px;
+    }
+
+    .mastery-card .mastery-stats {
+      margin: 20px 0;
+      font-size: 0.95em;
+      color: var(--text-dim);
+      line-height: 1.8;
+    }
+
+    .mastery-card .mastery-stats strong {
+      color: var(--text);
+    }
+
+    .mastery-name-input {
+      width: 100%;
+      padding: 14px;
+      background: var(--bg);
+      border: 2px solid var(--border);
+      border-radius: 10px;
+      color: var(--text);
+      font-family: 'Outfit', sans-serif;
+      font-size: 1em;
+      text-align: center;
+      margin: 16px 0;
+      outline: none;
+    }
+
+    .mastery-name-input:focus {
+      border-color: var(--accent);
+    }
+
+    .mastery-card .timestamp {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8em;
+      color: var(--text-dim);
+      margin-top: 12px;
+    }
+
+    .mastery-card .instructions {
+      margin-top: 16px;
+      padding: 14px;
+      background: rgba(0, 229, 255, 0.05);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      font-size: 0.85em;
+      color: var(--text-dim);
+      line-height: 1.6;
+    }
+
+    /* Responsive */
+    @media (max-width: 600px) {
+      .stats-bar { grid-template-columns: repeat(2, 1fr); }
+      .header h1 { font-size: 1.5em; }
+      .question-card { padding: 20px; }
+      .mastery-card { padding: 24px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div class="header">
+      <h1>⚡ Kirchhoff's Circuit Problems</h1>
+      <p>Energy in Electric Circuits — Adaptive Practice</p>
+    </div>
+
+    <div class="stats-bar">
+      <div class="stat-card">
+        <div class="label">Correct</div>
+        <div class="value" id="correctCount">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">Total</div>
+        <div class="value" id="totalCount">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">Streak</div>
+        <div class="value" id="streakCount">0</div>
+      </div>
+      <div class="stat-card level">
+        <div class="label">Level</div>
+        <div class="value easy" id="levelBadge">Easy</div>
+      </div>
+    </div>
+
+    <div class="progress-container">
+      <div class="progress-header">
+        <span>Mastery Progress</span>
+        <span id="progressText">0 / 5 correct needed</span>
+      </div>
+      <div class="progress-track">
+        <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+      </div>
+    </div>
+
+    <div class="formula-ref">
+      <div>Ohm's Law: <span>I = V / R</span></div>
+      <div>Loop Rule: <span>ΣV = 0</span></div>
+      <div>Junction Rule: <span>I_in = I_out</span></div>
+      <div>Series: <span>V = I(R₁+R₂)</span></div>
+    </div>
+
+    <div id="questionArea"></div>
+  </div>
+
+  <div class="mastery-overlay" id="masteryOverlay">
+    <div class="mastery-card">
+      <div class="trophy">🏆</div>
+      <h2>MASTERY ACHIEVED!</h2>
+      <div class="mastery-stats" id="masteryStats"></div>
+      <input type="text" class="mastery-name-input" id="nameInput" placeholder="Enter your name for screenshot">
+      <div class="timestamp" id="masteryTimestamp"></div>
+      <div class="instructions">
+        📸 Take a screenshot of this screen and submit to Schoology as proof of mastery.
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ====== STATE ======
+    let correct = 0;
+    let total = 0;
+    let streak = 0;
+    let bestStreak = 0;
+    let level = 0; // 0=easy, 1=medium, 2=hard
+    let consecutiveCorrect = 0;
+    let consecutiveWrong = 0;
+    const MASTERY_TARGET = 5;
+    let currentProblem = null;
+    let answered = false;
+
+    // ====== UTILITIES ======
+    function rand(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+    function randDec(min, max, dp) { return parseFloat((Math.random() * (max - min) + min).toFixed(dp)); }
+
+    function countSigFigs(val) {
+      let s = String(val);
+      s = s.replace(/^-/, '');
+      if (s.includes('.')) {
+        s = s.replace(/^0+/, '');
+        if (s.startsWith('.')) return s.replace('.', '').replace(/^0+/, '').length || 1;
+        return s.replace('.', '').length;
+      }
+      s = s.replace(/^0+/, '');
+      return s.replace(/0+$/, '').length || 1;
+    }
+
+    function roundToSigFigs(num, sf) {
+      if (num === 0) return 0;
+      const d = Math.ceil(Math.log10(Math.abs(num)));
+      const power = sf - d;
+      const magnitude = Math.pow(10, power);
+      const shifted = Math.round(num * magnitude);
+      return shifted / magnitude;
+    }
+
+    function minSF(...vals) {
+      return Math.min(...vals.map(v => countSigFigs(v)));
+    }
+
+    function checkAnswer(student, expected, sf) {
+      const numStudent = parseFloat(student);
+      if (isNaN(numStudent)) return { status: 'wrong' };
+
+      // Check if numerically close (within 5%)
+      const tolerance = Math.abs(expected) * 0.05 + 0.005;
+      const rounded = roundToSigFigs(expected, sf);
+      const toleranceRounded = Math.abs(rounded) * 0.05 + 0.005;
+
+      if (Math.abs(numStudent - rounded) <= toleranceRounded) {
+        // Check sig figs
+        const studentSF = countSigFigs(numStudent);
+        if (studentSF === sf) return { status: 'correct' };
+        return { status: 'sigfig', expectedSF: sf, gotSF: studentSF };
+      }
+      // Check if close to unrounded answer
+      if (Math.abs(numStudent - expected) <= tolerance) {
+        return { status: 'sigfig', expectedSF: sf, gotSF: countSigFigs(numStudent) };
+      }
+      return { status: 'wrong' };
+    }
+
+    // ====== CIRCUIT SVG GENERATORS ======
+    function svgTwoLoop(labels) {
+      // Two-loop circuit like the sample problem and Q4
+      // labels: { V1, V2, V3, R1, R2, showV3 }
+      const hasV3 = labels.V3 !== undefined;
+      return `
+      <svg class="circuit-svg" viewBox="0 0 400 260" width="400" height="260">
+        <style>
+          text { font-family: 'JetBrains Mono', monospace; font-size: 12px; fill: #e0e8f0; }
+          .component { stroke: #00e5ff; stroke-width: 2; fill: none; }
+          .wire { stroke: #7a8fa0; stroke-width: 2; fill: none; }
+          .label { font-size: 11px; fill: #00e5ff; }
+          .vlabel { font-size: 11px; fill: #ffab00; }
+        </style>
+        <!-- Top wire -->
+        <line class="wire" x1="40" y1="30" x2="360" y2="30"/>
+        <!-- Bottom wire -->
+        <line class="wire" x1="40" y1="230" x2="360" y2="230"/>
+        <!-- Left wire -->
+        <line class="wire" x1="40" y1="30" x2="40" y2="230"/>
+        <!-- Right wire -->
+        <line class="wire" x1="360" y1="30" x2="360" y2="230"/>
+        <!-- Middle wire -->
+        <line class="wire" x1="200" y1="30" x2="200" y2="230"/>
+
+        <!-- R1 (top left) -->
+        <path class="component" d="M 80,30 L 90,15 L 100,45 L 110,15 L 120,45 L 130,15 L 140,30"/>
+        <text class="label" x="100" y="58">R₁</text>
+
+        <!-- R2 (top right) -->
+        <path class="component" d="M 250,30 L 260,15 L 270,45 L 280,15 L 290,45 L 300,15 L 310,30"/>
+        <text class="label" x="270" y="58">R₂</text>
+
+        <!-- V1 (bottom left) battery -->
+        <line class="component" x1="105" y1="215" x2="105" y2="245"/>
+        <line class="component" x1="95" y1="220" x2="95" y2="240" stroke-width="3"/>
+        <text class="vlabel" x="80" y="255">V₁</text>
+        <text style="font-size:9px;fill:#7a8fa0" x="108" y="225">+</text>
+        <text style="font-size:9px;fill:#7a8fa0" x="82" y="225">−</text>
+
+        <!-- V2 (top center) battery -->
+        <line class="component" x1="195" y1="85" x2="195" y2="115"/>
+        <line class="component" x1="205" y1="90" x2="205" y2="110" stroke-width="3"/>
+        <text class="vlabel" x="185" y="135">V₂</text>
+        <text style="font-size:9px;fill:#7a8fa0" x="208" y="105">+</text>
+        <text style="font-size:9px;fill:#7a8fa0" x="182" y="105">−</text>
+
+        <!-- V2 connecting wires -->
+        <line class="wire" x1="200" y1="30" x2="200" y2="85"/>
+        <line class="wire" x1="200" y1="115" x2="200" y2="230"/>
+
+        ${hasV3 ? `
+        <!-- V3 (bottom right) battery -->
+        <line class="component" x1="295" y1="215" x2="295" y2="245"/>
+        <line class="component" x1="285" y1="220" x2="285" y2="240" stroke-width="3"/>
+        <text class="vlabel" x="270" y="255">V₃</text>
+        <text style="font-size:9px;fill:#7a8fa0" x="298" y="225">−</text>
+        <text style="font-size:9px;fill:#7a8fa0" x="272" y="225">+</text>
+        ` : ''}
+
+        <!-- Loop labels -->
+        <text style="font-size:13px;fill:#7a8fa0" x="95" y="150">Loop A</text>
+        <text style="font-size:13px;fill:#7a8fa0" x="255" y="150">Loop B</text>
+      </svg>`;
+    }
+
+    function svgThreeSource(labels) {
+      // Three voltage source circuit like Q5 with R1 on the left, R2 top, R3 right
+      return `
+      <svg class="circuit-svg" viewBox="0 0 400 300" width="400" height="300">
+        <style>
+          text { font-family: 'JetBrains Mono', monospace; font-size: 12px; fill: #e0e8f0; }
+          .component { stroke: #00e5ff; stroke-width: 2; fill: none; }
+          .wire { stroke: #7a8fa0; stroke-width: 2; fill: none; }
+          .label { font-size: 11px; fill: #00e5ff; }
+          .vlabel { font-size: 11px; fill: #ffab00; }
+        </style>
+        <!-- Outer rectangle -->
+        <line class="wire" x1="60" y1="40" x2="340" y2="40"/>
+        <line class="wire" x1="60" y1="260" x2="340" y2="260"/>
+        <line class="wire" x1="60" y1="40" x2="60" y2="260"/>
+        <line class="wire" x1="340" y1="40" x2="340" y2="260"/>
+        <!-- Middle vertical -->
+        <line class="wire" x1="200" y1="40" x2="200" y2="260"/>
+
+        <!-- R1 (left side vertical) - resistor -->
+        <path class="component" d="M 60,110 L 45,120 L 75,130 L 45,140 L 75,150 L 45,160 L 60,170"/>
+        <text class="label" x="25" y="145">R₁</text>
+
+        <!-- R2 (top horizontal) - resistor -->
+        <path class="component" d="M 240,40 L 250,25 L 260,55 L 270,25 L 280,55 L 290,25 L 300,40"/>
+        <text class="label" x="260" y="68">R₂</text>
+
+        <!-- R3 (right side vertical) - resistor -->
+        <path class="component" d="M 340,110 L 325,120 L 355,130 L 325,140 L 355,150 L 325,160 L 340,170"/>
+        <text class="label" x="360" y="145">R₃</text>
+
+        <!-- V1 (bottom left) -->
+        <line class="component" x1="115" y1="247" x2="115" y2="273"/>
+        <line class="component" x1="125" y1="252" x2="125" y2="268" stroke-width="3"/>
+        <text class="vlabel" x="105" y="290">V₁</text>
+        <text style="font-size:9px;fill:#7a8fa0" x="128" y="264">+</text>
+        <text style="font-size:9px;fill:#7a8fa0" x="102" y="264">−</text>
+
+        <!-- V2 (top center) -->
+        <line class="component" x1="130" y1="27" x2="130" y2="53"/>
+        <line class="component" x1="140" y1="32" x2="140" y2="48" stroke-width="3"/>
+        <text class="vlabel" x="123" y="18">V₂</text>
+        <text style="font-size:9px;fill:#7a8fa0" x="143" y="44">+</text>
+        <text style="font-size:9px;fill:#7a8fa0" x="117" y="44">−</text>
+
+        <!-- V3 (bottom right) -->
+        <line class="component" x1="265" y1="247" x2="265" y2="273"/>
+        <line class="component" x1="275" y1="252" x2="275" y2="268" stroke-width="3"/>
+        <text class="vlabel" x="255" y="290">V₃</text>
+        <text style="font-size:9px;fill:#7a8fa0" x="252" y="264">+</text>
+        <text style="font-size:9px;fill:#7a8fa0" x="278" y="264">−</text>
+
+        <!-- Loop labels -->
+        <text style="font-size:13px;fill:#7a8fa0" x="100" y="160">Loop A</text>
+        <text style="font-size:13px;fill:#7a8fa0" x="240" y="160">Loop B</text>
+      </svg>`;
+    }
+
+    // ====== PROBLEM GENERATORS ======
+    // EASY LEVEL: Simple Ohm's law and single-loop circuits
+    const easyProblems = [
+      // Type 0: Basic Ohm's Law - find current
+      function() {
+        const V = randDec(6.0, 30.0, 1);
+        const R = randDec(2.0, 20.0, 1);
+        const I = V / R;
+        const sf = 2;
+        return {
+          html: `A single battery with voltage <strong>${V} V</strong> is connected to a single resistor of <strong>${R} Ω</strong>. Using Ohm's Law, find the current in the circuit.`,
+          inputs: [{ label: 'Current (I)', unit: 'A', key: 'I' }],
+          directions: false,
+          answers: { I: { value: I, sf: sf } },
+          work: `I = V / R = ${V} V / ${R} Ω = ${roundToSigFigs(I, sf)} A`,
+          feedback: `The current is found by dividing voltage by resistance.`
+        };
+      },
+      // Type 1: Ohm's Law - find voltage
+      function() {
+        const I = randDec(0.50, 5.0, 2);
+        const R = randDec(4.0, 25.0, 1);
+        const V = I * R;
+        const sf = 2;
+        return {
+          html: `A circuit carries a current of <strong>${I} A</strong> through a resistor of <strong>${R} Ω</strong>. What is the voltage across the resistor?`,
+          inputs: [{ label: 'Voltage (V)', unit: 'V', key: 'V' }],
+          directions: false,
+          answers: { V: { value: V, sf: sf } },
+          work: `V = IR = (${I} A)(${R} Ω) = ${roundToSigFigs(V, sf)} V`,
+          feedback: `Voltage equals current times resistance.`
+        };
+      },
+      // Type 2: Two resistors in series, find current
+      function() {
+        const V = randDec(6.0, 30.0, 1);
+        const R1 = randDec(3.0, 15.0, 1);
+        const R2 = randDec(3.0, 15.0, 1);
+        const I = V / (R1 + R2);
+        const sf = 2;
+        return {
+          html: `A <strong>${V} V</strong> battery is connected to two resistors in series: <strong>R₁ = ${R1} Ω</strong> and <strong>R₂ = ${R2} Ω</strong>. Using Kirchhoff's loop rule (V − IR₁ − IR₂ = 0), find the current.`,
+          inputs: [{ label: 'Current (I)', unit: 'A', key: 'I' }],
+          directions: false,
+          answers: { I: { value: I, sf: sf } },
+          work: `V − IR₁ − IR₂ = 0\n${V} = I(${R1} + ${R2})\nI = ${V} / ${R1 + R2} = ${roundToSigFigs(I, sf)} A`,
+          feedback: `In a series circuit, use the loop rule: V = I(R₁ + R₂), then solve for I.`
+        };
+      },
+      // Type 3: Find resistance given V and I
+      function() {
+        const V = randDec(6.0, 30.0, 1);
+        const I = randDec(0.50, 4.0, 2);
+        const R = V / I;
+        const sf = 2;
+        return {
+          html: `A battery provides <strong>${V} V</strong> and the current in the circuit is measured at <strong>${I} A</strong>. What is the resistance of the resistor?`,
+          inputs: [{ label: 'Resistance (R)', unit: 'Ω', key: 'R' }],
+          directions: false,
+          answers: { R: { value: R, sf: sf } },
+          work: `R = V / I = ${V} V / ${I} A = ${roundToSigFigs(R, sf)} Ω`,
+          feedback: `Rearrange Ohm's Law: R = V / I.`
+        };
+      }
+    ];
+
+    // MEDIUM LEVEL: Two-loop circuits, find one current
+    const mediumProblems = [
+      // Type 0: Two-loop with two batteries (like sample problem)
+      function() {
+        const R1 = rand(50, 200);
+        const R2 = rand(50, 200);
+        const R3 = rand(50, 200);
+        const V1 = randDec(4.0, 12.0, 1);
+        const V2 = randDec(12.0, 24.0, 1);
+        // Loop A: V2 - V1 - I1*R3 = 0 → I1 = (V2-V1)/R3
+        const I1 = (V2 - V1) / R3;
+        const sf = 2;
+
+        return {
+          html: `In the two-loop circuit shown, all batteries provide the labeled voltages. <strong>V₁ = ${V1} V</strong>, <strong>V₂ = ${V2} V</strong>, <strong>R₁ = ${R1} Ω</strong>, <strong>R₂ = ${R2} Ω</strong>, <strong>R₃ = ${R3} Ω</strong>. The batteries are oriented in opposite directions within Loop A. Find I₁ using the Loop A equation: V₂ − V₁ − I₁R₃ = 0.`,
+          diagram: svgTwoLoop({ V1, V2, R1, R2, R3 }),
+          inputs: [{ label: 'I₁', unit: 'A', key: 'I1' }],
+          directions: false,
+          answers: { I1: { value: I1, sf: sf } },
+          work: `V₂ − V₁ − I₁R₃ = 0\n${V2} − ${V1} − I₁(${R3}) = 0\nI₁ = ${roundToSigFigs(V2 - V1, 2)} / ${R3} = ${roundToSigFigs(I1, sf)} A`,
+          feedback: `Use the Loop A equation. Since V₂ > V₁ and they oppose each other, the net voltage is V₂ − V₁.`
+        };
+      },
+      // Type 1: Two-loop, find I2 from Loop B
+      function() {
+        const R1 = rand(40, 150);
+        const R2 = rand(40, 150);
+        const R3 = rand(40, 150);
+        const V2 = randDec(8.0, 24.0, 1);
+        // Loop B: V2 - I2*R1 - I2*R2 = 0 → I2 = V2/(R1+R2)
+        const I2 = V2 / (R1 + R2);
+        const sf = 2;
+
+        return {
+          html: `In the two-loop circuit shown, <strong>V₂ = ${V2} V</strong>, <strong>R₁ = ${R1} Ω</strong>, <strong>R₂ = ${R2} Ω</strong>, <strong>R₃ = ${R3} Ω</strong>. Find I₂ using Loop B equation: V₂ − I₂R₁ − I₂R₂ = 0.`,
+          diagram: svgTwoLoop({ V2, R1, R2, R3 }),
+          inputs: [{ label: 'I₂', unit: 'A', key: 'I2' }],
+          directions: false,
+          answers: { I2: { value: I2, sf: sf } },
+          work: `V₂ − I₂R₁ − I₂R₂ = 0\n${V2} = I₂(${R1} + ${R2})\nI₂ = ${V2} / ${R1 + R2} = ${roundToSigFigs(I2, sf)} A`,
+          feedback: `Loop B contains V₂, R₁, and R₂. Factor out I₂ and solve.`
+        };
+      },
+      // Type 2: Find total current using junction rule
+      function() {
+        const R1 = rand(80, 200);
+        const R2 = rand(80, 200);
+        const R3 = rand(80, 200);
+        const V1 = rand(4, 10);
+        const V2 = rand(10, 24);
+        const I1 = (V2 - V1) / R3;
+        const I2 = V2 / (R1 + R2);
+        const I = I1 + I2;
+        const sf = 2; // Keep it clean
+
+        return {
+          html: `In a two-loop circuit, you've calculated <strong>I₁ = ${roundToSigFigs(I1, sf)} A</strong> and <strong>I₂ = ${roundToSigFigs(I2, sf)} A</strong>. Using Kirchhoff's junction rule (I = I₁ + I₂), find the total current.`,
+          inputs: [{ label: 'Total Current (I)', unit: 'A', key: 'I' }],
+          directions: false,
+          answers: { I: { value: I, sf: sf } },
+          work: `I = I₁ + I₂ = ${roundToSigFigs(I1, sf)} + ${roundToSigFigs(I2, sf)} = ${roundToSigFigs(I, sf)} A`,
+          feedback: `The junction rule tells us total current is the sum of branch currents.`
+        };
+      },
+      // Type 3: Single loop with two batteries same direction
+      function() {
+        const V1 = randDec(4.0, 15.0, 1);
+        const V2 = randDec(4.0, 15.0, 1);
+        const R = randDec(5.0, 30.0, 1);
+        const I = (V1 + V2) / R;
+        const sf = 2;
+
+        return {
+          html: `Two batteries (<strong>V₁ = ${V1} V</strong> and <strong>V₂ = ${V2} V</strong>) are connected in the same direction with a single <strong>${R} Ω</strong> resistor. Using the modified loop rule (V₁ + V₂ = IR), find the current.`,
+          inputs: [{ label: 'Current (I)', unit: 'A', key: 'I' }],
+          directions: false,
+          answers: { I: { value: I, sf: sf } },
+          work: `V₁ + V₂ = IR\nI = (${V1} + ${V2}) / ${R} = ${V1 + V2} / ${R} = ${roundToSigFigs(I, sf)} A`,
+          feedback: `When batteries are oriented the same way, their voltages add up.`
+        };
+      }
+    ];
+
+    // HARD LEVEL: Multi-loop with 3 voltage sources, direction + magnitude (like Q4, Q5, Q6)
+    const hardProblems = [
+      // Type 0: Like Q4 - two-loop, 3 sources, find both currents with direction
+      function() {
+        const V1 = randDec(4.0, 12.0, 1);
+        const V2 = randDec(5.0, 15.0, 1);
+        const V3 = randDec(6.0, 18.0, 1);
+        const R1 = randDec(2.0, 10.0, 1);
+        const R2 = randDec(4.0, 15.0, 1);
+        // Circuit like Q4: 
+        // Loop A (left): V1 + V2 - I1*R1 = 0 → I1 = (V1+V2)/R1
+        // Loop B (right): V3 - V2 - I2*R2 = 0 → I2 = (V3-V2)/R2
+        // Need to ensure some have clear directions
+        const I1val = (V1 + V2) / R1;
+        const sf1 = 2;
+        // For loop B, might get negative → direction matters
+        const I2raw = (V3 - V2) / R2;
+        const sf2 = 2;
+
+        return {
+          html: `For the circuit shown, <strong>V₁ = ${V1} V</strong>, <strong>V₂ = ${V2} V</strong>, <strong>V₃ = ${V3} V</strong>, <strong>R₁ = ${R1} Ω</strong>, <strong>R₂ = ${R2} Ω</strong>.<br><br>Loop A: V₁ + V₂ − I₁R₁ = 0<br>Loop B: V₃ − V₂ − I₂R₂ = 0<br><br>Find the magnitude of the current through <strong>R₁</strong>.`,
+          diagram: svgTwoLoop({ V1, V2, V3, R1, R2 }),
+          inputs: [{ label: 'I₁ (magnitude)', unit: 'A', key: 'I1' }],
+          directions: true,
+          directionKey: 'dir1',
+          directionAnswer: 'ccw',
+          answers: { I1: { value: I1val, sf: sf1 } },
+          work: `Loop A: V₁ + V₂ − I₁R₁ = 0\nI₁ = (${V1} + ${V2}) / ${R1} = ${V1 + V2} / ${R1} = ${roundToSigFigs(I1val, sf1)} A\nDirection: counterclockwise (conventional current from + terminal)`,
+          feedback: `Apply the loop rule to Loop A. The combined EMFs drive current counterclockwise through R₁.`
+        };
+      },
+      // Type 1: Three-source circuit like Q5 - find current through R1
+      function() {
+        const V1 = randDec(10.0, 24.0, 1);
+        const V2 = randDec(8.0, 20.0, 1);
+        const V3 = randDec(10.0, 22.0, 1);
+        const R1 = rand(8, 20);
+        const R2 = rand(8, 20);
+        const R3 = randDec(4.0, 12.0, 1);
+        const I1 = (V1 + V2) / R1;
+        const sf = 2;
+        const dir = I1 > 0 ? 'cw' : 'ccw';
+
+        return {
+          html: `In the circuit shown, <strong>V₁ = ${V1} V</strong>, <strong>V₂ = ${V2} V</strong>, <strong>V₃ = ${V3} V</strong>, <strong>R₁ = ${R1} Ω</strong>, <strong>R₂ = ${R2} Ω</strong>, <strong>R₃ = ${R3} Ω</strong>.<br><br>Using the loop containing V₁, V₂, and R₁, determine the current through R₁.<br>Loop equation: V₁ + V₂ − I₁R₁ = 0`,
+          diagram: svgThreeSource({ V1, V2, V3, R1, R2, R3 }),
+          inputs: [{ label: 'I₁ (magnitude)', unit: 'A', key: 'I1' }],
+          directions: true,
+          directionKey: 'dir1',
+          directionAnswer: 'cw',
+          answers: { I1: { value: Math.abs(I1), sf: sf } },
+          work: `V₁ + V₂ − I₁R₁ = 0\nI₁ = (${V1} + ${V2}) / ${R1} = ${roundToSigFigs(V1 + V2, 3)} / ${R1} = ${roundToSigFigs(Math.abs(I1), sf)} A clockwise`,
+          feedback: `Apply the loop rule. The sum of voltages V₁ and V₂ drives the current clockwise through R₁.`
+        };
+      },
+      // Type 2: Three-source circuit - find current through R3 (like Q6)
+      function() {
+        const V2 = randDec(8.0, 18.0, 1);
+        const V3 = randDec(10.0, 22.0, 1);
+        const R2 = rand(8, 18);
+        const R3 = randDec(4.0, 12.0, 1);
+        const netV = V3 - V2;
+        const I3raw = netV / R3;
+        const sf = 2;
+        const dir = I3raw >= 0 ? 'ccw' : 'cw';
+
+        return {
+          html: `In the same type of three-source circuit, <strong>V₂ = ${V2} V</strong>, <strong>V₃ = ${V3} V</strong>, <strong>R₂ = ${R2} Ω</strong>, <strong>R₃ = ${R3} Ω</strong>.<br><br>Using the loop containing V₂, V₃, and R₃, find the current through R₃.<br>Loop equation: V₃ − V₂ − I₃R₃ = 0`,
+          diagram: svgThreeSource({ V2, V3, R2, R3 }),
+          inputs: [{ label: 'I₃ (magnitude)', unit: 'A', key: 'I3' }],
+          directions: true,
+          directionKey: 'dir3',
+          directionAnswer: dir === 'ccw' ? 'ccw' : 'cw',
+          answers: { I3: { value: Math.abs(I3raw), sf: sf } },
+          work: `V₃ − V₂ − I₃R₃ = 0\nI₃ = (${V3} − ${V2}) / ${R3} = ${roundToSigFigs(netV, 2)} / ${R3} = ${roundToSigFigs(Math.abs(I3raw), sf)} A ${dir === 'ccw' ? 'counterclockwise' : 'clockwise'}`,
+          feedback: `The net voltage (V₃ − V₂) determines both the magnitude and direction of current through R₃.${netV < 0 ? ' Since V₂ > V₃, the current flows in the opposite direction from what the equation assumed.' : ''}`
+        };
+      },
+      // Type 3: Full multi-loop solve - find total current with junction rule
+      function() {
+        const V1 = randDec(12.0, 24.0, 1);
+        const V2 = randDec(8.0, 16.0, 1);
+        const V3 = randDec(10.0, 20.0, 1);
+        const R1 = rand(8, 20);
+        const R2 = rand(8, 20);
+        const R3 = rand(5, 15);
+
+        const I1 = (V1 + V2) / R1;
+        const I3 = Math.abs(V3 - V2) / R3;
+        const Itotal = I1 + I3;
+        const sf = 2;
+
+        return {
+          html: `In a three-source, two-loop circuit: <strong>V₁ = ${V1} V</strong>, <strong>V₂ = ${V2} V</strong>, <strong>V₃ = ${V3} V</strong>, <strong>R₁ = ${R1} Ω</strong>, <strong>R₂ = ${R2} Ω</strong>, <strong>R₃ = ${R3} Ω</strong>.<br><br>You've found:<br>I₁ = (V₁ + V₂)/R₁ = ${roundToSigFigs(I1, sf)} A<br>I₃ = |V₃ − V₂|/R₃ = ${roundToSigFigs(I3, sf)} A<br><br>Using the junction rule, find the total current entering the top junction.`,
+          diagram: svgThreeSource({ V1, V2, V3, R1, R2, R3 }),
+          inputs: [{ label: 'Total Current (I)', unit: 'A', key: 'I' }],
+          directions: false,
+          answers: { I: { value: Itotal, sf: sf } },
+          work: `I = I₁ + I₃ = ${roundToSigFigs(I1, sf)} + ${roundToSigFigs(I3, sf)} = ${roundToSigFigs(Itotal, sf)} A`,
+          feedback: `By the junction rule, the total current is the sum of all branch currents entering the junction.`
+        };
+      }
+    ];
+
+    // ====== GENERATE PROBLEM ======
+    function generateProblem() {
+      const pools = [easyProblems, mediumProblems, hardProblems];
+      const pool = pools[level];
+      const generator = pool[Math.floor(Math.random() * pool.length)];
+      currentProblem = generator();
+      answered = false;
+      renderProblem();
+    }
+
+    function renderProblem() {
+      const area = document.getElementById('questionArea');
+      const levelNames = ['Easy', 'Medium', 'Hard'];
+      const p = currentProblem;
+
+      let html = `
+        <div class="question-card">
+          <div class="q-number">Problem ${total + 1} • ${levelNames[level]} Level</div>
+          <div class="q-text">${p.html}</div>
+          ${p.diagram || ''}
+      `;
+
+      // Input fields
+      p.inputs.forEach(inp => {
+        html += `
+          <div class="input-group">
+            <label>${inp.label}</label>
+            <div class="input-row">
+              <input type="text" id="input_${inp.key}" placeholder="Enter value..." 
+                     onkeydown="if(event.key==='Enter') submitAnswer()">
+              <span class="unit">${inp.unit}</span>
+            </div>
+          </div>
+        `;
+      });
+
+      // Direction selection if needed
+      if (p.directions) {
+        html += `
+          <div class="input-group">
+            <label>Direction of current</label>
+            <div class="direction-select">
+              <button class="direction-btn" onclick="selectDirection(this, '${p.directionKey}', 'cw')">↻ Clockwise</button>
+              <button class="direction-btn" onclick="selectDirection(this, '${p.directionKey}', 'ccw')">↺ Counter-clockwise</button>
+            </div>
+          </div>
+        `;
+      }
+
+      html += `
+          <button class="submit-btn" id="submitBtn" onclick="submitAnswer()">Check Answer</button>
+          <div class="feedback" id="feedback"></div>
+          <button class="next-btn" id="nextBtn" onclick="generateProblem()">Next Problem →</button>
+        </div>
+      `;
+
+      area.innerHTML = html;
+      // Focus first input
+      setTimeout(() => {
+        const firstInput = area.querySelector('input[type="text"]');
+        if (firstInput) firstInput.focus();
+      }, 100);
+    }
+
+    let selectedDirections = {};
+
+    function selectDirection(btn, key, value) {
+      selectedDirections[key] = value;
+      const siblings = btn.parentElement.querySelectorAll('.direction-btn');
+      siblings.forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+    }
+
+    // ====== SUBMIT ANSWER ======
+    function submitAnswer() {
+      if (answered) return;
+      const p = currentProblem;
+      const fb = document.getElementById('feedback');
+      let allCorrect = true;
+      let hasSigFigIssue = false;
+      let feedbackHTML = '';
+
+      // Check each input
+      for (const inp of p.inputs) {
+        const el = document.getElementById(`input_${inp.key}`);
+        const studentVal = el.value.trim();
+        if (!studentVal) {
+          fb.className = 'feedback incorrect';
+          fb.innerHTML = '⚠️ Please enter a value before submitting.';
+          return;
+        }
+
+        const ans = p.answers[inp.key];
+        const result = checkAnswer(studentVal, ans.value, ans.sf);
+
+        if (result.status === 'wrong') {
+          allCorrect = false;
+        } else if (result.status === 'sigfig') {
+          hasSigFigIssue = true;
+          allCorrect = false;
+        }
+      }
+
+      // Check direction if needed
+      let directionCorrect = true;
+      if (p.directions) {
+        const selected = selectedDirections[p.directionKey];
+        if (!selected) {
+          fb.className = 'feedback incorrect';
+          fb.innerHTML = '⚠️ Please select a direction before submitting.';
+          return;
+        }
+        if (selected !== p.directionAnswer) {
+          directionCorrect = false;
+          allCorrect = false;
+        }
+      }
+
+      answered = true;
+      total++;
+      document.getElementById('submitBtn').disabled = true;
+
+      if (allCorrect && !hasSigFigIssue) {
+        correct++;
+        streak++;
+        if (streak > bestStreak) bestStreak = streak;
+        consecutiveCorrect++;
+        consecutiveWrong = 0;
+
+        feedbackHTML = `✅ Correct! ${p.feedback}`;
+        if (p.work) feedbackHTML += `<div class="work">${p.work}</div>`;
+        fb.className = 'feedback correct';
+
+        // Level up after 2 consecutive correct
+        if (consecutiveCorrect >= 2 && level < 2) {
+          level++;
+          consecutiveCorrect = 0;
+          feedbackHTML += `<br><br>⬆️ <strong>Level Up!</strong> Moving to ${['Easy', 'Medium', 'Hard'][level]} level.`;
+        }
+      } else if (hasSigFigIssue) {
+        streak = 0;
+        consecutiveCorrect = 0;
+        consecutiveWrong++;
+
+        feedbackHTML = `⚠️ Your numerical answer is close, but check your <strong>significant figures</strong>. Match the sig figs of the given values.`;
+        if (p.work) feedbackHTML += `<div class="work">${p.work}</div>`;
+        fb.className = 'feedback sigfig';
+      } else {
+        streak = 0;
+        consecutiveCorrect = 0;
+        consecutiveWrong++;
+
+        feedbackHTML = `❌ Not quite.`;
+        if (!directionCorrect && p.directions) {
+          feedbackHTML += ` The direction is ${p.directionAnswer === 'cw' ? 'clockwise ↻' : 'counterclockwise ↺'}.`;
+        }
+        feedbackHTML += ` ${p.feedback}`;
+        if (p.work) feedbackHTML += `<div class="work">${p.work}</div>`;
+        fb.className = 'feedback incorrect';
+
+        // Level down after 2 consecutive wrong
+        if (consecutiveWrong >= 2 && level > 0) {
+          level--;
+          consecutiveWrong = 0;
+          feedbackHTML += `<br><br>⬇️ Dropping to ${['Easy', 'Medium', 'Hard'][level]} level for more practice.`;
+        }
+      }
+
+      fb.innerHTML = feedbackHTML;
+      document.getElementById('nextBtn').style.display = 'block';
+      updateStats();
+
+      // Check mastery
+      if (correct >= MASTERY_TARGET) {
+        setTimeout(showMastery, 800);
+      }
+    }
+
+    // ====== UPDATE UI ======
+    function updateStats() {
+      document.getElementById('correctCount').textContent = correct;
+      document.getElementById('totalCount').textContent = total;
+      document.getElementById('streakCount').textContent = streak;
+
+      const badge = document.getElementById('levelBadge');
+      const names = ['Easy', 'Medium', 'Hard'];
+      const classes = ['easy', 'medium', 'hard'];
+      badge.textContent = names[level];
+      badge.className = 'value ' + classes[level];
+
+      const pct = Math.min((correct / MASTERY_TARGET) * 100, 100);
+      document.getElementById('progressFill').style.width = pct + '%';
+      document.getElementById('progressText').textContent = `${correct} / ${MASTERY_TARGET} correct needed`;
+    }
+
+    function showMastery() {
+      const overlay = document.getElementById('masteryOverlay');
+      overlay.classList.add('show');
+
+      const pct = total > 0 ? Math.round((correct / total) * 100) : 0;
+      document.getElementById('masteryStats').innerHTML = `
+        <strong>${correct}</strong> correct out of <strong>${total}</strong> total (${pct}%)<br>
+        Best Streak: <strong>${bestStreak}</strong><br>
+        Final Level: <strong>${['Easy', 'Medium', 'Hard'][level]}</strong>
+      `;
+
+      const now = new Date();
+      document.getElementById('masteryTimestamp').textContent =
+        now.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) +
+        ' at ' + now.toLocaleTimeString('en-US');
+    }
+
+    // ====== INIT ======
+    generateProblem();
+  </script>
+</body>
+</html>
