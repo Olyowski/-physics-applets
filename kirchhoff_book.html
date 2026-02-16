@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Applying Kirchhoff's Rules</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+      min-height: 100vh;
+      padding: 20px;
+      color: #fff;
+    }
+    
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 20px;
+      padding: 30px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      color: #333;
+    }
+    
+    h1 {
+      text-align: center;
+      color: #2c3e50;
+      margin-bottom: 25px;
+      font-size: 1.8em;
+    }
+    
+    .quiz-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      padding: 15px;
+      background: #f8f9fa;
+      border-radius: 10px;
+    }
+    
+    .progress-bar {
+      width: 100%;
+      height: 8px;
+      background: #e0e0e0;
+      border-radius: 4px;
+      margin-bottom: 25px;
+      overflow: hidden;
+    }
+    
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #667eea, #764ba2);
+      border-radius: 4px;
+      transition: width 0.3s ease;
+    }
+    
+    .question-text {
+      font-size: 1.1em;
+      line-height: 1.6;
+      margin-bottom: 20px;
+      padding: 20px;
+      background: #f8f9fa;
+      border-radius: 10px;
+      border-left: 4px solid #667eea;
+    }
+    
+    .diagram-container {
+      display: flex;
+      justify-content: center;
+      margin: 20px 0;
+      padding: 20px;
+      background: #fff;
+      border-radius: 10px;
+      border: 1px solid #e0e0e0;
+    }
+    
+    .formula-hint {
+      background: linear-gradient(135deg, #667eea20, #764ba220);
+      padding: 15px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+      border: 1px solid #667eea40;
+    }
+    
+    .input-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 20px 0;
+      justify-content: center;
+    }
+    
+    .answer-input {
+      padding: 12px 20px;
+      font-size: 1.1em;
+      border: 2px solid #ddd;
+      border-radius: 8px;
+      width: 150px;
+      text-align: center;
+    }
+    
+    .answer-input:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+    
+    .unit-label {
+      font-size: 1.1em;
+      color: #666;
+    }
+    
+    .submit-btn {
+      padding: 12px 30px;
+      font-size: 1em;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    
+    .submit-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+    }
+    
+    .option-btn {
+      display: block;
+      width: 100%;
+      padding: 15px 20px;
+      margin: 10px 0;
+      font-size: 1em;
+      text-align: left;
+      background: #f8f9fa;
+      border: 2px solid #e0e0e0;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .option-btn:hover:not(:disabled) {
+      background: #e8f4fd;
+      border-color: #667eea;
+    }
+    
+    .option-btn.correct {
+      background: #d4edda;
+      border-color: #28a745;
+      color: #155724;
+    }
+    
+    .option-btn.incorrect {
+      background: #f8d7da;
+      border-color: #dc3545;
+      color: #721c24;
+    }
+    
+    .option-btn:disabled {
+      cursor: not-allowed;
+    }
+    
+    .feedback-message {
+      padding: 15px;
+      border-radius: 10px;
+      margin: 15px 0;
+      text-align: center;
+      font-weight: 500;
+    }
+    
+    .feedback-correct {
+      background: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+    }
+    
+    .feedback-incorrect {
+      background: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+    }
+    
+    .hint-btn {
+      padding: 10px 20px;
+      background: #ffc107;
+      color: #333;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      margin: 10px 0;
+    }
+    
+    .hint-btn:hover {
+      background: #e0a800;
+    }
+    
+    .hint-text {
+      background: #fff3cd;
+      padding: 12px;
+      border-radius: 8px;
+      margin: 8px 0;
+      border-left: 4px solid #ffc107;
+    }
+    
+    .explanation-box {
+      background: #e8f4fd;
+      padding: 20px;
+      border-radius: 10px;
+      margin-top: 15px;
+      border: 1px solid #b8daff;
+      white-space: pre-line;
+    }
+    
+    .button-group {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 25px;
+      gap: 10px;
+    }
+    
+    .prev-button, .next-button {
+      padding: 12px 30px;
+      font-size: 1em;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .prev-button {
+      background: #6c757d;
+      color: white;
+    }
+    
+    .next-button {
+      background: linear-gradient(135deg, #28a745, #20c997);
+      color: white;
+    }
+    
+    .prev-button:hover, .next-button:hover {
+      transform: translateY(-2px);
+    }
+    
+    .prev-button:disabled, .next-button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+    
+    .reset-button {
+      padding: 12px 30px;
+      background: #dc3545;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    
+    .reset-button:hover {
+      background: #c82333;
+    }
+    
+    #completionScreen {
+      display: none;
+      text-align: center;
+      padding: 40px;
+    }
+    
+    #completionScreen h2 {
+      color: #28a745;
+      font-size: 2em;
+      margin-bottom: 20px;
+    }
+    
+    .score-display {
+      font-size: 3em;
+      font-weight: bold;
+      color: #667eea;
+      margin: 20px 0;
+    }
+    
+    .try-again-button {
+      padding: 15px 40px;
+      font-size: 1.2em;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      margin-top: 20px;
+    }
+    
+    .try-again-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+    }
+
+    .answered-correct {
+      border-color: #28a745;
+      background: #d4edda;
+    }
+
+    .answered-incorrect {
+      border-color: #dc3545;
+      background: #f8d7da;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div id="completionScreen">
+      <h2>🎉 Quiz Complete!</h2>
+      <div class="score-display" id="finalScore">0/3</div>
+      <p>You've completed the Applying Kirchhoff's Rules quiz!</p>
+      <p>Take a screenshot of this page to submit your completion!</p>
+      <button class="try-again-button" onclick="resetQuiz()">Try Again</button>
+    </div>
+    
+    <div id="quizContent">
+      <h1>Applying Kirchhoff's Rules</h1>
+      
+      <div class="quiz-header">
+        <div>Problem <span id="currentNumber">1</span> of <span id="totalNumber">3</span></div>
+        <div>Score: <span id="score">0</span>/3</div>
+      </div>
+      
+      <div class="progress-bar">
+        <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+      </div>
+      
+      <div class="question-text" id="questionText"></div>
+      
+      <div class="diagram-container" id="diagramContainer"></div>
+      
+      <div class="formula-hint">
+        <strong>Key Formulas:</strong> 
+        <br>Kirchhoff's Junction (Point) Rule: The total current entering a junction equals the total current leaving. (I₁ = I₂ + I₃)
+        <br>Kirchhoff's Loop Rule: The sum of all voltage changes around any closed loop is zero.
+        <br>Ohm's Law: V = IR
+        <br><strong>Remember:</strong> Assign a current direction for each branch. If the result is negative, the actual direction is opposite to what you assumed.
+      </div>
+      
+      <div class="feedback-message" id="feedbackMessage" style="display: none;"></div>
+      
+      <div id="hintContainer"></div>
+      
+      <div id="answerContainer"></div>
+      
+      <div id="explanationContainer"></div>
+      
+      <div class="button-group">
+        <button class="prev-button" id="prevBtn" onclick="prevProblem()">Previous</button>
+        <button class="reset-button" onclick="resetQuiz()">Reset Quiz</button>
+        <button class="next-button" id="nextBtn" onclick="nextProblem()">Next</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const problems = [
+      {
+        id: 1,
+        type: "kirchhoff_full",
+        question: "For the circuit shown in the diagram, V₁ = 8.0 V, V₂ = 6.0 V, R₁ = 5.0 Ω, R₂ = 3.0 Ω, and R₃ = 2.0 Ω. Determine the direction and magnitude of the current through all three resistors.",
+        inputs: [
+          { label: "The magnitude of I₁ is", key: "I1", unit: "A", correct: 1.1, tolerance: 0.05 },
+          { label: "The direction of I₁ is", key: "dir1", type: "direction", correct: "downward" },
+          { label: "The magnitude of I₂ is", key: "I2", unit: "A", correct: 0.84, tolerance: 0.05 },
+          { label: "The direction of I₂ is", key: "dir2", type: "direction", correct: "clockwise" },
+          { label: "The magnitude of I₃ is", key: "I3", unit: "A", correct: 0.26, tolerance: 0.05 },
+          { label: "The direction of I₃ is", key: "dir3", type: "direction", correct: "counterclockwise" }
+        ],
+        explanation: "Applying Kirchhoff's Rules:\n\nJunction Rule at the top node: I₁ = I₂ + I₃\n\nLoop 1 (left loop, clockwise): −V₁ + I₁R₁ + I₂R₂ = 0\n−8.0 + 5.0·I₁ + 3.0·I₂ = 0\n\nLoop 2 (right loop, clockwise): −I₂R₂ + V₂ + I₃R₃ = 0\n−3.0·I₂ + 6.0 + 2.0·I₃ = 0\n\nSubstituting I₁ = I₂ + I₃ into Loop 1:\n5(I₂ + I₃) + 3I₂ = 8 → 8I₂ + 5I₃ = 8\nFrom Loop 2: 3I₂ − 2I₃ = 6\n\nSolving: I₂ ≈ 0.84 A (clockwise), I₃ ≈ 0.26 A (counterclockwise)\nI₁ = 0.84 + 0.26 = 1.1 A (downward through R₁)",
+        hints: [
+          "Start by labeling currents: I₁ flows through R₁, I₂ flows through R₂, and I₃ flows through R₃",
+          "Apply the Junction Rule at the top node where R₁ connects to R₂ and R₃: I₁ = I₂ + I₃",
+          "Write a loop equation for the left loop: −V₁ + I₁R₁ + I₂R₂ = 0",
+          "Write a loop equation for the right loop: −I₂R₂ + V₂ + I₃R₃ = 0",
+          "Substitute I₁ = I₂ + I₃ into the left loop equation and solve the system"
+        ],
+        diagram: "kirchhoff"
+      },
+      {
+        id: 2,
+        type: "kirchhoff_mag",
+        question: "For a circuit, V₁ = 12.0 V, V₂ = 4.0 V, R₁ = 7.0 Ω, R₂ = 5.0 Ω, and R₃ = 3.0 Ω. Determine the magnitude of the current through all three resistors.",
+        inputs: [
+          { label: "The magnitude of I₁ is", key: "I1", unit: "A", correct: 0.37, tolerance: 0.05 },
+          { label: "The magnitude of I₂ is", key: "I2", unit: "A", correct: 0.11, tolerance: 0.05 },
+          { label: "The magnitude of I₃ is", key: "I3", unit: "A", correct: 0.48, tolerance: 0.05 }
+        ],
+        explanation: "Applying Kirchhoff's Rules with the same circuit topology:\n\nJunction Rule: I₁ = I₂ + I₃ (or I₃ = I₁ + I₂ depending on assumed directions)\n\nLeft loop: −V₁ + I₁R₁ + I₂R₂ = 0 → −12 + 7I₁ + 5I₂ = 0\nRight loop: −I₂R₂ + V₂ + I₃R₃ = 0 → −5I₂ + 4 + 3I₃ = 0\n\nSolving the system:\nI₁ ≈ 0.37 A, I₂ ≈ 0.11 A, I₃ ≈ 0.48 A",
+        hints: [
+          "Use the same circuit topology as Problem 1 with two voltage sources and three resistors",
+          "Apply the Junction Rule: I₁ = I₂ + I₃",
+          "Left loop: −V₁ + I₁R₁ + I₂R₂ = 0 → −12 + 7I₁ + 5I₂ = 0",
+          "Right loop: −I₂R₂ + V₂ + I₃R₃ = 0 → −5I₂ + 4 + 3I₃ = 0",
+          "Substitute and solve: I₁ = 0.37 A, I₂ = 0.11 A, I₃ = 0.48 A"
+        ],
+        diagram: "kirchhoff"
+      },
+      {
+        id: 3,
+        type: "kirchhoff_mag",
+        question: "For a circuit, V₁ = 7.0 V, V₂ = 5.0 V, R₁ = 6.0 Ω, R₂ = 4.0 Ω, and R₃ = 2.0 Ω. Determine the magnitude of the current through all three resistors.",
+        inputs: [
+          { label: "The magnitude of I₁ is", key: "I1", unit: "A", correct: 0.74, tolerance: 0.05 },
+          { label: "The magnitude of I₂ is", key: "I2", unit: "A", correct: 0.64, tolerance: 0.05 },
+          { label: "The magnitude of I₃ is", key: "I3", unit: "A", correct: 0.11, tolerance: 0.05 }
+        ],
+        explanation: "Applying Kirchhoff's Rules with the same circuit topology:\n\nJunction Rule: I₁ = I₂ + I₃\n\nLeft loop: −V₁ + I₁R₁ + I₂R₂ = 0 → −7 + 6I₁ + 4I₂ = 0\nRight loop: −I₂R₂ + V₂ + I₃R₃ = 0 → −4I₂ + 5 + 2I₃ = 0\n\nSolving the system:\nI₁ ≈ 0.74 A, I₂ ≈ 0.64 A, I₃ ≈ 0.11 A",
+        hints: [
+          "Use the same circuit topology as the previous problems",
+          "Apply the Junction Rule: I₁ = I₂ + I₃",
+          "Left loop: −V₁ + I₁R₁ + I₂R₂ = 0 → −7 + 6I₁ + 4I₂ = 0",
+          "Right loop: −I₂R₂ + V₂ + I₃R₃ = 0 → −4I₂ + 5 + 2I₃ = 0",
+          "Substitute and solve: I₁ = 0.74 A, I₂ = 0.64 A, I₃ = 0.11 A"
+        ],
+        diagram: "kirchhoff"
+      }
+    ];
+
+    let currentProblem = 0;
+    let score = 0;
+    let answers = new Array(problems.length).fill(null);
+    let hintsShown = new Array(problems.length).fill(0);
+
+    function getDiagram(type, problemData) {
+      return `
+        <img src="data:image/png;base64,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" 
+             alt="Kirchhoff circuit diagram" 
+             style="max-width:100%; height:auto; display:block; margin:0 auto;">
+      `;
+    }
+
+        function displayProblem() {
+      const problem = problems[currentProblem];
+      
+      document.getElementById('currentNumber').textContent = currentProblem + 1;
+      document.getElementById('totalNumber').textContent = problems.length;
+      document.getElementById('score').textContent = score;
+      document.getElementById('progressFill').style.width = `${((currentProblem + 1) / problems.length) * 100}%`;
+      
+      document.getElementById('questionText').textContent = problem.question;
+      document.getElementById('diagramContainer').innerHTML = getDiagram(problem.diagram, problem);
+      
+      document.getElementById('feedbackMessage').style.display = 'none';
+      document.getElementById('explanationContainer').innerHTML = '';
+      
+      displayHints();
+      
+      const answerContainer = document.getElementById('answerContainer');
+      
+      if (answers[currentProblem] !== null) {
+        // Already answered - show results
+        const savedAnswers = answers[currentProblem];
+        let allCorrect = true;
+        let html = '';
+        
+        problem.inputs.forEach(inp => {
+          if (inp.type === 'direction') {
+            const userVal = savedAnswers[inp.key] || '';
+            const isCorrect = userVal.toLowerCase() === inp.correct.toLowerCase();
+            if (!isCorrect) allCorrect = false;
+            html += `
+              <div class="input-group">
+                <span class="unit-label" style="min-width:200px;text-align:right">${inp.label}</span>
+                <input type="text" class="answer-input ${isCorrect ? 'answered-correct' : 'answered-incorrect'}" 
+                       value="${userVal}" disabled style="width:200px">
+              </div>
+            `;
+          } else {
+            const userVal = savedAnswers[inp.key];
+            const isCorrect = Math.abs(userVal - inp.correct) <= inp.tolerance;
+            if (!isCorrect) allCorrect = false;
+            html += `
+              <div class="input-group">
+                <span class="unit-label" style="min-width:200px;text-align:right">${inp.label}</span>
+                <input type="text" class="answer-input ${isCorrect ? 'answered-correct' : 'answered-incorrect'}" 
+                       value="${userVal}" disabled>
+                <span class="unit-label">${inp.unit}</span>
+              </div>
+            `;
+          }
+        });
+        
+        answerContainer.innerHTML = html;
+        showFeedback(allCorrect);
+        showExplanation(problem.explanation);
+      } else {
+        // Not yet answered - show input fields
+        let html = '';
+        problem.inputs.forEach((inp, idx) => {
+          if (inp.type === 'direction') {
+            html += `
+              <div class="input-group">
+                <span class="unit-label" style="min-width:200px;text-align:right">${inp.label}</span>
+                <select id="input_${inp.key}" class="answer-input" style="width:200px">
+                  <option value="">Select direction</option>
+                  <option value="downward">downward</option>
+                  <option value="upward">upward</option>
+                  <option value="clockwise">clockwise</option>
+                  <option value="counterclockwise">counterclockwise</option>
+                </select>
+              </div>
+            `;
+          } else {
+            html += `
+              <div class="input-group">
+                <span class="unit-label" style="min-width:200px;text-align:right">${inp.label}</span>
+                <input type="text" id="input_${inp.key}" class="answer-input" placeholder="Enter answer">
+                <span class="unit-label">${inp.unit}</span>
+              </div>
+            `;
+          }
+        });
+        html += `
+          <div style="text-align:center;margin-top:15px">
+            <button class="submit-btn" onclick="submitKirchhoffAnswer()">Check</button>
+          </div>
+          <button class="hint-btn" onclick="showNextHint()">Show Hint</button>
+        `;
+        answerContainer.innerHTML = html;
+      }
+      
+      document.getElementById('prevBtn').disabled = currentProblem === 0;
+      document.getElementById('nextBtn').disabled = currentProblem === problems.length - 1;
+    }
+
+    function submitKirchhoffAnswer() {
+      const problem = problems[currentProblem];
+      let savedAnswers = {};
+      let allCorrect = true;
+      let anyEmpty = false;
+      
+      problem.inputs.forEach(inp => {
+        const el = document.getElementById('input_' + inp.key);
+        if (inp.type === 'direction') {
+          const val = el.value;
+          if (!val) anyEmpty = true;
+          savedAnswers[inp.key] = val;
+          if (val.toLowerCase() !== inp.correct.toLowerCase()) allCorrect = false;
+        } else {
+          const val = parseFloat(el.value);
+          if (isNaN(val)) anyEmpty = true;
+          savedAnswers[inp.key] = val;
+          if (isNaN(val) || Math.abs(val - inp.correct) > inp.tolerance) allCorrect = false;
+        }
+      });
+      
+      if (anyEmpty) {
+        alert('Please fill in all fields');
+        return;
+      }
+      
+      answers[currentProblem] = savedAnswers;
+      if (allCorrect) score++;
+      
+      displayProblem();
+      checkCompletion();
+    }
+
+    function showFeedback(isCorrect) {
+      const feedbackEl = document.getElementById('feedbackMessage');
+      feedbackEl.style.display = 'block';
+      if (isCorrect) {
+        feedbackEl.className = 'feedback-message feedback-correct';
+        feedbackEl.textContent = '✓ Correct! Great work!';
+      } else {
+        feedbackEl.className = 'feedback-message feedback-incorrect';
+        feedbackEl.textContent = '✗ Not quite. Review the explanation below.';
+      }
+    }
+
+    function showExplanation(text) {
+      document.getElementById('explanationContainer').innerHTML = `<div class="explanation-box">${text}</div>`;
+    }
+
+    function displayHints() {
+      const hintContainer = document.getElementById('hintContainer');
+      hintContainer.innerHTML = '';
+      const problem = problems[currentProblem];
+      
+      for (let i = 0; i < hintsShown[currentProblem]; i++) {
+        const hintDiv = document.createElement('div');
+        hintDiv.className = 'hint-text';
+        hintDiv.textContent = `Hint ${i + 1}: ${problem.hints[i]}`;
+        hintContainer.appendChild(hintDiv);
+      }
+    }
+
+    function showNextHint() {
+      const problem = problems[currentProblem];
+      if (hintsShown[currentProblem] < problem.hints.length) {
+        hintsShown[currentProblem]++;
+        displayHints();
+      }
+    }
+
+    function checkCompletion() {
+      if (answers.every(a => a !== null)) {
+        setTimeout(showCompletion, 1000);
+      }
+    }
+
+    function nextProblem() {
+      if (currentProblem < problems.length - 1) {
+        currentProblem++;
+        displayProblem();
+      }
+    }
+
+    function prevProblem() {
+      if (currentProblem > 0) {
+        currentProblem--;
+        displayProblem();
+      }
+    }
+
+    function showCompletion() {
+      document.getElementById('quizContent').style.display = 'none';
+      document.getElementById('completionScreen').style.display = 'block';
+      document.getElementById('finalScore').textContent = `${score}/${problems.length}`;
+    }
+
+    function resetQuiz() {
+      currentProblem = 0;
+      score = 0;
+      answers = new Array(problems.length).fill(null);
+      hintsShown = new Array(problems.length).fill(0);
+      document.getElementById('completionScreen').style.display = 'none';
+      document.getElementById('quizContent').style.display = 'block';
+      displayProblem();
+    }
+
+    // Initialize
+    displayProblem();
+  </script>
+</body>
+</html>
