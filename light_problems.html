@@ -1,0 +1,1317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Light Problems - Wave & Frequency Practice</title>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-gradient-1: #0a0a1a;
+      --bg-gradient-2: #0d1b2a;
+      --bg-gradient-3: #1a0a2e;
+      --accent-cyan: #00f5d4;
+      --accent-pink: #f72585;
+      --accent-yellow: #fee440;
+      --accent-orange: #ff6b35;
+      --card-bg: rgba(255,255,255,0.03);
+      --card-border: rgba(255,255,255,0.08);
+      --text-primary: #ffffff;
+      --text-secondary: rgba(255,255,255,0.7);
+      --success: #00f5d4;
+      --error: #f72585;
+      --warning: #fee440;
+    }
+    
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    
+    body {
+      font-family: 'Outfit', sans-serif;
+      background: linear-gradient(135deg, var(--bg-gradient-1) 0%, var(--bg-gradient-2) 50%, var(--bg-gradient-3) 100%);
+      min-height: 100vh;
+      color: var(--text-primary);
+      overflow-x: hidden;
+    }
+
+    /* Animated spectrum bar at top */
+    .spectrum-bar {
+      width: 100%;
+      height: 6px;
+      background: linear-gradient(90deg,
+        #9400D3 0%,
+        #4B0082 10%,
+        #0000FF 20%,
+        #00BFFF 32%,
+        #00FF00 45%,
+        #FFFF00 58%,
+        #FF8C00 72%,
+        #FF0000 85%,
+        #FF0000 100%
+      );
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 9999;
+    }
+    
+    .noise-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+      opacity: 0.03;
+      pointer-events: none;
+      z-index: 1000;
+    }
+    
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 2rem;
+      padding-top: 3rem;
+      position: relative;
+    }
+    
+    header {
+      text-align: center;
+      margin-bottom: 2rem;
+      animation: fadeInDown 0.6s ease-out;
+    }
+    
+    @keyframes fadeInDown {
+      from { opacity: 0; transform: translateY(-30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    h1 {
+      font-size: 3.5rem;
+      font-weight: 800;
+      background: linear-gradient(90deg, #9400D3, #0000FF, #00BFFF, #00FF00, #FFFF00, #FF8C00, #FF0000);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 0.5rem;
+      letter-spacing: -2px;
+    }
+    
+    .subtitle {
+      color: var(--text-secondary);
+      font-size: 1.1rem;
+      font-weight: 300;
+    }
+
+    .nasa-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.35rem 0.85rem;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      background: rgba(0,191,255,0.15);
+      color: #00BFFF;
+      border: 1px solid rgba(0,191,255,0.3);
+      margin-top: 0.75rem;
+    }
+    
+    .progress-bar-container {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 50px;
+      padding: 0.5rem;
+      margin-bottom: 2rem;
+      animation: fadeIn 0.6s ease-out 0.2s both;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    
+    .progress-info {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 1rem;
+      margin-bottom: 0.5rem;
+    }
+    
+    .level-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.4rem 1rem;
+      border-radius: 20px;
+      font-weight: 600;
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    
+    .level-easy { background: rgba(0,245,212,0.2); color: var(--accent-cyan); }
+    .level-medium { background: rgba(254,228,64,0.2); color: var(--accent-yellow); }
+    .level-hard { background: rgba(247,37,133,0.2); color: var(--accent-pink); }
+    
+    .streak-counter {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.9rem;
+      color: var(--accent-orange);
+    }
+    
+    .progress-track {
+      height: 8px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 10px;
+      overflow: hidden;
+      margin: 0 0.5rem;
+    }
+    
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #9400D3, #0000FF, #00FF00, #FFFF00, #FF0000);
+      border-radius: 10px;
+      transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    .problem-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 24px;
+      padding: 2.5rem;
+      margin-bottom: 1.5rem;
+      backdrop-filter: blur(10px);
+      animation: slideUp 0.5s ease-out;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .problem-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, #9400D3, #0000FF, #00BFFF, #00FF00, #FFFF00, #FF8C00, #FF0000);
+    }
+    
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .problem-number {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+      color: var(--accent-cyan);
+      margin-bottom: 1rem;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+    }
+    
+    .problem-text {
+      font-size: 1.15rem;
+      line-height: 1.8;
+      margin-bottom: 1.5rem;
+      color: var(--text-primary);
+    }
+    
+    .formula-box {
+      background: rgba(0,245,212,0.08);
+      border: 1px solid rgba(0,245,212,0.2);
+      border-radius: 12px;
+      padding: 1rem 1.5rem;
+      margin-bottom: 1.5rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.95rem;
+      color: var(--accent-cyan);
+    }
+
+    /* Color swatch display for color questions */
+    .color-answer-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+      gap: 0.75rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .color-btn {
+      padding: 0.85rem 0.5rem;
+      border-radius: 12px;
+      border: 2px solid transparent;
+      cursor: pointer;
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.95rem;
+      font-weight: 600;
+      transition: all 0.2s ease;
+      color: #fff;
+      text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+    }
+
+    .color-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+    }
+
+    .color-btn.selected {
+      border-color: white;
+      transform: translateY(-3px);
+      box-shadow: 0 0 0 3px rgba(255,255,255,0.3), 0 8px 20px rgba(0,0,0,0.3);
+    }
+
+    .color-btn.correct-answer {
+      border-color: var(--success);
+      box-shadow: 0 0 0 3px rgba(0,245,212,0.4);
+    }
+
+    .color-btn.wrong-answer {
+      border-color: var(--error);
+      opacity: 0.6;
+    }
+    
+    .input-group {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+    
+    .input-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      flex: 1;
+      min-width: 200px;
+    }
+    
+    .answer-input {
+      flex: 1;
+      padding: 1rem 1.5rem;
+      font-size: 1.2rem;
+      font-family: 'JetBrains Mono', monospace;
+      background: rgba(255,255,255,0.05);
+      border: 2px solid rgba(255,255,255,0.15);
+      border-radius: 12px;
+      color: var(--text-primary);
+      transition: all 0.3s ease;
+    }
+    
+    .answer-input:focus {
+      outline: none;
+      border-color: var(--accent-cyan);
+      box-shadow: 0 0 20px rgba(0,245,212,0.2);
+    }
+    
+    .answer-input.correct {
+      border-color: var(--success);
+      background: rgba(0,245,212,0.1);
+    }
+    
+    .answer-input.incorrect {
+      border-color: var(--error);
+      background: rgba(247,37,133,0.1);
+    }
+    
+    .unit-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1.1rem;
+      color: var(--text-secondary);
+      white-space: nowrap;
+    }
+    
+    .btn {
+      padding: 1rem 2rem;
+      font-family: 'Outfit', sans-serif;
+      font-size: 1rem;
+      font-weight: 600;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    
+    .btn-check {
+      background: linear-gradient(135deg, var(--accent-cyan), #00c4a7);
+      color: var(--bg-gradient-1);
+    }
+    
+    .btn-check:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 30px rgba(0,245,212,0.3);
+    }
+    
+    .btn-next {
+      background: linear-gradient(135deg, var(--accent-pink), #d91a6a);
+      color: white;
+    }
+    
+    .btn-next:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 30px rgba(247,37,133,0.3);
+    }
+    
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+    
+    .feedback-box {
+      margin-top: 1.5rem;
+      padding: 1.5rem;
+      border-radius: 16px;
+      animation: fadeIn 0.4s ease-out;
+    }
+    
+    .feedback-correct {
+      background: rgba(0,245,212,0.1);
+      border: 1px solid rgba(0,245,212,0.3);
+    }
+    
+    .feedback-incorrect {
+      background: rgba(247,37,133,0.1);
+      border: 1px solid rgba(247,37,133,0.3);
+    }
+    
+    .feedback-title {
+      font-weight: 700;
+      font-size: 1.1rem;
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    
+    .feedback-correct .feedback-title { color: var(--accent-cyan); }
+    .feedback-incorrect .feedback-title { color: var(--accent-pink); }
+    
+    .feedback-text {
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+    
+    .sig-fig-hint {
+      margin-top: 1rem;
+      padding: 1rem;
+      background: rgba(254,228,64,0.1);
+      border: 1px solid rgba(254,228,64,0.2);
+      border-radius: 10px;
+      font-size: 0.9rem;
+      color: var(--accent-yellow);
+    }
+
+    /* NASA color reference box */
+    .color-reference {
+      margin-top: 1rem;
+      padding: 0.75rem 1rem;
+      background: rgba(0,191,255,0.06);
+      border: 1px solid rgba(0,191,255,0.2);
+      border-radius: 10px;
+      font-size: 0.82rem;
+      color: rgba(255,255,255,0.6);
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .color-reference strong { color: #00BFFF; }
+    
+    /* Mastery Screen */
+    #mastery-screen {
+      display: none;
+      text-align: center;
+      animation: scaleIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    
+    @keyframes scaleIn {
+      from { opacity: 0; transform: scale(0.8); }
+      to { opacity: 1; transform: scale(1); }
+    }
+    
+    .mastery-card {
+      background: linear-gradient(135deg, rgba(0,245,212,0.07), rgba(147,0,211,0.07));
+      border: 2px solid rgba(255,255,255,0.1);
+      border-radius: 32px;
+      padding: 4rem 3rem;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .mastery-card::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: conic-gradient(from 0deg, transparent, #9400D3, transparent, #0000FF, transparent, #00FF00, transparent, #FF0000, transparent);
+      animation: rotate 8s linear infinite;
+      opacity: 0.08;
+      pointer-events: none;
+    }
+    
+    @keyframes rotate {
+      to { transform: rotate(360deg); }
+    }
+    
+    .trophy-icon {
+      font-size: 6rem;
+      margin-bottom: 1.5rem;
+      animation: bounce 1s ease-in-out infinite;
+    }
+    
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-15px); }
+    }
+    
+    .mastery-title {
+      font-size: 3rem;
+      font-weight: 800;
+      background: linear-gradient(90deg, #9400D3, #0000FF, #00FF00, #FF0000);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 1rem;
+    }
+    
+    .mastery-subtitle {
+      font-size: 1.3rem;
+      color: var(--text-secondary);
+      margin-bottom: 2rem;
+    }
+    
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+      margin: 2rem 0;
+    }
+    
+    .stat-box {
+      background: rgba(255,255,255,0.05);
+      border-radius: 16px;
+      padding: 1.5rem;
+    }
+    
+    .stat-value {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: var(--accent-cyan);
+    }
+    
+    .stat-label {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-top: 0.5rem;
+    }
+    
+    .screenshot-hint {
+      margin-top: 2rem;
+      padding: 1rem 2rem;
+      background: rgba(254,228,64,0.1);
+      border: 1px dashed rgba(254,228,64,0.3);
+      border-radius: 12px;
+      color: var(--accent-yellow);
+      font-size: 0.95rem;
+    }
+    
+    .name-input-mastery {
+      margin-top: 1.5rem;
+      padding: 1rem 2rem;
+      font-size: 1.2rem;
+      font-family: 'Outfit', sans-serif;
+      background: rgba(255,255,255,0.1);
+      border: 2px solid rgba(255,255,255,0.2);
+      border-radius: 12px;
+      color: var(--text-primary);
+      text-align: center;
+      width: 100%;
+      max-width: 400px;
+      position: relative;
+      z-index: 10;
+    }
+    
+    .name-input-mastery:focus {
+      outline: none;
+      border-color: var(--accent-cyan);
+    }
+    
+    .timestamp {
+      margin-top: 1rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+    }
+    
+    /* Multi-part problems */
+    .sub-problems {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+    
+    .sub-problem {
+      background: rgba(255,255,255,0.02);
+      border: 1px solid rgba(255,255,255,0.05);
+      border-radius: 16px;
+      padding: 1.5rem;
+    }
+    
+    .sub-problem-label {
+      font-weight: 600;
+      color: var(--accent-yellow);
+      margin-bottom: 0.75rem;
+      font-size: 0.95rem;
+    }
+    
+    .hidden { display: none !important; }
+    
+    @media (max-width: 600px) {
+      h1 { font-size: 2.5rem; }
+      .problem-card { padding: 1.5rem; }
+      .stats-grid { grid-template-columns: 1fr; }
+      .mastery-title { font-size: 2rem; }
+      .color-answer-grid { grid-template-columns: repeat(3, 1fr); }
+    }
+  </style>
+</head>
+<body>
+  <div class="spectrum-bar"></div>
+  <div class="noise-overlay"></div>
+  
+  <div class="container">
+    <header>
+      <h1>Light Problems</h1>
+      <p class="subtitle">Wave Speed, Frequency & Wavelength Practice</p>
+
+    </header>
+    
+    <div id="quiz-section">
+      <div class="progress-bar-container">
+        <div class="progress-info">
+          <span class="level-badge level-easy" id="level-badge">
+            <span>●</span> Level: Easy
+          </span>
+          <span class="streak-counter" id="streak-counter">🔥 Streak: 0</span>
+        </div>
+        <div class="progress-track">
+          <div class="progress-fill" id="progress-fill" style="width: 0%"></div>
+        </div>
+      </div>
+      
+      <div class="problem-card" id="problem-card">
+        <div class="problem-number" id="problem-number">Problem 1 of 10</div>
+        <div class="problem-text" id="problem-text"></div>
+        <div class="formula-box" id="formula-box">c = λf &nbsp;|&nbsp; c = 3.0 × 10⁸ m/s</div>
+        
+        <!-- Single numeric answer -->
+        <div id="single-input-area">
+          <div class="input-group">
+            <div class="input-wrapper">
+              <input type="text" class="answer-input" id="answer-input" placeholder="e.g. 3.0e8 or 2.7x10^-7">
+              <span class="unit-label" id="unit-label">m/s</span>
+            </div>
+            <button class="btn btn-check" id="check-btn" onclick="checkAnswer()">Check</button>
+          </div>
+        </div>
+
+        <!-- Color multiple choice -->
+        <div id="color-input-area" class="hidden">
+          <div class="color-answer-grid" id="color-choices"></div>
+          <button class="btn btn-check" id="check-color-btn" onclick="checkColorAnswer()" disabled>Check</button>
+
+        </div>
+        
+        <!-- Multi-part answer -->
+        <div id="multi-input-area" class="hidden">
+          <div class="sub-problems" id="sub-problems"></div>
+          <button class="btn btn-check" id="check-multi-btn" onclick="checkMultiAnswer()" style="margin-top: 1.5rem;">Check All</button>
+        </div>
+        
+        <div class="feedback-box hidden" id="feedback-box">
+          <div class="feedback-title" id="feedback-title"></div>
+          <div class="feedback-text" id="feedback-text"></div>
+          <div class="sig-fig-hint hidden" id="sig-fig-hint"></div>
+        </div>
+        
+        <button class="btn btn-next hidden" id="next-btn" onclick="nextProblem()" style="margin-top: 1.5rem;">Next Problem →</button>
+      </div>
+    </div>
+    
+    <div id="mastery-screen">
+      <div class="mastery-card">
+        <div class="trophy-icon">🌈</div>
+        <h2 class="mastery-title">LIGHT MASTER!</h2>
+        <p class="mastery-subtitle">You've conquered the electromagnetic spectrum!</p>
+        
+        <div class="stats-grid">
+          <div class="stat-box">
+            <div class="stat-value" id="final-correct">0</div>
+            <div class="stat-label">Correct</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-value" id="final-total">0</div>
+            <div class="stat-label">Total</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-value" id="final-streak">0</div>
+            <div class="stat-label">Best Streak</div>
+          </div>
+        </div>
+        
+        <input type="text" class="name-input-mastery" id="student-name" placeholder="Enter your name for screenshot">
+        <div class="timestamp" id="timestamp"></div>
+        
+        <div class="screenshot-hint">
+          📸 Take a screenshot and submit to your teacher!
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script>
+// ============ CONSTANTS ============
+const C = 3.0e8; // speed of light m/s
+
+// NASA EMS color ranges (nm)
+// Violet: 380–450, Blue: 450–495, Green: 495–570,
+// Yellow: 570–590, Orange: 590–620, Red: 620–700
+const COLOR_RANGES = [
+  { name: 'Violet', min: 380e-9, max: 450e-9, hex: '#7B00D4' },
+  { name: 'Blue',   min: 450e-9, max: 495e-9, hex: '#2255FF' },
+  { name: 'Green',  min: 495e-9, max: 570e-9, hex: '#00C030' },
+  { name: 'Yellow', min: 570e-9, max: 590e-9, hex: '#FFE000' },
+  { name: 'Orange', min: 590e-9, max: 620e-9, hex: '#FF7700' },
+  { name: 'Red',    min: 620e-9, max: 700e-9, hex: '#FF1500' }
+];
+
+// frequency -> color name using NASA ranges
+function freqToColor(freqHz) {
+  const wl = C / freqHz;
+  return wlToColor(wl);
+}
+
+function wlToColor(wlM) {
+  for (const c of COLOR_RANGES) {
+    if (wlM >= c.min && wlM <= c.max) return c.name;
+  }
+  return null; // outside visible
+}
+
+// ============ UTILITY ============
+function sci(n, sig=3) {
+  if (n === 0) return '0';
+  const mag = Math.floor(Math.log10(Math.abs(n)));
+  const coeff = n / Math.pow(10, mag);
+  const rounded = parseFloat(coeff.toFixed(sig - 1));
+  if (mag === 0) return rounded.toString();
+  return `${rounded} × 10<sup>${mag}</sup>`;
+}
+
+function sciPlain(n, sig=3) {
+  // Returns plain string for comparison
+  if (n === 0) return '0';
+  const mag = Math.floor(Math.log10(Math.abs(n)));
+  const coeff = n / Math.pow(10, mag);
+  return parseFloat(coeff.toFixed(sig - 1)) * Math.pow(10, mag);
+}
+
+function roundSig(n, sig) {
+  if (n === 0) return 0;
+  const mag = Math.floor(Math.log10(Math.abs(n)));
+  const scale = Math.pow(10, mag - sig + 1);
+  return Math.round(n / scale) * scale;
+}
+
+function randomInArray(arr) {
+  return arr[Math.floor(Math.random() * arr.length)];
+}
+
+// Parse user scientific notation input like "3.0e8", "3.0×10^8", "3e8", "300000000"
+function parseUserNum(str) {
+  // Normalize: trim, lowercase
+  str = str.trim().toLowerCase();
+
+  // Remove commas (e.g. 300,000,000)
+  str = str.replace(/,/g, '');
+
+  // Replace unicode × and · with x
+  str = str.replace(/×|·/g, 'x');
+
+  // Handle "x10e-7" → e notation (student typed "2.7 x10e-7")
+  str = str.replace(/x\s*10e([+-]?\d+)/g, 'e$1');
+
+  // Handle "x 10 ^ -7" or "x10^-7" → e notation
+  str = str.replace(/x\s*10\s*\^\s*([+-]?\d+)/g, 'e$1');
+  // Handle "x10-7" (no caret, negative) or "x10+7"
+  str = str.replace(/x\s*10\s*([+-]\d+)/g, 'e$1');
+  // Handle "x107" (no caret, no sign)
+  str = str.replace(/x\s*10\s*(\d+)/g, 'e$1');
+
+  // Handle "* 10^7" asterisk style
+  str = str.replace(/\*\s*10\s*\^\s*([+-]?\d+)/g, 'e$1');
+  str = str.replace(/\*\s*10\s*([+-]\d+)/g, 'e$1');
+
+  // Handle bare "10^-7" without coefficient
+  str = str.replace(/10\s*\^\s*([+-]?\d+)/g, '1e$1');
+
+  // Remove remaining spaces
+  str = str.replace(/\s/g, '');
+
+  // Clean up artifacts
+  str = str.replace(/e\+-/g, 'e-');
+  str = str.replace(/e\+\+/g, 'e+');
+  str = str.replace(/e{2,}/g, 'e');
+
+  return parseFloat(str);
+}
+
+function checkClose(user, correct, pct=0.02) {
+  if (isNaN(user) || correct === 0) return false;
+  return Math.abs(user - correct) / Math.abs(correct) <= pct;
+}
+
+// ============ PROBLEM GENERATORS ============
+// All 10 problems fixed from the worksheet, but with randomized numbers where appropriate
+
+const problemGenerators = {
+
+  easy: [
+    // Q1 type: verify speed of radio wave (should be c)
+    function() {
+      const f = +(( Math.random() * 6 + 4).toFixed(3)) * 1e8; // 4–10 × 10^8 Hz
+      const wlCm = +((C / f * 100).toFixed(3)); // cm
+      const wlM = C / f;
+      const ans = roundSig(C, 3);
+      return {
+        text: `A radio wave has a frequency of ${sci(f,3)} Hz and a wavelength of ${wlCm.toFixed(3)} cm. How fast does it travel? (Express in m/s)`,
+        type: 'single',
+        unit: 'm/s',
+        answer: ans,
+        sigFigs: 3,
+        feedback: {
+          correct: `Correct! c = λf = (${(wlM).toExponential(3)} m)(${f.toExponential(3)} Hz) = 3.00 × 10⁸ m/s. All EM waves travel at the speed of light!`,
+          wrongValue: `Hint: c = λf. Convert cm → m first (÷ 100), then multiply wavelength × frequency. All EM waves travel at c = 3.00 × 10⁸ m/s.`,
+        }
+      };
+    },
+
+    // Q2 type: verify speed of microwave (should be c)
+    function() {
+      const f = +(( Math.random() * 8 + 8).toFixed(4)) * 1e10;
+      const wlMm = +((C / f * 1000).toFixed(4));
+      const wlM = C / f;
+      const ans = roundSig(C, 3);
+      return {
+        text: `Microwave radiation has a frequency of ${sci(f,3)} Hz and a wavelength of ${wlMm.toFixed(4)} mm. How fast does it travel? (Express in m/s)`,
+        type: 'single',
+        unit: 'm/s',
+        answer: ans,
+        sigFigs: 3,
+        feedback: {
+          correct: `Correct! All electromagnetic radiation—microwaves included—travels at the speed of light: 3.00 × 10⁸ m/s.`,
+          wrongValue: `Don't forget to convert mm → m (÷ 1000). Then c = λf. You should always get ~3.00 × 10⁸ m/s for any EM wave in a vacuum.`,
+        }
+      };
+    },
+
+    // Q8 type: wavelength in nm → color
+    function() {
+      const colorObj = randomInArray(COLOR_RANGES);
+      // Pick a wavelength solidly within the range
+      const wlNm = Math.round(colorObj.min * 1e9 + Math.random() * (colorObj.max - colorObj.min) * 1e9);
+      const wlM = wlNm * 1e-9;
+      return {
+        text: `Determine the color of a ray of visible light with a wavelength of <strong>${wlNm} nm</strong>.`,
+        type: 'color',
+        answer: colorObj.name,
+        feedback: {
+          correct: `Correct! According to NASA's EMS, ${wlNm} nm falls in the <strong>${colorObj.name}</strong> range.`,
+          wrong: `Not quite. ${wlNm} nm falls in the <strong>${colorObj.name}</strong> range per NASA's EMS color chart (Violet 380–450 nm, Blue 450–495 nm, Green 495–570 nm, Yellow 570–590 nm, Orange 590–620 nm, Red 620–700 nm).`
+        }
+      };
+    }
+  ],
+
+  medium: [
+    // Q3 type: find wavelength from frequency
+    function() {
+      const contexts = [
+        { label: 'ultraviolet light', f: +(( Math.random() * 4 + 8).toFixed(1)) * 1e14, unit: 'nm', scale: 1e9 },
+        { label: 'X-rays used in microscopy', f: +(( Math.random() * 5 + 7).toFixed(1)) * 1e17, unit: 'nm', scale: 1e9 },
+      ];
+      const ctx = randomInArray(contexts);
+      const wlM = C / ctx.f;
+      const wlDisplay = +(wlM * ctx.scale).toPrecision(3);
+      const ans = roundSig(wlM, 3);
+      return {
+        text: `Scientists use ${ctx.label} with a frequency of ${sci(ctx.f,3)} Hz. To what wavelength (in meters) does this correspond?`,
+        type: 'single',
+        unit: 'm',
+        answer: ans,
+        sigFigs: 3,
+        feedback: {
+          correct: `Correct! Starting from c = λf, solve for wavelength. (3.00 × 10⁸) / (${ctx.f.toExponential(3)}) ≈ ${wlM.toExponential(3)} m.`,
+          wrongValue: `Start with c = λf and solve for λ. You know c and f — rearrange the formula!`,
+        }
+      };
+    },
+
+    // Q4 type: find frequency from wavelength (radio station)
+    function() {
+      // Denver FM radio stations
+      const stations = [
+        { name: 'KALC Alice 105.9 FM', f: 105.9e6 },
+        { name: 'KTCL Channel 93.3 FM', f: 93.3e6 },
+        { name: 'KBPI 92.5 FM', f: 92.5e6 },
+        { name: 'KVOD CPR Classical 88.1 FM', f: 88.1e6 },
+        { name: 'KCNV CPR News 90.1 FM', f: 90.1e6 },
+        { name: 'KVOQ Indie 102.3 FM', f: 102.3e6 },
+        { name: 'KJAC The Colorado Sound 105.5 FM', f: 105.5e6 },
+        { name: 'KOSI 101.1 FM', f: 101.1e6 },
+      ];
+      const st = randomInArray(stations);
+      const wlM = C / st.f;
+      const wlDisplay = +wlM.toPrecision(4);
+      const ansMHz = +(st.f / 1e6).toPrecision(4);
+      return {
+        text: `A radio signal travels with a wavelength of <strong>${wlDisplay} m</strong>. What is its frequency in MHz? (Hint: it's a Denver FM radio station!)`,
+        type: 'single',
+        unit: 'MHz',
+        answer: roundSig(st.f / 1e6, 4),
+        sigFigs: 4,
+        feedback: {
+          correct: `Correct! f = c/λ = (3.00 × 10⁸) / (${wlDisplay}) ≈ ${ansMHz} MHz. That's ${st.name}!`,
+          wrongValue: `Use f = c/λ. Divide the speed of light by the wavelength to get Hz, then convert to MHz (÷ 10⁶).`,
+        }
+      };
+    },
+
+    // Q9 type: frequency in THz → color
+    function() {
+      const colorObj = randomInArray(COLOR_RANGES);
+      const fMin = C / colorObj.max;
+      const fMax = C / colorObj.min;
+      const f = fMin + Math.random() * (fMax - fMin);
+      const fTHz = +(f / 1e12).toPrecision(3);
+      return {
+        text: `Determine the color of a ray of visible light with a frequency of <strong>${fTHz} THz</strong>. (1 THz = 10<sup>12</sup> Hz)`,
+        type: 'color',
+        answer: colorObj.name,
+        feedback: {
+          correct: `Correct! λ = c/f = (3.00 × 10⁸) / (${(fTHz*1e12).toExponential(3)}) ≈ ${(C/(fTHz*1e12)*1e9).toFixed(0)} nm → <strong>${colorObj.name}</strong>.`,
+          wrong: `First convert THz → Hz (× 10¹²), then find λ = c/f. ${fTHz} THz → λ ≈ ${(C/(fTHz*1e12)*1e9).toFixed(0)} nm which is <strong>${colorObj.name}</strong>.`
+        }
+      };
+    },
+
+    // Q6 type: monochromatic light frequency → color
+    function() {
+      const colorObj = randomInArray(COLOR_RANGES);
+      const fMin = C / colorObj.max;
+      const fMax = C / colorObj.min;
+      const f = fMin + Math.random() * (fMax - fMin);
+      const fDisp = +(f / 1e14).toPrecision(3);
+      return {
+        text: `A monochromatic beam of light has a frequency of <strong>${fDisp} × 10<sup>14</sup> Hz</strong>. What color is the light?`,
+        type: 'color',
+        answer: colorObj.name,
+        feedback: {
+          correct: `Correct! λ = c/f = (3.00 × 10⁸) / (${(fDisp*1e14).toExponential(3)}) ≈ ${(C/(fDisp*1e14)*1e9).toFixed(0)} nm → <strong>${colorObj.name}</strong>.`,
+          wrong: `Find λ = c/f first. λ ≈ ${(C/(fDisp*1e14)*1e9).toFixed(0)} nm, which is in the <strong>${colorObj.name}</strong> range per NASA's EMS.`
+        }
+      };
+    }
+  ],
+
+  hard: [
+    // Q5: wavelength in meters → color
+    function() {
+      const colorObj = randomInArray(COLOR_RANGES);
+      const wlM = colorObj.min + Math.random() * (colorObj.max - colorObj.min);
+      const wlDisplay = wlM.toExponential(2);
+      return {
+        text: `Determine the color of a ray of visible light with a wavelength of <strong>${wlDisplay} m</strong>.`,
+        type: 'color',
+        answer: colorObj.name,
+        feedback: {
+          correct: `Correct! ${wlDisplay} m = ${(wlM*1e9).toFixed(0)} nm → <strong>${colorObj.name}</strong> per NASA's EMS color chart.`,
+          wrong: `Convert to nm (× 10⁹): ${wlDisplay} m = ${(wlM*1e9).toFixed(0)} nm → <strong>${colorObj.name}</strong>. (Violet 380–450, Blue 450–495, Green 495–570, Yellow 570–590, Orange 590–620, Red 620–700)`
+        }
+      };
+    },
+
+    // Q7 type: EM wave type identification by frequency
+    function() {
+      const emTypes = [
+        { name: 'Radio waves', fMin: 3e4, fMax: 3e9, hint: '3 kHz – 3 GHz' },
+        { name: 'Microwaves', fMin: 3e9, fMax: 3e11, hint: '3 GHz – 300 GHz' },
+        { name: 'Infrared', fMin: 3e11, fMax: 4e14, hint: '300 GHz – 400 THz' },
+        { name: 'Ultraviolet', fMin: 7.5e14, fMax: 3e17, hint: '750 THz – 300 PHz' },
+        { name: 'X-rays', fMin: 3e17, fMax: 3e19, hint: '300 PHz – 30 EHz' },
+        { name: 'Gamma rays', fMin: 3e19, fMax: 3e24, hint: '> 30 EHz' },
+      ];
+      const em = randomInArray(emTypes);
+      const f = em.fMin * Math.pow(em.fMax / em.fMin, Math.random());
+      const fDisplay = f.toExponential(2);
+      const allChoices = emTypes.map(e => e.name);
+      return {
+        text: `What type of electromagnetic wave has a frequency of <strong>${fDisplay} Hz</strong>? Identify the region of the EM spectrum.`,
+        type: 'emtype',
+        answer: em.name,
+        allChoices: allChoices,
+        feedback: {
+          correct: `Correct! ${fDisplay} Hz falls in the <strong>${em.name}</strong> range of the EM spectrum (${em.hint}).`,
+          wrong: `${fDisplay} Hz falls in the <strong>${em.name}</strong> range (${em.hint}). Use NASA's EMS diagram to learn the frequency boundaries.`
+        }
+      };
+    },
+
+    // Q10 type: frequency in standard Hz → color
+    function() {
+      const colorObj = randomInArray(COLOR_RANGES);
+      const fMin = C / colorObj.max;
+      const fMax = C / colorObj.min;
+      const f = fMin + Math.random() * (fMax - fMin);
+      // Express as full integer Hz
+      const fRound = Math.round(f / 1e12) * 1e12;
+      const fDisplay = fRound.toExponential(0).replace('e+', ' × 10^').replace(/\^(\d+)/, '<sup>$1</sup>');
+      return {
+        text: `Determine the color of a ray of light with a frequency of <strong>${fDisplay} Hz</strong>.`,
+        type: 'color',
+        answer: colorObj.name,
+        feedback: {
+          correct: `Correct! λ = c/f = (3.00 × 10⁸) / (${fRound.toExponential(2)}) ≈ ${(C/fRound*1e9).toFixed(0)} nm → <strong>${colorObj.name}</strong>.`,
+          wrong: `Calculate λ = c/f = (3.00 × 10⁸) / (${fRound.toExponential(2)}) ≈ ${(C/fRound*1e9).toFixed(0)} nm → <strong>${colorObj.name}</strong>.`
+        }
+      };
+    },
+
+    // Multi-part: find wavelength range for UV (UVA/UVB like worksheet Q5)
+    function() {
+      // UVB: 280–320 nm → frequencies
+      const fUVB_low = C / (320e-9);
+      const fUVB_high = C / (280e-9);
+      const fUVA_low = C / (400e-9);
+      const fUVA_high = C / (320e-9);
+      return {
+        text: `Ultraviolet radiation is divided into UVA (320–400 nm) and UVB (280–320 nm). Find the frequency range for each type. (Give lower bound for part a/c, upper bound for part b/d)`,
+        type: 'multi',
+        parts: [
+          { label: '(a) UVB lower frequency', answer: roundSig(fUVB_low, 3), unit: 'Hz' },
+          { label: '(b) UVB upper frequency', answer: roundSig(fUVB_high, 3), unit: 'Hz' },
+          { label: '(c) UVA lower frequency', answer: roundSig(fUVA_low, 3), unit: 'Hz' },
+          { label: '(d) UVA upper frequency', answer: roundSig(fUVA_high, 3), unit: 'Hz' },
+        ],
+        sigFigs: 3,
+        feedback: {
+          correct: `Excellent! f = c/λ. UVB: ${fUVB_low.toExponential(3)} – ${fUVB_high.toExponential(3)} Hz. UVA: ${fUVA_low.toExponential(3)} – ${fUVA_high.toExponential(3)} Hz.`,
+          partial: `Use f = c/λ for each wavelength boundary. Remember: longer wavelength = lower frequency.`
+        }
+      };
+    }
+  ]
+};
+
+// ============ GAME STATE ============
+let currentLevel = 'easy';
+let currentProblem = null;
+let problemIndex = 0;
+let totalProblems = 10;
+let correctCount = 0;
+let streak = 0;
+let bestStreak = 0;
+let consecutiveCorrect = 0;
+let consecutiveWrong = 0;
+let answered = false;
+let selectedColor = null;
+
+// Shuffle + pick 10 from pool
+let problemPool = [];
+function buildPool() {
+  // 3 easy, 4 medium, 3 hard, cycling through generators
+  const e = problemGenerators.easy;
+  const m = problemGenerators.medium;
+  const h = problemGenerators.hard;
+  // Mix: e0,m0,e1,m1,e2,m2,m3,h0,h1,h2
+  problemPool = [
+    () => e[0](),   // calculate speed (only one)
+    () => m[0](),   // find wavelength from frequency
+    () => e[2](),   // color from nm
+    () => m[1](),   // find frequency from wavelength (Denver station)
+    () => m[2](),   // color from THz
+    () => m[3](),   // color from x10^14 Hz
+    () => h[0](),   // color from meters
+    () => h[1](),   // EM type identification
+    () => h[2](),   // color from full Hz
+    () => h[3](),   // UV frequency range multi-part
+  ];
+}
+
+function generateProblem() {
+  if (problemPool.length === 0) buildPool();
+  // Use adaptive level to pick from pool
+  const generators = problemGenerators[currentLevel];
+  return generators[Math.floor(Math.random() * generators.length)]();
+}
+
+function displayProblem() {
+  // Use the sequential pool for first 10 problems
+  if (problemIndex < problemPool.length) {
+    currentProblem = problemPool[problemIndex]();
+  } else {
+    currentProblem = generateProblem();
+  }
+  answered = false;
+  selectedColor = null;
+  
+  document.getElementById('problem-number').textContent = `Problem ${problemIndex + 1} of ${totalProblems}`;
+  document.getElementById('problem-text').innerHTML = currentProblem.text;
+  
+  const badge = document.getElementById('level-badge');
+  badge.className = `level-badge level-${currentLevel}`;
+  badge.innerHTML = `<span>●</span> Level: ${currentLevel.charAt(0).toUpperCase() + currentLevel.slice(1)}`;
+  
+  document.getElementById('progress-fill').style.width = `${(problemIndex / totalProblems) * 100}%`;
+  document.getElementById('streak-counter').textContent = `🔥 Streak: ${streak}`;
+  
+  // Hide all input areas
+  document.getElementById('single-input-area').classList.add('hidden');
+  document.getElementById('color-input-area').classList.add('hidden');
+  document.getElementById('multi-input-area').classList.add('hidden');
+  
+  if (currentProblem.type === 'single') {
+    document.getElementById('single-input-area').classList.remove('hidden');
+    document.getElementById('answer-input').value = '';
+    document.getElementById('answer-input').className = 'answer-input';
+    document.getElementById('unit-label').textContent = currentProblem.unit;
+    document.getElementById('check-btn').disabled = false;
+    
+  } else if (currentProblem.type === 'color') {
+    document.getElementById('color-input-area').classList.remove('hidden');
+    buildColorButtons(COLOR_RANGES.map(c => c.name));
+    document.getElementById('check-color-btn').disabled = true;
+    
+  } else if (currentProblem.type === 'emtype') {
+    document.getElementById('color-input-area').classList.remove('hidden');
+    buildColorButtons(currentProblem.allChoices, false);
+    document.getElementById('check-color-btn').disabled = true;
+    
+  } else if (currentProblem.type === 'multi') {
+    document.getElementById('multi-input-area').classList.remove('hidden');
+    const container = document.getElementById('sub-problems');
+    container.innerHTML = '';
+    currentProblem.parts.forEach((part, i) => {
+      container.innerHTML += `
+        <div class="sub-problem">
+          <div class="sub-problem-label">${part.label}</div>
+          <div class="input-group">
+            <div class="input-wrapper">
+              <input type="text" class="answer-input" id="answer-${i}" placeholder="Your answer...">
+              <span class="unit-label">${part.unit}</span>
+            </div>
+          </div>
+        </div>
+      `;
+    });
+    document.getElementById('check-multi-btn').disabled = false;
+  }
+  
+  document.getElementById('feedback-box').classList.add('hidden');
+  document.getElementById('next-btn').classList.add('hidden');
+}
+
+function buildColorButtons(choices, useColors = true) {
+  const grid = document.getElementById('color-choices');
+  grid.innerHTML = '';
+  choices.forEach(name => {
+    const btn = document.createElement('button');
+    btn.className = 'color-btn';
+    btn.textContent = name;
+    const colorObj = COLOR_RANGES.find(c => c.name === name);
+    if (useColors && colorObj) {
+      btn.style.background = colorObj.hex;
+    } else {
+      // EM type buttons – neutral style
+      btn.style.background = 'rgba(255,255,255,0.1)';
+      btn.style.border = '2px solid rgba(255,255,255,0.2)';
+      btn.style.color = '#fff';
+      btn.style.textShadow = 'none';
+      btn.style.fontSize = '0.82rem';
+    }
+    btn.onclick = () => selectChoice(name, btn, grid);
+    grid.appendChild(btn);
+  });
+}
+
+function selectChoice(name, btn, grid) {
+  if (answered) return;
+  selectedColor = name;
+  grid.querySelectorAll('.color-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  document.getElementById('check-color-btn').disabled = false;
+}
+
+function checkColorAnswer() {
+  if (answered || !selectedColor) return;
+  answered = true;
+  document.getElementById('check-color-btn').disabled = true;
+  
+  const correct = currentProblem.answer;
+  const grid = document.getElementById('color-choices');
+  
+  grid.querySelectorAll('.color-btn').forEach(btn => {
+    if (btn.textContent === correct) {
+      btn.classList.add('correct-answer');
+    } else if (btn.textContent === selectedColor && selectedColor !== correct) {
+      btn.classList.add('wrong-answer');
+    }
+  });
+  
+  if (selectedColor === correct) {
+    handleCorrect();
+    showFeedback(true, currentProblem.feedback.correct);
+  } else {
+    handleIncorrect();
+    showFeedback(false, currentProblem.feedback.wrong);
+  }
+  
+  document.getElementById('next-btn').classList.remove('hidden');
+}
+
+function checkAnswer() {
+  if (answered) return;
+  const userInput = document.getElementById('answer-input').value.trim();
+  const userAnswer = parseUserNum(userInput);
+  
+  if (isNaN(userAnswer)) {
+    showFeedback(false, 'Please enter a valid number. You can use scientific notation like 3.0e8.', false, false);
+    return;
+  }
+  
+  answered = true;
+  document.getElementById('check-btn').disabled = true;
+  
+  const inputEl = document.getElementById('answer-input');
+  
+  if (checkClose(userAnswer, currentProblem.answer, 0.02)) {
+    inputEl.classList.add('correct');
+    handleCorrect();
+    showFeedback(true, currentProblem.feedback.correct, false, false);
+  } else {
+    inputEl.classList.add('incorrect');
+    handleIncorrect();
+    showFeedback(false, currentProblem.feedback.wrongValue, false, false);
+  }
+  
+  document.getElementById('next-btn').classList.remove('hidden');
+}
+
+function checkMultiAnswer() {
+  if (answered) return;
+  
+  let anyWrong = false;
+  
+  currentProblem.parts.forEach((part, i) => {
+    const inputEl = document.getElementById(`answer-${i}`);
+    const userAnswer = parseUserNum(inputEl.value.trim());
+    
+    if (isNaN(userAnswer) || !checkClose(userAnswer, part.answer, 0.02)) {
+      inputEl.classList.add('incorrect');
+      anyWrong = true;
+    } else {
+      inputEl.classList.add('correct');
+    }
+  });
+  
+  answered = true;
+  document.getElementById('check-multi-btn').disabled = true;
+  
+  if (!anyWrong) {
+    handleCorrect();
+    showFeedback(true, currentProblem.feedback.correct, false, false);
+  } else {
+    handleIncorrect();
+    showFeedback(false, currentProblem.feedback.partial, false, false);
+  }
+  
+  document.getElementById('next-btn').classList.remove('hidden');
+}
+
+function showFeedback(isCorrect, message, showSigFigReminder = false, correctAnswer = null) {
+  const feedbackBox = document.getElementById('feedback-box');
+  const feedbackTitle = document.getElementById('feedback-title');
+  const feedbackText = document.getElementById('feedback-text');
+  const sigFigHint = document.getElementById('sig-fig-hint');
+  
+  feedbackBox.classList.remove('hidden', 'feedback-correct', 'feedback-incorrect');
+  feedbackBox.classList.add(isCorrect ? 'feedback-correct' : 'feedback-incorrect');
+  
+  feedbackTitle.innerHTML = isCorrect ? '✓ Correct!' : '✗ Not Quite';
+  feedbackText.innerHTML = message;
+  
+  if (showSigFigReminder) {
+    sigFigHint.classList.remove('hidden');
+    sigFigHint.innerHTML = `<strong>📝 Sig Fig Reminder:</strong> Your physics was right! Remember to use the correct number of significant figures.`;
+  } else {
+    sigFigHint.classList.add('hidden');
+  }
+}
+
+function handleCorrect() {
+  correctCount++;
+  streak++;
+  consecutiveCorrect++;
+  consecutiveWrong = 0;
+  if (streak > bestStreak) bestStreak = streak;
+  if (consecutiveCorrect >= 2) {
+    if (currentLevel === 'easy') { currentLevel = 'medium'; consecutiveCorrect = 0; }
+    else if (currentLevel === 'medium') { currentLevel = 'hard'; consecutiveCorrect = 0; }
+  }
+}
+
+function handleIncorrect() {
+  streak = 0;
+  consecutiveWrong++;
+  consecutiveCorrect = 0;
+  if (consecutiveWrong >= 2) {
+    if (currentLevel === 'hard') { currentLevel = 'medium'; consecutiveWrong = 0; }
+    else if (currentLevel === 'medium') { currentLevel = 'easy'; consecutiveWrong = 0; }
+  }
+}
+
+function nextProblem() {
+  problemIndex++;
+  if (problemIndex >= totalProblems) {
+    showMastery();
+  } else {
+    displayProblem();
+  }
+}
+
+function showMastery() {
+  document.getElementById('quiz-section').classList.add('hidden');
+  document.getElementById('mastery-screen').style.display = 'block';
+  document.getElementById('final-correct').textContent = correctCount;
+  document.getElementById('final-total').textContent = totalProblems;
+  document.getElementById('final-streak').textContent = bestStreak;
+  const now = new Date();
+  document.getElementById('timestamp').textContent = `Completed: ${now.toLocaleDateString()} at ${now.toLocaleTimeString()}`;
+}
+
+// ============ INITIALIZE ============
+document.addEventListener('DOMContentLoaded', () => {
+  buildPool();
+  displayProblem();
+  
+  document.getElementById('answer-input').addEventListener('keypress', (e) => {
+    if (e.key === 'Enter' && !answered) checkAnswer();
+  });
+});
+</script>
+</body>
+</html>
