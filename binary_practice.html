@@ -1,0 +1,784 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Decimal to Binary Practice</title>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Outfit:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0d1520;
+      --panel: #162030;
+      --panel-light: #1e2e42;
+      --accent: #f97316;
+      --accent-dim: #c25a0e;
+      --accent2: #facc15;
+      --success: #22d3a0;
+      --warning: #facc15;
+      --danger: #f43f5e;
+      --text: #e2eaf4;
+      --text-dim: #6b8099;
+      --border: #253548;
+      --glow: rgba(249,115,22,0.18);
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Outfit', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; overflow-x: hidden; }
+    body::before {
+      content: ''; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      background:
+        radial-gradient(ellipse at 15% 20%, rgba(249,115,22,0.05) 0%, transparent 55%),
+        radial-gradient(ellipse at 85% 75%, rgba(34,211,160,0.05) 0%, transparent 55%);
+      pointer-events: none; z-index: 0;
+    }
+    body::after {
+      content: ''; position: fixed; top: 0; left: -100%; right: 0; bottom: 0;
+      background: repeating-linear-gradient(90deg, transparent 0%, transparent 48%, rgba(249,115,22,0.03) 49%, rgba(249,115,22,0.03) 51%, transparent 52%);
+      pointer-events: none; z-index: 0;
+      animation: scanlines 8s linear infinite;
+    }
+    @keyframes scanlines { from { transform: translateX(0); } to { transform: translateX(100%); } }
+
+    .app { position: relative; z-index: 1; max-width: 880px; margin: 0 auto; padding: 24px 20px; }
+
+    /* HEADER */
+    .header {
+      text-align: center; margin-bottom: 28px; padding: 34px 24px 28px;
+      background: var(--panel); border: 1px solid var(--border); border-radius: 18px;
+      position: relative; overflow: hidden;
+    }
+    .header::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px;
+      background: linear-gradient(90deg, #f97316, #facc15, #22d3a0, #f97316);
+      background-size: 200% 100%; animation: shimmer 3s linear infinite;
+    }
+    @keyframes shimmer { from { background-position: 0% center; } to { background-position: 200% center; } }
+    .header-icon { font-size: 2.8em; margin-bottom: 10px; display: block; animation: pulse 3s ease-in-out infinite; }
+    @keyframes pulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.06); } }
+    .header h1 {
+      font-size: 2em; font-weight: 800; letter-spacing: -0.5px; margin-bottom: 8px;
+      background: linear-gradient(135deg, #f97316 0%, #facc15 50%, #22d3a0 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .header p { color: var(--text-dim); font-size: 0.93em; line-height: 1.5; }
+    .concept-tags { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-top: 14px; }
+    .tag { font-size: 0.72em; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; padding: 4px 12px; border-radius: 20px; border: 1px solid; }
+    .tag.orange { border-color: var(--accent); color: var(--accent); background: rgba(249,115,22,0.1); }
+    .tag.teal  { border-color: var(--success); color: var(--success); background: rgba(34,211,160,0.1); }
+    .tag.yellow{ border-color: var(--warning); color: var(--warning); background: rgba(250,204,21,0.1); }
+
+    /* STATS */
+    .stats-bar { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 22px; }
+    .stat-card { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 16px; text-align: center; }
+    .stat-card .label { font-size: 0.68em; text-transform: uppercase; letter-spacing: 1.5px; color: var(--text-dim); margin-bottom: 4px; }
+    .stat-card .value { font-family: 'JetBrains Mono', monospace; font-size: 1.6em; font-weight: 700; color: var(--accent); }
+    .stat-card.level .value { font-size: 0.95em; padding: 4px 12px; border-radius: 20px; display: inline-block; }
+    .stat-card.level .value.easy   { background: rgba(34,211,160,0.15); color: var(--success); }
+    .stat-card.level .value.medium { background: rgba(250,204,21,0.15);  color: var(--warning); }
+    .stat-card.level .value.hard   { background: rgba(244,63,94,0.15);   color: var(--danger); }
+
+    /* PROGRESS */
+    .progress-container { margin-bottom: 24px; }
+    .progress-header { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 0.85em; color: var(--text-dim); }
+    .progress-track { height: 8px; background: var(--panel-light); border-radius: 4px; overflow: hidden; }
+    .progress-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent2), var(--success)); border-radius: 4px; transition: width 0.6s ease; }
+
+    /* REFERENCE TABLE */
+    .ref-box {
+      background: var(--panel); border: 1px solid var(--border); border-radius: 14px;
+      padding: 18px 22px; margin-bottom: 22px;
+    }
+    .ref-box h3 { font-size: 0.78em; text-transform: uppercase; letter-spacing: 1.5px; color: var(--text-dim); margin-bottom: 12px; }
+    .place-table { width: 100%; border-collapse: collapse; font-family: 'JetBrains Mono', monospace; }
+    .place-table th { background: var(--panel-light); color: var(--accent2); font-size: 0.82em; padding: 7px 10px; border: 1px solid var(--border); text-align: center; }
+    .place-table td { background: var(--bg); color: var(--success); font-size: 0.9em; padding: 7px 10px; border: 1px solid var(--border); text-align: center; }
+
+    /* QUESTION */
+    .question-card { background: var(--panel); border: 1px solid var(--border); border-radius: 16px; padding: 30px; margin-bottom: 20px; animation: cardIn 0.35s ease; }
+    @keyframes cardIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+    .q-meta { display: flex; gap: 10px; align-items: center; margin-bottom: 16px; }
+    .q-number { font-family: 'JetBrains Mono', monospace; font-size: 0.72em; color: var(--accent-dim); text-transform: uppercase; letter-spacing: 2px; }
+    .q-type { font-size: 0.7em; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; padding: 3px 10px; border-radius: 12px; }
+    .q-type.convert { border: 1px solid var(--success); color: var(--success); background: rgba(34,211,160,0.08); }
+    .q-type.verify  { border: 1px solid var(--accent);  color: var(--accent);  background: rgba(249,115,22,0.08); }
+    .q-type.analyze { border: 1px solid var(--accent2); color: var(--accent2); background: rgba(250,204,21,0.08); }
+
+    .q-text { font-size: 1.08em; line-height: 1.75; margin-bottom: 20px; }
+    .q-text strong { color: var(--accent2); font-weight: 600; }
+
+    .scenario-box {
+      background: var(--bg); border-left: 3px solid var(--accent); border-radius: 0 10px 10px 0;
+      padding: 14px 18px; margin-bottom: 18px; font-size: 0.92em; line-height: 1.65; color: var(--text-dim);
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .scenario-box strong { color: var(--text); }
+
+    /* INPUT AREA */
+    .input-area { margin-bottom: 18px; }
+    .input-row { display: flex; gap: 12px; align-items: center; }
+    .answer-input {
+      background: var(--bg); border: 2px solid var(--border); border-radius: 10px;
+      padding: 12px 18px; color: var(--text); font-family: 'JetBrains Mono', monospace;
+      font-size: 1.1em; outline: none; transition: border-color 0.3s; width: 220px;
+      letter-spacing: 2px;
+    }
+    .answer-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--glow); }
+    .input-label { font-size: 0.9em; color: var(--text-dim); min-width: 120px; }
+
+    /* MC */
+    .mc-options { display: flex; flex-direction: column; gap: 10px; margin-bottom: 12px; }
+    .mc-btn {
+      background: var(--bg); border: 2px solid var(--border); border-radius: 10px;
+      padding: 14px 18px; color: var(--text); font-family: 'Outfit', sans-serif;
+      font-size: 0.97em; text-align: left; cursor: pointer; transition: all 0.2s;
+      display: flex; gap: 12px; align-items: flex-start;
+    }
+    .mc-btn .letter { font-family: 'JetBrains Mono', monospace; color: var(--text-dim); font-size: 0.85em; min-width: 18px; margin-top: 1px; }
+    .mc-btn:hover:not(:disabled) { border-color: var(--accent); background: rgba(249,115,22,0.06); }
+    .mc-btn.selected { border-color: var(--accent); background: rgba(249,115,22,0.1); }
+    .mc-btn.correct-ans { border-color: var(--success); background: rgba(34,211,160,0.1); color: var(--success); }
+    .mc-btn.correct-ans .letter { color: var(--success); }
+    .mc-btn.wrong-ans   { border-color: var(--danger);  background: rgba(244,63,94,0.08); color: var(--danger); }
+    .mc-btn.wrong-ans .letter { color: var(--danger); }
+    .mc-btn:disabled { cursor: not-allowed; }
+
+    /* HINTS */
+    .hint-btn {
+      background: none; border: 1px solid var(--border); border-radius: 8px;
+      color: var(--text-dim); font-family: 'Outfit', sans-serif; font-size: 0.85em;
+      padding: 8px 16px; cursor: pointer; transition: all 0.2s; margin-bottom: 10px;
+    }
+    .hint-btn:hover { border-color: var(--accent2); color: var(--accent2); }
+    .hint-box {
+      background: rgba(250,204,21,0.07); border: 1px solid rgba(250,204,21,0.3);
+      border-radius: 10px; padding: 12px 16px; margin-bottom: 12px;
+      font-size: 0.88em; color: var(--accent2); font-family: 'JetBrains Mono', monospace;
+      line-height: 1.6;
+    }
+
+    /* BUTTONS */
+    .submit-btn {
+      width: 100%; padding: 16px; background: linear-gradient(135deg, var(--accent), var(--accent2));
+      border: none; border-radius: 12px; color: var(--bg); font-family: 'Outfit', sans-serif;
+      font-size: 1em; font-weight: 700; cursor: pointer; transition: all 0.3s; margin-top: 20px;
+    }
+    .submit-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 24px var(--glow); }
+    .submit-btn:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
+    .next-btn {
+      display: none; width: 100%; padding: 14px; margin-top: 14px;
+      background: var(--panel-light); border: 2px solid var(--border); border-radius: 12px;
+      color: var(--accent); font-family: 'Outfit', sans-serif; font-size: 0.95em;
+      font-weight: 600; cursor: pointer; transition: all 0.3s;
+    }
+    .next-btn:hover { background: var(--panel); border-color: var(--accent); }
+
+    /* FEEDBACK */
+    .feedback { margin-top: 16px; padding: 16px; border-radius: 12px; font-size: 0.93em; line-height: 1.65; display: none; }
+    .feedback.correct   { display: block; background: rgba(34,211,160,0.1);  border: 1px solid var(--success); color: var(--success); }
+    .feedback.incorrect { display: block; background: rgba(244,63,94,0.09);  border: 1px solid var(--danger);  color: var(--danger); }
+    .feedback .work {
+      margin-top: 12px; padding: 14px; background: var(--bg); border-radius: 8px;
+      font-family: 'JetBrains Mono', monospace; font-size: 0.88em; white-space: pre-line;
+      color: var(--text-dim); border-left: 3px solid var(--border);
+    }
+
+    /* MASTERY */
+    .mastery-overlay {
+      position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(13,21,32,0.96); display: none; align-items: center;
+      justify-content: center; z-index: 1000; backdrop-filter: blur(12px);
+    }
+    .mastery-overlay.show { display: flex; }
+    .mastery-card {
+      background: var(--panel); border: 2px solid var(--accent); border-radius: 22px;
+      padding: 50px 44px; text-align: center; max-width: 520px;
+      box-shadow: 0 20px 70px rgba(249,115,22,0.3);
+    }
+    .mastery-card .trophy { font-size: 4.5em; margin-bottom: 18px; animation: bounce 1s ease; display: block; }
+    @keyframes bounce { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-18px); } }
+    .mastery-card h2 {
+      font-size: 2.4em; margin-bottom: 14px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2), var(--success));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .mastery-card p { color: var(--text-dim); margin-bottom: 22px; line-height: 1.8; font-size: 1em; }
+    .mastery-stats { background: var(--bg); border-radius: 12px; padding: 18px; font-size: 0.95em; line-height: 2; color: var(--text); }
+    .mastery-stats strong { color: var(--accent); }
+    .mastery-card .timestamp { font-size: 0.8em; color: var(--text-dim); margin-top: 18px; padding-top: 18px; border-top: 1px solid var(--border); }
+    .restart-btn {
+      margin-top: 20px; padding: 14px 32px; background: linear-gradient(135deg, var(--accent), var(--accent2));
+      border: none; border-radius: 12px; color: var(--bg); font-family: 'Outfit', sans-serif;
+      font-size: 1em; font-weight: 700; cursor: pointer; transition: all 0.3s;
+    }
+    .restart-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 24px var(--glow); }
+
+    /* TUTORIAL */
+    .tutorial-card {
+      background: var(--panel); border: 1px solid var(--border); border-radius: 16px;
+      padding: 28px 30px; margin-bottom: 22px; animation: cardIn 0.35s ease;
+    }
+    .tutorial-card h2 {
+      font-size: 1em; font-weight: 700; text-transform: uppercase; letter-spacing: 2px;
+      color: var(--accent2); margin-bottom: 18px; display: flex; align-items: center; gap: 8px;
+    }
+    .tutorial-step {
+      background: var(--bg); border-radius: 12px; padding: 16px 20px; margin-bottom: 12px;
+      border: 1px solid var(--border); transition: border-color 0.3s;
+    }
+    .tutorial-step.active { border-color: var(--accent); }
+    .tutorial-step.done   { border-color: var(--success); }
+    .step-header { display: flex; gap: 10px; align-items: center; margin-bottom: 8px; }
+    .step-num {
+      width: 26px; height: 26px; border-radius: 50%; background: var(--panel-light);
+      border: 1px solid var(--border); display: flex; align-items: center; justify-content: center;
+      font-family: 'JetBrains Mono', monospace; font-size: 0.78em; color: var(--text-dim); flex-shrink: 0;
+    }
+    .step-num.active { background: rgba(249,115,22,0.2); border-color: var(--accent); color: var(--accent); }
+    .step-num.done   { background: rgba(34,211,160,0.2); border-color: var(--success); color: var(--success); }
+    .step-label { font-size: 0.88em; font-weight: 600; color: var(--text-dim); }
+    .step-label.active { color: var(--accent); }
+    .step-label.done   { color: var(--success); }
+    .step-body { font-size: 0.9em; line-height: 1.65; color: var(--text-dim); padding-left: 36px; }
+    .step-body strong { color: var(--text); }
+    .step-input-row { display: flex; gap: 10px; align-items: center; padding-left: 36px; margin-top: 8px; }
+    .step-input {
+      background: var(--panel-light); border: 2px solid var(--border); border-radius: 8px;
+      padding: 9px 14px; color: var(--text); font-family: 'JetBrains Mono', monospace;
+      font-size: 1em; outline: none; transition: border-color 0.3s; width: 130px; letter-spacing: 2px;
+    }
+    .step-input:focus { border-color: var(--accent); }
+    .step-input.correct { border-color: var(--success); background: rgba(34,211,160,0.08); }
+    .step-input.wrong   { border-color: var(--danger);  background: rgba(244,63,94,0.08); }
+    .step-inline-label { font-size: 0.88em; color: var(--text-dim); font-family: 'JetBrains Mono', monospace; }
+    .step-check-btn {
+      padding: 9px 18px; background: var(--panel-light); border: 1px solid var(--border);
+      border-radius: 8px; color: var(--accent); font-family: 'Outfit', sans-serif;
+      font-size: 0.88em; font-weight: 600; cursor: pointer; transition: all 0.2s;
+    }
+    .step-check-btn:hover { border-color: var(--accent); background: rgba(249,115,22,0.08); }
+    .step-check-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+    .step-fb { padding-left: 36px; margin-top: 6px; font-size: 0.84em; line-height: 1.5; display: none; }
+    .step-fb.ok  { color: var(--success); display: block; }
+    .step-fb.err { color: var(--danger);  display: block; }
+    .tut-next-btn {
+      width: 100%; padding: 14px; margin-top: 18px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      border: none; border-radius: 12px; color: var(--bg); font-family: 'Outfit', sans-serif;
+      font-size: 1em; font-weight: 700; cursor: pointer; transition: all 0.3s; display: none;
+    }
+    .tut-next-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 24px var(--glow); }
+
+    @media (max-width: 620px) {
+      .stats-bar { grid-template-columns: repeat(2, 1fr); }
+      .header h1 { font-size: 1.45em; }
+    }
+  </style>
+</head>
+<body>
+<div class="app">
+
+  <!-- HEADER -->
+  <div class="header">
+    <span class="header-icon">01</span>
+    <h1>Decimal → Binary</h1>
+    <p>Practice converting base-10 numbers to binary (base 2) using place values and subtraction</p>
+    <div class="concept-tags">
+      <span class="tag orange">Place Values</span>
+      <span class="tag teal">Subtraction Method</span>
+      <span class="tag yellow">Powers of 2</span>
+    </div>
+  </div>
+
+  <!-- STATS -->
+  <div class="stats-bar">
+    <div class="stat-card"><div class="label">Correct</div><div class="value" id="correctCount">0</div></div>
+    <div class="stat-card"><div class="label">Total</div><div class="value" id="totalCount">0</div></div>
+    <div class="stat-card"><div class="label">Streak</div><div class="value" id="streakCount">0</div></div>
+    <div class="stat-card level"><div class="label">Level</div><div class="value easy" id="levelBadge">Easy</div></div>
+  </div>
+
+  <!-- PROGRESS -->
+  <div class="progress-container">
+    <div class="progress-header">
+      <span id="progressText">0 / 5 correct needed</span>
+      <span>🎯 Mastery Goal</span>
+    </div>
+    <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+  </div>
+
+  <!-- REFERENCE TABLE -->
+  <div class="ref-box">
+    <h3>📊 Binary Place Value Reference</h3>
+    <table class="place-table">
+      <tr>
+        <th>2⁷</th><th>2⁶</th><th>2⁵</th><th>2⁴</th><th>2³</th><th>2²</th><th>2¹</th><th>2⁰</th>
+      </tr>
+      <tr>
+        <td>128</td><td>64</td><td>32</td><td>16</td><td>8</td><td>4</td><td>2</td><td>1</td>
+      </tr>
+    </table>
+  </div>
+
+  <!-- TUTORIAL -->
+  <div id="tutorialSection">
+    <div class="tutorial-card">
+      <h2>📖 Worked Example — Convert 45 to Binary</h2>
+
+      <div class="tutorial-step active" id="ts1">
+        <div class="step-header">
+          <div class="step-num active" id="sn1">1</div>
+          <div class="step-label active">Does 2⁵ = 32 fit into 45? (Enter 1 for yes, 0 for no)</div>
+        </div>
+        <div class="step-body">32 ≤ 45 — yes! Subtract: 45 − 32 = <strong>13</strong> remaining. So bit 5 = 1.</div>
+        <div class="step-input-row">
+          <span class="step-inline-label">Bit 5 value =</span>
+          <input class="step-input" id="si1" type="text" placeholder="0 or 1" maxlength="1" autocomplete="off">
+          <button class="step-check-btn" id="sb1" onclick="checkStep(1,'1','Correct! 32 fits into 45 — bit 5 = 1.','Not quite. 32 is less than 45 so it DOES fit — enter 1.')">Check</button>
+        </div>
+        <div class="step-fb" id="sf1"></div>
+      </div>
+
+      <div class="tutorial-step" id="ts2">
+        <div class="step-header">
+          <div class="step-num" id="sn2">2</div>
+          <div class="step-label" id="sl2">Does 2⁴ = 16 fit into the remainder 13? (Enter 1 for yes, 0 for no)</div>
+        </div>
+        <div class="step-body">16 &gt; 13 — no. Bit 4 = 0. Move on.</div>
+        <div class="step-input-row">
+          <span class="step-inline-label">Bit 4 value =</span>
+          <input class="step-input" id="si2" type="text" placeholder="0 or 1" maxlength="1" autocomplete="off">
+          <button class="step-check-btn" id="sb2" onclick="checkStep(2,'0','Correct! 16 is bigger than 13 — bit 4 = 0.','Not quite. 16 is larger than 13 so it does NOT fit — enter 0.')">Check</button>
+        </div>
+        <div class="step-fb" id="sf2"></div>
+      </div>
+
+      <div class="tutorial-step" id="ts3">
+        <div class="step-header">
+          <div class="step-num" id="sn3">3</div>
+          <div class="step-label" id="sl3">Does 2³ = 8 fit into 13? (Enter 1 for yes, 0 for no)</div>
+        </div>
+        <div class="step-body">8 ≤ 13 — yes! Subtract: 13 − 8 = <strong>5</strong> remaining. Bit 3 = 1.</div>
+        <div class="step-input-row">
+          <span class="step-inline-label">Bit 3 value =</span>
+          <input class="step-input" id="si3" type="text" placeholder="0 or 1" maxlength="1" autocomplete="off">
+          <button class="step-check-btn" id="sb3" onclick="checkStep(3,'1','Correct! 8 fits into 13 — bit 3 = 1. Remainder = 5.','Not quite. 8 ≤ 13 so it DOES fit — enter 1.')">Check</button>
+        </div>
+        <div class="step-fb" id="sf3"></div>
+      </div>
+
+      <div class="tutorial-step" id="ts4">
+        <div class="step-header">
+          <div class="step-num" id="sn4">4</div>
+          <div class="step-label" id="sl4">Does 2² = 4 fit into 5? (Enter 1 for yes, 0 for no)</div>
+        </div>
+        <div class="step-body">4 ≤ 5 — yes! Subtract: 5 − 4 = <strong>1</strong> remaining. Bit 2 = 1.</div>
+        <div class="step-input-row">
+          <span class="step-inline-label">Bit 2 value =</span>
+          <input class="step-input" id="si4" type="text" placeholder="0 or 1" maxlength="1" autocomplete="off">
+          <button class="step-check-btn" id="sb4" onclick="checkStep(4,'1','Correct! 4 fits into 5 — bit 2 = 1. Remainder = 1.','Not quite. 4 ≤ 5 so it DOES fit — enter 1.')">Check</button>
+        </div>
+        <div class="step-fb" id="sf4"></div>
+      </div>
+
+      <div class="tutorial-step" id="ts5">
+        <div class="step-header">
+          <div class="step-num" id="sn5">5</div>
+          <div class="step-label" id="sl5">Does 2¹ = 2 fit into 1? (Enter 1 for yes, 0 for no)</div>
+        </div>
+        <div class="step-body">2 &gt; 1 — no. Bit 1 = 0.</div>
+        <div class="step-input-row">
+          <span class="step-inline-label">Bit 1 value =</span>
+          <input class="step-input" id="si5" type="text" placeholder="0 or 1" maxlength="1" autocomplete="off">
+          <button class="step-check-btn" id="sb5" onclick="checkStep(5,'0','Correct! 2 is bigger than 1 — bit 1 = 0.','Not quite. 2 &gt; 1 so it does NOT fit — enter 0.')">Check</button>
+        </div>
+        <div class="step-fb" id="sf5"></div>
+      </div>
+
+      <div class="tutorial-step" id="ts6">
+        <div class="step-header">
+          <div class="step-num" id="sn6">6</div>
+          <div class="step-label" id="sl6">Does 2⁰ = 1 fit into 1? (Enter 1 for yes, 0 for no)</div>
+        </div>
+        <div class="step-body">1 ≤ 1 — yes! Subtract: 1 − 1 = <strong>0</strong>. Done! Bit 0 = 1.<br>Final answer: <strong>101101</strong> = 32+8+4+1 = 45 ✓</div>
+        <div class="step-input-row">
+          <span class="step-inline-label">Bit 0 value =</span>
+          <input class="step-input" id="si6" type="text" placeholder="0 or 1" maxlength="1" autocomplete="off">
+          <button class="step-check-btn" id="sb6" onclick="checkStep(6,'1','Correct! 1 fits — bit 0 = 1. Final answer: 101101 ✓','Not quite. 1 ≤ 1 so it DOES fit — enter 1.')">Check</button>
+        </div>
+        <div class="step-fb" id="sf6"></div>
+      </div>
+
+      <button class="tut-next-btn" id="tutNextBtn" onclick="startPractice()">
+        ✅ Got it — Start Practice Questions →
+      </button>
+    </div>
+  </div>
+
+  <!-- QUESTION AREA -->
+  <div id="practiceSection" style="display:none;">
+  <div id="questionArea"></div>
+  </div>
+
+</div>
+
+<!-- MASTERY OVERLAY -->
+<div class="mastery-overlay" id="masteryOverlay">
+  <div class="mastery-card">
+    <span class="trophy">🏆</span>
+    <h2>Mastery Achieved!</h2>
+    <p>You've mastered Decimal to Binary conversion!</p>
+    <div class="mastery-stats" id="masteryStats"></div>
+    <div class="timestamp" id="masteryTimestamp"></div>
+    <button class="restart-btn" onclick="restartQuiz()">🔄 Practice Again</button>
+  </div>
+</div>
+
+<script>
+  const MASTERY_TARGET = 5;
+  var correct = 0, total = 0, streak = 0, bestStreak = 0;
+  var level = 0;
+  var consecutiveCorrect = 0, consecutiveWrong = 0;
+  var answered = false, selectedMC = null;
+  var currentQ = null;
+  var questionsSeen = [];
+  var hintsRevealed = 0;
+
+  // ─── QUESTION BANK ────────────────────────────────────────────────
+  var ALL_QUESTIONS = [
+
+    // ── Q1 Easy — straight convert ──────────────────────────────────
+    {
+      id: 1, level: 0, type: 'convert',
+      text: 'Convert <strong>74</strong> from decimal (base 10) to binary (base 2).',
+      inputMode: 'text',
+      inputLabel: '74 in binary =',
+      inputPlaceholder: 'e.g. 01001010',
+      correct: '1001010',
+      correctDisplay: '1001010',
+      hints: [
+        'Step 1 — Is 128 ≤ 74? No. Is 64 ≤ 74? YES → write 1, subtract: 74 − 64 = 10',
+        'Step 2 — Is 32 ≤ 10? No → write 0. Is 16 ≤ 10? No → write 0. Is 8 ≤ 10? YES → 10 − 8 = 2',
+        'Step 3 — Is 4 ≤ 2? No → write 0. Is 2 ≤ 2? YES → 2 − 2 = 0. Is 1 ≤ 0? No → write 0',
+        'Final: 64+8+2 used → place-values: 64=1, 32=0, 16=0, 8=1, 4=0, 2=1, 1=0 → 1001010'
+      ],
+      feedback: '74 = 64 + 8 + 2. Mark a 1 for each place value you subtracted, 0 for the rest.',
+      work: 'Start with the largest power of 2 that fits:\n74 − 64 = 10  → bit 6 = 1\n10 − 32? No  → bit 5 = 0\n10 − 16? No  → bit 4 = 0\n10 − 8  = 2   → bit 3 = 1\n 2 − 4?  No  → bit 2 = 0\n 2 − 2  = 0   → bit 1 = 1\n 0 − 1?  No  → bit 0 = 0\nResult: 1001010'
+    },
+
+    // ── Q2 Easy — verify a friend's answer ──────────────────────────
+    {
+      id: 2, level: 0, type: 'verify',
+      scenario: 'A friend converts 514 to binary and records the result as 100000001.\nShe says: "514 = 512 + 2 = 1000000010."',
+      text: 'Is she correct? Select the best answer.',
+      inputMode: 'mc',
+      mc: {
+        options: [
+          { l:'A', t:'Yes — she is correct. 100000001 is the right binary for 514.' },
+          { l:'B', t:'No — 514 = 512 + 2, so the correct binary is 1000000010 (ten digits, bit 1 also set).' },
+          { l:'C', t:'No — 514 cannot be expressed in 8-bit binary at all.' },
+          { l:'D', t:'No — 514 = 256 + 258, so binary is 11000000010.' }
+        ],
+        correct: 1
+      },
+      hints: [
+        '2⁹ = 512. Is 512 ≤ 514? YES. 514 − 512 = 2 remains.',
+        'Now check 2: 2¹ = 2. 2 ≤ 2? YES. 2 − 2 = 0. Done.',
+        'You used place values 2⁹ (512) and 2¹ (2). All other bits are 0.',
+        'A 10-digit binary: bit 9 = 1, bits 8-2 = 0, bit 1 = 1, bit 0 = 0 → 1000000010'
+      ],
+      feedback: '514 = 512 + 2 = 2⁹ + 2¹. The correct binary is 1000000010 (10 bits). The friend wrote only 9 bits and placed the 1 in the wrong spot.',
+      work: '514 − 512 (2⁹) = 2  → bit 9 = 1\n  2 − 256 (2⁸)? No   → bit 8 = 0\n  ...all middle bits = 0...\n  2 − 2   (2¹)  = 0  → bit 1 = 1\n  0 − 1   (2⁰)? No   → bit 0 = 0\nAnswer: 1000000010'
+    },
+
+    // ── Q3 Medium — convert with work shown ─────────────────────────
+    {
+      id: 3, level: 1, type: 'convert',
+      text: 'Convert <strong>211</strong> from decimal (base 10) to binary (base 2).',
+      inputMode: 'text',
+      inputLabel: '211 in binary =',
+      inputPlaceholder: 'e.g. 11010011',
+      correct: '11010011',
+      correctDisplay: '11010011',
+      hints: [
+        '211 is between 2⁷=128 and 2⁸=256, so the answer needs 8 digits (bits 7 down to 0).',
+        '211 − 128 = 83  → bit 7 = 1. Now work on 83.',
+        '83 − 64 = 19 → bit 6 = 1. 19 − 32? No → bit 5 = 0. 19 − 16 = 3 → bit 4 = 1.',
+        '3 − 8? No → bit 3 = 0. 3 − 4? No → bit 2 = 0. 3 − 2 = 1 → bit 1 = 1. 1 − 1 = 0 → bit 0 = 1.'
+      ],
+      feedback: '211 = 128 + 64 + 16 + 2 + 1 = 11010011. Verify: 128+64+16+2+1 = 211 ✓',
+      work: '211 − 128 = 83   → bit 7 = 1\n 83 − 64  = 19   → bit 6 = 1\n 19 − 32? No     → bit 5 = 0\n 19 − 16  = 3    → bit 4 = 1\n  3 − 8?  No     → bit 3 = 0\n  3 − 4?  No     → bit 2 = 0\n  3 − 2   = 1    → bit 1 = 1\n  1 − 1   = 0    → bit 0 = 1\nResult: 11010011'
+    },
+
+    // ── Q4 Medium — back-convert to verify ──────────────────────────
+    {
+      id: 4, level: 1, type: 'analyze',
+      scenario: 'Binary number: 10110101',
+      text: 'What is the <strong>decimal value</strong> of 10110101? (Add up the place values of each 1-bit.)',
+      inputMode: 'text',
+      inputLabel: '10110101 in decimal =',
+      inputPlaceholder: 'Enter a whole number',
+      correct: '181',
+      correctDisplay: '181',
+      hints: [
+        'List which bit positions are 1: reading left to right (bit 7 to bit 0): 1,0,1,1,0,1,0,1',
+        'Bits set: position 7 (128), position 5 (32), position 4 (16), position 2 (4), position 0 (1)',
+        'Add those place values: 128 + 32 + 16 + 4 + 1 = ?',
+        '128 + 32 = 160. 160 + 16 = 176. 176 + 4 = 180. 180 + 1 = 181.'
+      ],
+      feedback: '10110101 → bits 7,5,4,2,0 are set → 128+32+16+4+1 = 181.',
+      work: 'Bit pattern: 1  0  1  1  0  1  0  1\nPlace value: 128 64 32 16  8  4  2  1\nBits that are 1: 128 + 32 + 16 + 4 + 1\n= 160 + 16 + 4 + 1\n= 176 + 5\n= 181'
+    },
+
+    // ── Q5 Hard — two-step reasoning ────────────────────────────────
+    {
+      id: 5, level: 2, type: 'analyze',
+      scenario: 'Two computers store color codes as 8-bit binary.\nComputer A stores: 10101010\nComputer B stores: 11001100',
+      text: 'Which computer stores the <strong>larger decimal value</strong>, and what is the <strong>difference</strong> between the two decimal values?',
+      inputMode: 'mc',
+      mc: {
+        options: [
+          { l:'A', t:'Computer A is larger. Difference = 34.' },
+          { l:'B', t:'Computer B is larger. Difference = 34.' },
+          { l:'C', t:'Computer B is larger. Difference = 42.' },
+          { l:'D', t:'Both are equal — they both have four 1-bits.' }
+        ],
+        correct: 1
+      },
+      hints: [
+        'Convert A: 10101010 → bits 7,5,3,1 are set → 128+32+8+2 = ?',
+        'A = 128 + 32 + 8 + 2 = 170.',
+        'Convert B: 11001100 → bits 7,6,3,2 are set → 128+64+8+4 = ?',
+        'B = 128 + 64 + 8 + 4 = 204. Compare: 204 > 170. Difference = 204 − 170 = 34.'
+      ],
+      feedback: 'A = 170, B = 204. Computer B is larger. 204 − 170 = 34.',
+      work: 'Computer A: 10101010\n  Bits set: 128, 32, 8, 2\n  Total = 170\n\nComputer B: 11001100\n  Bits set: 128, 64, 8, 4\n  Total = 204\n\nLarger: B  |  Difference: 204 − 170 = 34'
+    }
+
+  ];
+
+  // ─── ADAPTIVE LOGIC ───────────────────────────────────────────────
+  function pickQuestion() {
+    var unseen = ALL_QUESTIONS.filter(function(q) {
+      return questionsSeen.indexOf(q.id) === -1;
+    });
+    if (unseen.length === 0) { questionsSeen = []; unseen = ALL_QUESTIONS.slice(); }
+    // prefer current level, fall back to any unseen
+    var atLevel = unseen.filter(function(q) { return q.level === level; });
+    var pool = atLevel.length > 0 ? atLevel : unseen;
+    return pool[Math.floor(Math.random() * pool.length)];
+  }
+
+  function generateProblem() {
+    answered = false; selectedMC = null; hintsRevealed = 0;
+    currentQ = pickQuestion();
+    questionsSeen.push(currentQ.id);
+    renderQuestion(currentQ);
+  }
+
+  function renderQuestion(q) {
+    var labels = ['Easy','Medium','Hard'];
+    var area = document.getElementById('questionArea');
+    var num = total + 1;
+
+    var html = '<div class="question-card">';
+    html += '<div class="q-meta">';
+    html += '<span class="q-number">Question ' + num + '</span>';
+    html += '<span class="q-type ' + q.type + '">' + q.type + '</span>';
+    html += '</div>';
+
+    if (q.scenario) {
+      html += '<div class="scenario-box">' + q.scenario.replace(/\n/g,'<br>') + '</div>';
+    }
+    html += '<div class="q-text">' + q.text + '</div>';
+
+    // Hint button
+    html += '<button class="hint-btn" id="hintBtn" onclick="revealHint()">💡 Show Hint</button>';
+    html += '<div id="hintArea"></div>';
+
+    if (q.inputMode === 'mc') {
+      html += '<div class="mc-options">';
+      q.mc.options.forEach(function(opt, i) {
+        html += '<button class="mc-btn" id="mc_' + i + '" onclick="selectMC(' + i + ')">';
+        html += '<span class="letter">' + opt.l + '</span><span>' + opt.t + '</span></button>';
+      });
+      html += '</div>';
+    } else {
+      html += '<div class="input-area">';
+      html += '<div class="input-row">';
+      html += '<span class="input-label">' + q.inputLabel + '</span>';
+      html += '<input class="answer-input" id="answerInput" type="text" placeholder="' + q.inputPlaceholder + '" autocomplete="off">';
+      html += '</div></div>';
+    }
+
+    html += '<button class="submit-btn" id="submitBtn" onclick="submitAnswer()">Check Answer ⚡</button>';
+    html += '<div class="feedback" id="feedback"></div>';
+    html += '<button class="next-btn" id="nextBtn" onclick="generateProblem()">Next Question →</button>';
+    html += '</div>';
+    area.innerHTML = html;
+
+    // Allow Enter key for text inputs
+    var inp = document.getElementById('answerInput');
+    if (inp) inp.addEventListener('keydown', function(e) { if (e.key === 'Enter') submitAnswer(); });
+  }
+
+  function revealHint() {
+    var q = currentQ;
+    if (hintsRevealed >= q.hints.length) return;
+    var area = document.getElementById('hintArea');
+    area.innerHTML += '<div class="hint-box">Hint ' + (hintsRevealed+1) + ': ' + q.hints[hintsRevealed] + '</div>';
+    hintsRevealed++;
+    if (hintsRevealed >= q.hints.length) {
+      document.getElementById('hintBtn').disabled = true;
+      document.getElementById('hintBtn').textContent = '💡 No more hints';
+    }
+  }
+
+  function selectMC(idx) {
+    if (answered) return;
+    selectedMC = idx;
+    document.querySelectorAll('.mc-btn').forEach(function(btn, i) {
+      btn.classList.toggle('selected', i === idx);
+    });
+  }
+
+  function submitAnswer() {
+    if (answered) return;
+    var q = currentQ;
+    var fb = document.getElementById('feedback');
+
+    var userAnswer = '';
+    var isCorrect = false;
+
+    if (q.inputMode === 'mc') {
+      if (selectedMC === null) {
+        fb.className = 'feedback incorrect'; fb.innerHTML = '⚠️ Please select an answer.'; fb.style.display = 'block';
+        return;
+      }
+      userAnswer = selectedMC;
+      isCorrect = (selectedMC === q.mc.correct);
+      document.querySelectorAll('.mc-btn').forEach(function(btn, i) {
+        btn.disabled = true;
+        if (i === q.mc.correct) btn.classList.add('correct-ans');
+        else if (i === selectedMC && !isCorrect) btn.classList.add('wrong-ans');
+      });
+    } else {
+      var inp = document.getElementById('answerInput');
+      userAnswer = inp.value.trim().replace(/\s/g, '');
+      if (!userAnswer) {
+        fb.className = 'feedback incorrect'; fb.innerHTML = '⚠️ Please enter an answer.'; fb.style.display = 'block';
+        return;
+      }
+      inp.disabled = true;
+      // Compare — strip leading zeros for binary, trim for decimal
+      isCorrect = (userAnswer === q.correct || userAnswer.replace(/^0+/, '') === q.correct.replace(/^0+/, ''));
+    }
+
+    answered = true; total++;
+    document.getElementById('submitBtn').disabled = true;
+
+    var html = '';
+    if (isCorrect) {
+      correct++; streak++; if (streak > bestStreak) bestStreak = streak;
+      consecutiveCorrect++; consecutiveWrong = 0;
+      html = '✅ Correct! ' + q.feedback;
+      if (q.work) html += '<div class="work">' + q.work + '</div>';
+      fb.className = 'feedback correct';
+      if (consecutiveCorrect >= 2 && level < 2) {
+        level++; consecutiveCorrect = 0;
+        html += '<br><br>⬆️ <strong>Level Up!</strong> Moving to ' + ['Easy','Medium','Hard'][level] + '.';
+      }
+    } else {
+      streak = 0; consecutiveCorrect = 0; consecutiveWrong++;
+      var yourLabel = q.inputMode === 'mc' ? q.mc.options[selectedMC].t : ('You entered: ' + userAnswer);
+      html = '❌ Not quite. You entered: <em>' + (q.inputMode === 'mc' ? q.mc.options[selectedMC].t : userAnswer) + '</em><br><br>Correct answer: <strong>' + q.correctDisplay + '</strong><br><br>' + q.feedback;
+      if (q.work) html += '<div class="work">' + q.work + '</div>';
+      fb.className = 'feedback incorrect';
+      if (consecutiveWrong >= 2 && level > 0) {
+        level--; consecutiveWrong = 0;
+        html += '<br><br>⬇️ Dropping to ' + ['Easy','Medium','Hard'][level] + ' for more practice.';
+      }
+    }
+
+    fb.innerHTML = html;
+    fb.style.display = 'block';
+    document.getElementById('nextBtn').style.display = 'block';
+    updateStats();
+    if (correct >= MASTERY_TARGET) setTimeout(showMastery, 900);
+  }
+
+  function updateStats() {
+    document.getElementById('correctCount').textContent = correct;
+    document.getElementById('totalCount').textContent = total;
+    document.getElementById('streakCount').textContent = streak;
+    var badge = document.getElementById('levelBadge');
+    badge.textContent = ['Easy','Medium','Hard'][level];
+    badge.className = 'value ' + ['easy','medium','hard'][level];
+    document.getElementById('progressFill').style.width = Math.min((correct/MASTERY_TARGET)*100,100) + '%';
+    document.getElementById('progressText').textContent = correct + ' / ' + MASTERY_TARGET + ' correct needed';
+  }
+
+  function showMastery() {
+    document.getElementById('masteryOverlay').classList.add('show');
+    var pct = total > 0 ? Math.round((correct/total)*100) : 0;
+    document.getElementById('masteryStats').innerHTML =
+      '<strong>' + correct + '</strong> correct out of <strong>' + total + '</strong> total (' + pct + '%)<br>' +
+      'Best Streak: <strong>' + bestStreak + '</strong><br>' +
+      'Final Level: <strong>' + ['Easy','Medium','Hard'][level] + '</strong>';
+    var now = new Date();
+    document.getElementById('masteryTimestamp').textContent =
+      now.toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'}) +
+      ' at ' + now.toLocaleTimeString('en-US');
+  }
+
+  function restartQuiz() {
+    correct = 0; total = 0; streak = 0; bestStreak = 0;
+    level = 0; consecutiveCorrect = 0; consecutiveWrong = 0;
+    answered = false; selectedMC = null; questionsSeen = []; hintsRevealed = 0;
+    document.getElementById('masteryOverlay').classList.remove('show');
+    updateStats();
+    generateProblem();
+  }
+
+  // ─── TUTORIAL LOGIC ───────────────────────────────────────────────
+  var tutStepsDone = 0;
+
+  function checkStep(stepNum, correctVal, okMsg, errMsg) {
+    var inp = document.getElementById('si' + stepNum);
+    var btn = document.getElementById('sb' + stepNum);
+    var fb  = document.getElementById('sf' + stepNum);
+    var ts  = document.getElementById('ts' + stepNum);
+    var sn  = document.getElementById('sn' + stepNum);
+    var val = inp.value.trim();
+    if (!val) { fb.className = 'step-fb err'; fb.innerHTML = '⚠️ Enter 0 or 1.'; return; }
+    btn.disabled = true; inp.disabled = true;
+    if (val === correctVal) {
+      inp.classList.add('correct');
+      fb.className = 'step-fb ok'; fb.innerHTML = '✅ ' + okMsg;
+      ts.classList.remove('active'); ts.classList.add('done');
+      sn.classList.remove('active'); sn.classList.add('done');
+      tutStepsDone++;
+      if (stepNum < 6) {
+        var next = document.getElementById('ts' + (stepNum+1));
+        var nn   = document.getElementById('sn' + (stepNum+1));
+        var nl   = document.getElementById('sl' + (stepNum+1));
+        if (next) { next.classList.add('active'); nn.classList.add('active'); if(nl) nl.classList.add('active'); }
+      }
+      if (tutStepsDone === 6) document.getElementById('tutNextBtn').style.display = 'block';
+    } else {
+      inp.classList.add('wrong');
+      fb.className = 'step-fb err'; fb.innerHTML = '❌ ' + errMsg;
+      setTimeout(function() {
+        inp.classList.remove('wrong'); inp.value = '';
+        inp.disabled = false; btn.disabled = false;
+      }, 1800);
+    }
+  }
+
+  function startPractice() {
+    document.getElementById('tutorialSection').style.display = 'none';
+    document.getElementById('practiceSection').style.display = 'block';
+    generateProblem();
+  }
+
+</script>
+</body>
+</html>
