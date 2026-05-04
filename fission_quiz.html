@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fission & Fusion Mastery</title>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Outfit:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0f172a;
+      --panel: #1e293b;
+      --panel-light: #334155;
+      --accent: #38bdf8;
+      --accent-dim: #0ea5e9;
+      --success: #22c55e;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --text: #f1f5f9;
+      --text-dim: #94a3b8;
+      --border: #475569;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Outfit', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+    .app { max-width: 860px; margin: 0 auto; padding: 20px; }
+    .header { text-align: center; margin-bottom: 30px; padding: 30px 20px; background: var(--panel); border: 1px solid var(--border); border-radius: 16px; position: relative; overflow: hidden; }
+    .header::after { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, var(--accent), var(--success), var(--accent)); }
+    .stats-bar { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 24px; }
+    .stat-card { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 16px; text-align: center; }
+    .stat-card .label { font-size: 0.7em; text-transform: uppercase; color: var(--text-dim); margin-bottom: 4px; }
+    .stat-card .value { font-family: 'JetBrains Mono', monospace; font-size: 1.6em; font-weight: 700; color: var(--accent); }
+    .stat-card.level .value.easy { background: rgba(34, 197, 94, 0.15); color: var(--success); border-radius: 20px; padding: 4px 12px; font-size: 1em; }
+    .stat-card.level .value.medium { background: rgba(245, 158, 11, 0.15); color: var(--warning); border-radius: 20px; padding: 4px 12px; font-size: 1em; }
+    .stat-card.level .value.hard { background: rgba(239, 68, 68, 0.15); color: var(--danger); border-radius: 20px; padding: 4px 12px; font-size: 1em; }
+    .progress-track { height: 8px; background: var(--panel-light); border-radius: 4px; overflow: hidden; margin-bottom: 24px; }
+    .progress-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--success)); transition: width 0.5s ease; }
+    .question-card { background: var(--panel); border: 1px solid var(--border); border-radius: 16px; padding: 30px; margin-bottom: 20px; }
+    .q-text { font-size: 1.1em; line-height: 1.7; margin-bottom: 20px; }
+    .q-image { display: block; margin: 18px auto; max-width: 100%; border-radius: 12px; background: #fff; padding: 10px; }
+    .choice-btn { width: 100%; text-align: left; padding: 14px 18px; border: 2px solid var(--border); border-radius: 12px; background: var(--bg); color: var(--text); cursor: pointer; margin-bottom: 10px; display: flex; align-items: flex-start; transition: all 0.2s; font-size: 0.98em; }
+    .choice-btn:hover:not(:disabled) { border-color: var(--accent-dim); background: var(--panel-light); }
+    .choice-btn.selected { border-color: var(--accent); background: rgba(56, 189, 248, 0.1); }
+    .choice-btn.correct-choice { border-color: var(--success); background: rgba(34, 197, 94, 0.1); }
+    .choice-btn.wrong-choice { border-color: var(--danger); background: rgba(239, 68, 68, 0.1); }
+    .submit-btn { width: 100%; padding: 14px; background: linear-gradient(135deg, var(--accent-dim), var(--accent)); border: none; border-radius: 12px; color: #fff; font-size: 1.05em; font-weight: 700; cursor: pointer; margin-top: 10px; transition: all 0.3s; }
+    .submit-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+    .feedback { margin-top: 16px; padding: 16px 20px; border-radius: 12px; display: none; line-height: 1.6; }
+    .feedback.correct { display: block; border: 1px solid var(--success); color: var(--success); background: rgba(34, 197, 94, 0.1); }
+    .feedback.incorrect { display: block; border: 1px solid var(--danger); color: var(--danger); background: rgba(239, 68, 68, 0.1); }
+    .feedback .work { margin-top: 10px; padding: 12px; background: rgba(0, 0, 0, 0.25); border-radius: 8px; color: var(--text); }
+    .next-btn { width: 100%; padding: 14px; margin-top: 12px; background: var(--panel-light); border: 2px solid var(--accent); border-radius: 12px; color: var(--accent); font-weight: 600; cursor: pointer; display: none; }
+    .mastery-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(15, 23, 42, 0.95); z-index: 1000; justify-content: center; align-items: center; }
+    .mastery-overlay.show { display: flex; }
+    .mastery-card { background: var(--panel); border: 2px solid var(--accent); border-radius: 20px; padding: 40px; text-align: center; max-width: 520px; width: 90%; }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div class="header">
+      <h1>⚛️ Fission & Fusion Mastery</h1>
+      <p>Analyze Nuclear Reactions and Binding Energy</p>
+    </div>
+    
+    <div class="stats-bar">
+      <div class="stat-card"><div class="label">Correct</div><div class="value" id="correctCount">0</div></div>
+      <div class="stat-card"><div class="label">Total</div><div class="value" id="totalCount">0</div></div>
+      <div class="stat-card"><div class="label">Streak</div><div class="value" id="streakCount">0</div></div>
+      <div class="stat-card level"><div class="label">Level</div><div class="value easy" id="levelBadge">Easy</div></div>
+    </div>
+    
+    <div class="progress-track"><div class="progress-fill" id="progressFill" style="width: 0%"></div></div>
+    
+    <div id="questionArea"></div>
+  </div>
+
+  <div class="mastery-overlay" id="masteryOverlay">
+    <div class="mastery-card">
+      <div style="font-size: 4em;">🏆</div>
+      <h2 style="margin: 10px 0;">MASTERY ACHIEVED!</h2>
+      <div id="masteryStats" style="margin: 20px 0; color: var(--text-dim);"></div>
+      <input type="text" id="nameInput" placeholder="Enter your name" style="padding: 12px; border-radius: 8px; width: 100%; border: 1px solid var(--border); background: var(--bg); color: white; text-align: center;">
+      <p style="margin-top: 20px; font-size: 0.85em; color: var(--accent);">Take a screenshot for your records!</p>
+    </div>
+  </div>
+
+  <script>
+    let correct = 0;
+    let total = 0;
+    let streak = 0;
+    let level = 0; 
+    let consecutiveCorrect = 0;
+    let consecutiveWrong = 0;
+    const MASTERY_TARGET = 5;
+    let currentProblem = null;
+    let answered = false;
+    let selectedChoice = null;
+
+    const easyProblems = [
+      {
+        html: "Which statement correctly compares chemical and nuclear reactions?",
+        image: "chem-vs-nuc.png",
+        choices: [
+          "Chemical reactions involve altering nucleons; nuclear involve exchanging electrons.",
+          "Chemical reactions involve exchanging electrons; nuclear involve altering nucleons.",
+          "Both reactions result in a higher energy state than they started.",
+          "Nuclear reactions are driven solely by electrostatic forces."
+        ],
+        correctIdx: 1,
+        explain: "Chemical reactions occur at the electron level (bonding), while nuclear reactions involve changes to the nucleus itself."
+      },
+      {
+        html: "Identify the missing nuclide in the alpha decay of Uranium-234: <br><br> ${}^{234}{}_{92}U \\rightarrow \\_ + {}^{4}{}_{2}He$",
+        image: null,
+        choices: [
+          "${}^{230}{}_{90}Th$",
+          "${}^{238}{}_{94}Pu$",
+          "${}^{230}{}_{91}Pa$",
+          "${}^{234}{}_{90}Th$"
+        ],
+        correctIdx: 0,
+        explain: "In alpha decay, the mass number drops by 4 (234 - 4 = 230) and the atomic number drops by 2 (92 - 2 = 90), which corresponds to Thorium (Th)."
+      },
+      {
+        html: "Why are nuclear power plants usually located near large bodies of water?",
+        image: null,
+        choices: [
+          "Water is the primary fuel for nuclear fission.",
+          "To use the water to boil into steam to power turbines and for cooling.",
+          "To extract Uranium from the water.",
+          "Fusion reactions require the hydrogen in the water to start."
+        ],
+        correctIdx: 1,
+        explain: "Water is essential in nuclear power plants to be converted into steam (which drives the turbines) and to safely cool the reactor."
+      }
+    ];
+
+    const mediumProblems = [
+      {
+        html: "Argon-39 decays into Potassium-39 via beta-minus decay. Why is this an example of baryon conservation?",
+        image: "beta.png",
+        choices: [
+          "The total number of protons increases, so baryons are created.",
+          "A neutron transforms into a proton, but the total number of nucleons (baryons) remains the same.",
+          "The emission of an antineutrino removes a baryon from the nucleus.",
+          "The mass of the nucleus is halved."
+        ],
+        correctIdx: 1,
+        explain: "Protons and neutrons are both baryons. Converting one to the other keeps the total baryon count constant."
+      },
+      {
+        html: "Based on the diagram of a neutron bombarding Uranium-235, why would the reaction be difficult to control if it occurred at a critical mass?",
+        image: "fission.png",
+        choices: [
+          "The reaction stops immediately after the first split.",
+          "Emitted neutrons can cause a chain reaction leading to uncontrolled fission.",
+          "The energy released is absorbed by the surrounding barium nuclei.",
+          "Critical mass prevents neutrons from escaping the nucleus."
+        ],
+        correctIdx: 1,
+        explain: "At critical mass, the neutrons emitted from one fission event strike other Uranium nuclei, triggering a self-sustaining and potentially exponential chain reaction."
+      },
+      {
+        html: "In a nuclear reaction, if the system ends in a lower energy state than it started, what happens to the 'missing' mass?",
+        image: null,
+        choices: [
+          "It is destroyed and disappears from the universe.",
+          "It is converted into kinetic energy and radiation (energy).",
+          "It is converted into electrons to balance the charge.",
+          "It remains as potential energy within the nucleons."
+        ],
+        correctIdx: 1,
+        explain: "According to E=mc², missing mass (the mass defect) is released as energy, typically as radiation and the kinetic energy of the products."
+      }
+    ];
+
+    const hardProblems = [
+      {
+        html: "In the stellar fusion process, what is the final element produced before fusion stops?",
+        image: "stellar.png",
+        choices: ["Carbon", "Helium", "Oxygen", "Iron"],
+        correctIdx: 3,
+        explain: "Iron (Fe) is the endpoint of typical stellar fusion because fusing elements heavier than iron requires more energy than it releases."
+      },
+      {
+        html: "Using the Binding Energy vs. Atomic Number graph, why do Carbon and Zirconium undergo different types of decay?",
+        image: "atomic-graph.png",
+        choices: [
+          "Carbon undergoes fission while Zirconium undergoes fusion.",
+          "Carbon undergoes fusion to increase stability; Zirconium undergoes fission to increase stability.",
+          "Both elements are at the peak of stability and do not decay.",
+          "Carbon has more nucleons than Zirconium."
+        ],
+        correctIdx: 1,
+        explain: "Carbon is lighter than Iron, so fusing makes it more stable. Zirconium is heavier than Iron, so fission breaks it down into a more stable state closer to the Iron peak."
+      },
+      {
+        html: "According to the Binding Energy vs. Mass Number graph, what must occur for Uranium-235 to become Krypton-92?",
+        image: "mass-graph.png",
+        choices: [
+          "Nuclear Fusion",
+          "Beta-plus decay",
+          "Nuclear Fission caused by neutron bombardment",
+          "Alpha decay into Helium"
+        ],
+        correctIdx: 2,
+        explain: "U-235 is a heavy, unstable isotope. It must undergo nuclear fission (typically triggered by a neutron) to split into smaller fragments like Kr-92."
+      }
+    ];
+
+    function generateProblem() {
+      const pools = [easyProblems, mediumProblems, hardProblems];
+      const pool = pools[level];
+      currentProblem = pool[Math.floor(Math.random() * pool.length)];
+      answered = false;
+      selectedChoice = null;
+      renderProblem();
+    }
+
+    function renderProblem() {
+      const area = document.getElementById('questionArea');
+      const p = currentProblem;
+      const letters = ['A', 'B', 'C', 'D'];
+
+      let html = `
+        <div class="question-card">
+          <div class="q-number">Problem ${total + 1} • ${['Easy', 'Medium', 'Hard'][level]}</div>
+          <div class="q-text">${p.html}</div>`;
+          
+      if (p.image) {
+        html += `<img class="q-image" src="${p.image}" alt="Diagram for question">`;
+      }
+
+      html += `<div class="choice-list">`;
+      
+      p.choices.forEach((text, i) => {
+        html += `
+          <button class="choice-btn" onclick="selectChoice(${i})">
+            <span style="font-family: 'JetBrains Mono'; color: var(--accent); font-weight: bold; min-width: 25px;">${letters[i]}.</span>
+            <span>${text}</span>
+          </button>`;
+      });
+
+      html += `</div>
+          <button class="submit-btn" id="submitBtn" onclick="submitAnswer()">Check Answer</button>
+          <div class="feedback" id="feedback"></div>
+          <button class="next-btn" id="nextBtn" onclick="generateProblem()">Next Problem →</button>
+        </div>`;
+      
+      area.innerHTML = html;
+    }
+
+    function selectChoice(i) {
+      if (answered) return;
+      selectedChoice = i;
+      document.querySelectorAll('.choice-btn').forEach((btn, idx) => {
+        btn.classList.toggle('selected', idx === i);
+      });
+    }
+
+    function submitAnswer() {
+      if (answered || selectedChoice === null) return;
+      answered = true;
+      total++;
+      
+      const fb = document.getElementById('feedback');
+      const btns = document.querySelectorAll('.choice-btn');
+      const isCorrect = (selectedChoice === currentProblem.correctIdx);
+
+      btns.forEach((btn, i) => {
+        btn.disabled = true;
+        if (i === currentProblem.correctIdx) btn.classList.add('correct-choice');
+        else if (i === selectedChoice) btn.classList.add('wrong-choice');
+      });
+
+      if (isCorrect) {
+        correct++; streak++; consecutiveCorrect++; consecutiveWrong = 0;
+        fb.innerHTML = `✅ Correct!<div class="work">${currentProblem.explain}</div>`;
+        fb.className = 'feedback correct';
+        if (consecutiveCorrect >= 2 && level < 2) { level++; consecutiveCorrect = 0; }
+      } else {
+        streak = 0; consecutiveCorrect = 0; consecutiveWrong++;
+        fb.innerHTML = `❌ Incorrect. The correct answer was ${['A','B','C','D'][currentProblem.correctIdx]}.<div class="work">${currentProblem.explain}</div>`;
+        fb.className = 'feedback incorrect';
+        if (consecutiveWrong >= 2 && level > 0) { level--; consecutiveWrong = 0; }
+      }
+
+      document.getElementById('submitBtn').style.display = 'none';
+      document.getElementById('nextBtn').style.display = 'block';
+      updateUI();
+      if (correct >= MASTERY_TARGET) showMastery();
+    }
+
+    function updateUI() {
+      document.getElementById('correctCount').innerText = correct;
+      document.getElementById('totalCount').innerText = total;
+      document.getElementById('streakCount').innerText = streak;
+      const b = document.getElementById('levelBadge');
+      b.innerText = ['Easy', 'Medium', 'Hard'][level];
+      b.className = 'value ' + ['easy', 'medium', 'hard'][level];
+      const pct = (correct / MASTERY_TARGET) * 100;
+      document.getElementById('progressFill').style.width = Math.min(pct, 100) + '%';
+    }
+
+    function showMastery() {
+      document.getElementById('masteryOverlay').classList.add('show');
+      document.getElementById('masteryStats').innerHTML = `Completed <strong>${correct}</strong> questions correctly!<br>Final level: <strong>${['Easy', 'Medium', 'Hard'][level]}</strong>`;
+    }
+
+    generateProblem();
+  </script>
+</body>
+</html>
