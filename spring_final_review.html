@@ -1,0 +1,1607 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Spring Final Review</title>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-gradient-1: #1a1a2e;
+      --bg-gradient-2: #16213e;
+      --bg-gradient-3: #0f3460;
+      --accent-cyan: #00f5d4;
+      --accent-pink: #e94560;
+      --accent-yellow: #f1c40f;
+      --accent-orange: #ff6b35;
+      --accent-blue: #3498db;
+      --accent-purple: #9b59b6;
+      --card-bg: rgba(255,255,255,0.04);
+      --card-border: rgba(255,255,255,0.1);
+      --text-primary: #ffffff;
+      --text-secondary: rgba(255,255,255,0.7);
+      --success: #00f5d4;
+      --error: #e94560;
+    }
+    
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    
+    body {
+      font-family: 'Outfit', sans-serif;
+      background: linear-gradient(135deg, var(--bg-gradient-1) 0%, var(--bg-gradient-2) 50%, var(--bg-gradient-3) 100%);
+      min-height: 100vh;
+      color: var(--text-primary);
+      overflow-x: hidden;
+    }
+    
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+    
+    header {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+    
+    h1 {
+      font-size: 2.5rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, var(--accent-cyan), var(--accent-blue));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 0.5rem;
+    }
+    
+    .subtitle {
+      color: var(--text-secondary);
+      font-size: 1.1rem;
+    }
+    
+    /* Progress Dashboard */
+    .progress-dashboard {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+    
+    .progress-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 1rem;
+      text-align: center;
+    }
+    
+    .progress-card h3 {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      margin-bottom: 0.5rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    
+    .progress-bar-container {
+      width: 100%;
+      height: 8px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 4px;
+      overflow: hidden;
+      margin-bottom: 0.5rem;
+    }
+    
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent-cyan), var(--accent-blue));
+      border-radius: 4px;
+      transition: width 0.5s ease;
+      width: 0%;
+    }
+    
+    .progress-text {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--accent-cyan);
+    }
+    
+    /* Section styling */
+    .section {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 2rem;
+      margin-bottom: 2rem;
+    }
+    
+    .section h2 {
+      font-size: 1.5rem;
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    
+    .section-icon {
+      font-size: 1.5rem;
+    }
+    
+    /* Question styling */
+    .question-container {
+      background: rgba(255,255,255,0.02);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+      transition: all 0.3s ease;
+    }
+    
+    .question-container.completed {
+      border-color: var(--success);
+      background: rgba(0, 245, 212, 0.05);
+    }
+    
+    .question-text {
+      font-size: 1.1rem;
+      margin-bottom: 1rem;
+      line-height: 1.6;
+    }
+    
+    .options {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+    
+    .option {
+      display: flex;
+      align-items: center;
+      padding: 1rem;
+      background: rgba(255,255,255,0.03);
+      border: 2px solid var(--card-border);
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    
+    .option:hover {
+      background: rgba(255,255,255,0.08);
+      border-color: var(--accent-cyan);
+    }
+    
+    .option.selected {
+      border-color: var(--accent-blue);
+      background: rgba(52, 152, 219, 0.15);
+    }
+    
+    .option.correct {
+      border-color: var(--success);
+      background: rgba(0, 245, 212, 0.15);
+    }
+    
+    .option.incorrect {
+      border-color: var(--error);
+      background: rgba(233, 69, 96, 0.15);
+    }
+    
+    .option input[type="radio"] {
+      display: none;
+    }
+    
+    .option-label {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      width: 100%;
+      cursor: pointer;
+    }
+    
+    .option-marker {
+      width: 28px;
+      height: 28px;
+      border: 2px solid var(--card-border);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: 0.85rem;
+      flex-shrink: 0;
+      transition: all 0.2s ease;
+    }
+    
+    .option.selected .option-marker {
+      border-color: var(--accent-blue);
+      background: var(--accent-blue);
+      color: white;
+    }
+    
+    .option.correct .option-marker {
+      border-color: var(--success);
+      background: var(--success);
+      color: var(--bg-gradient-1);
+    }
+    
+    .option.incorrect .option-marker {
+      border-color: var(--error);
+      background: var(--error);
+      color: white;
+    }
+    
+    .check-btn {
+      margin-top: 1rem;
+      padding: 0.75rem 2rem;
+      background: linear-gradient(135deg, var(--accent-cyan), var(--accent-blue));
+      border: none;
+      border-radius: 8px;
+      color: var(--bg-gradient-1);
+      font-family: 'Outfit', sans-serif;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    
+    .check-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(0, 245, 212, 0.3);
+    }
+    
+    .check-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+    
+    .feedback {
+      margin-top: 1rem;
+      padding: 1rem;
+      border-radius: 8px;
+      display: none;
+      animation: fadeIn 0.3s ease;
+    }
+    
+    .feedback.show {
+      display: block;
+    }
+    
+    .feedback.correct {
+      background: rgba(0, 245, 212, 0.1);
+      border: 1px solid var(--success);
+      color: var(--success);
+    }
+    
+    .feedback.incorrect {
+      background: rgba(233, 69, 96, 0.1);
+      border: 1px solid var(--error);
+      color: var(--error);
+    }
+    
+    .attempts {
+      margin-top: 0.5rem;
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    /* Mastery Celebration */
+    #masteryCelebration {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.9);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+      animation: fadeIn 0.5s ease;
+    }
+    
+    #masteryCelebration.show {
+      display: flex;
+    }
+    
+    .mastery-content {
+      text-align: center;
+      padding: 3rem;
+      background: linear-gradient(135deg, var(--bg-gradient-2), var(--bg-gradient-3));
+      border: 2px solid var(--accent-cyan);
+      border-radius: 24px;
+      max-width: 500px;
+      margin: 1rem;
+    }
+    
+    .mastery-content h2 {
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+      background: linear-gradient(135deg, var(--accent-cyan), var(--accent-yellow));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    
+    .mastery-content p {
+      font-size: 1.2rem;
+      margin-bottom: 1.5rem;
+      color: var(--text-secondary);
+    }
+    
+    .mastery-stats {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+    
+    .mastery-stat {
+      background: var(--card-bg);
+      padding: 1rem;
+      border-radius: 12px;
+    }
+    
+    .mastery-stat-value {
+      font-size: 2rem;
+      font-weight: 800;
+      color: var(--accent-cyan);
+    }
+    
+    .mastery-stat-label {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+    }
+    
+    .timestamp {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      margin-top: 1rem;
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+      h1 { font-size: 1.8rem; }
+      .container { padding: 1rem; }
+      .section { padding: 1.5rem; }
+      .progress-dashboard { grid-template-columns: repeat(2, 1fr); }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>🎓 Spring Final Review</h1>
+    </header>
+    
+    <!-- Progress Dashboard -->
+    <div class="progress-dashboard">
+      <div class="progress-card">
+        <h3>🟢 Easy</h3>
+        <div class="progress-bar-container">
+          <div class="progress-fill" id="fill1"></div>
+        </div>
+        <span class="progress-text"><span id="prog1">0</span>/8</span>
+      </div>
+      <div class="progress-card">
+        <h3>🟡 Medium</h3>
+        <div class="progress-bar-container">
+          <div class="progress-fill" id="fill2"></div>
+        </div>
+        <span class="progress-text"><span id="prog2">0</span>/8</span>
+      </div>
+      <div class="progress-card">
+        <h3>🔴 Hard</h3>
+        <div class="progress-bar-container">
+          <div class="progress-fill" id="fill3"></div>
+        </div>
+        <span class="progress-text"><span id="prog3">0</span>/8</span>
+      </div>
+    </div>
+    
+    <!-- Section 1: Easy -->
+    <div class="section" id="section1">
+      <h2><span class="section-icon">🟢</span> Easy</h2>
+      
+      <!-- Q1 -->
+      <div class="question-container" id="q1-container">
+        <p class="question-text"><strong>Q1:</strong> Which location is considered the hottest on/in the sun?</p>
+        <div class="options" id="q1-options">
+          <div class="option" onclick="selectOption(1, 0)">
+            <label class="option-label">
+              <input type="radio" name="q1" value="0">
+              <span class="option-marker">A</span>
+              <span>Corona</span>
+            </label>
+          </div>
+          <div class="option" onclick="selectOption(1, 1)">
+            <label class="option-label">
+              <input type="radio" name="q1" value="1">
+              <span class="option-marker">B</span>
+              <span>Photosphere</span>
+            </label>
+          </div>
+          <div class="option" onclick="selectOption(1, 2)">
+            <label class="option-label">
+              <input type="radio" name="q1" value="2">
+              <span class="option-marker">C</span>
+              <span>Radiative zone</span>
+            </label>
+          </div>
+          <div class="option" onclick="selectOption(1, 3)">
+            <label class="option-label">
+              <input type="radio" name="q1" value="3">
+              <span class="option-marker">D</span>
+              <span>Core</span>
+            </label>
+          </div>
+        </div>
+        <button class="check-btn" onclick="checkAnswer(1)">Check Answer</button>
+        <div class="feedback" id="q1-feedback"></div>
+        <div class="attempts" id="q1-attempts"></div>
+      </div>
+      
+      <!-- Q2 -->
+      <div class="question-container" id="q2-container">
+        <p class="question-text"><strong>Q2:</strong> Which location is considered the coolest on/in the sun?</p>
+        <div class="options" id="q2-options">
+          <div class="option" onclick="selectOption(2, 0)">
+            <label class="option-label">
+              <input type="radio" name="q2" value="0">
+              <span class="option-marker">A</span>
+              <span>Core</span>
+            </label>
+          </div>
+          <div class="option" onclick="selectOption(2, 1)">
+            <label class="option-label">
+              <input type="radio" name="q2" value="1">
+              <span class="option-marker">B</span>
+              <span>Photosphere</span>
+            </label>
+          </div>
+          <div class="option" onclick="selectOption(2, 2)">
+            <label class="option-label">
+              <input type="radio" name="q2" value="2">
+              <span class="option-marker">C</span>
+              <span>Convective Zone</span>
+            </label>
+          </div>
+          <div class="option" onclick="selectOption(2, 3)">
+            <label class="option-label">
+              <input type="radio" name="q2" value="3">
+              <span class="option-marker">D</span>
+              <span>Chromosphere</span>
+            </label>
+          </div>
+        </div>
+        <button class="check-btn" onclick="checkAnswer(2)">Check Answer</button>
+        <div class="feedback" id="q2-feedback"></div>
+        <div class="attempts" id="q2-attempts"></div>
+      </div>
+      
+      <!-- Q3 -->
+      <div class="question-container" id="q3-container">
+        <p class="question-text"><strong>Q3:</strong> In which type of collision is kinetic energy conserved?</p>
+        <div class="options" id="q3-options">
+          <div class="option" onclick="selectOption(3, 0)">
+            <label class="option-label">
+              <input type="radio" name="q3" value="0">
+              <span class="option-marker">A</span>
+              <span>Elastic</span>
+            </label>
+          </div>
+          <div class="option" onclick="selectOption(3, 1)">
+            <label class="option-label">
+              <input type="radio" name="q3" value="1">
+              <span class="option-marker">B</span>
+              <span>Inelastic</span>
+            </label>
+          </div>
+          <div class="option" onclick="selectOption(3, 2)">
+            <label class="option-label">
+              <input type="radio" name="q3" value="2">
+              <span class="option-marker">C</span>
+              <span>All collisions</span>
+            </label>
+          </div>
+          <div class="option" onclick="selectOption(3, 3)">
+            <label class="option-label">
+              <input type="radio" name="q3" value="3">
+              <span class="option-marker">D</span>
+              <span>Perfectly inelastic</span>
+            </label>
+          </div>
+        </div>
+        <button class="check-btn" onclick="checkAnswer(3)">Check Answer</button>
+        <div class="feedback" id="q3-feedback"></div>
+        <div class="attempts" id="q3-attempts"></div>
+      </div>
+      
+      <!-- Q4 -->
+      <div class="question-container" id="q4-container">
+        <p class="question-text"><strong>Q4:</strong> What is the formula for momentum?</p>
+        <div class="options" id="q4-options">
+          <div class="option" onclick="selectOption(4, 0)">
+            <label class="option-label">
+              <input type="radio" name="q4" value="0">
+              <span class="option-marker">A</span>
+              <span>p = ma</span>
+            </label>
+          </div>
+          <div class="option" onclick="selectOption(4, 1)">
+            <label class="option-label">
+              <input type="radio" name="q4" value="1">
+              <span class="option-marker">B</span>
+              <span>p = mv</span>
+            </label>
+          </div>
+          <div class="option" onclick="selectOption(4, 2)">
+            <label class="option-label">
+              <input type="radio" name="q4" value="2">
+              <span class="option-marker">C</span>
+              <span>p = Fd</span>
+            </label>
+          </div>
+          <div class="option" onclick="selectOption(4, 3)">
+            <label class="option-label">
+              <input type="radio" name="q4" value="3">
+              <span class="option-marker">D</span>
+              <span>p = ½mv²</span>
+            </label>
+          </div>
+        </div>
+        <button class="check-btn" onclick="checkAnswer(4)">Check Answer</button>
+        <div class="feedback" id="q4-feedback"></div>
+        <div class="attempts" id="q4-attempts"></div>
+      </div>
+      
+      <!-- Q5 -->
+      <div class="question-container" id="q5-container">
+        <p class="question-text"><strong>Q5:</strong> The law of conservation of linear momentum states that if no external force acts on a system of particles or objects, the total linear momentum of the system...</p>
+        <div class="options" id="q5-options">
+          <div class="option" onclick="selectOption(5, 0)">
+            <label class="option-label">
+              <input type="radio" name="q5" value="0">
+              <span class="option-marker">A</span>
+              <span>increases</span>
+            </label>
+          </div>
+          <div class="option" onclick="selectOption(5, 1)">
+            <label class="option-label">
+              <input type="radio" name="q5" value="1">
+              <span class="option-marker">B</span>
+              <span>does not change</span>
+            </label>
+          </div>
+          <div class="option" onclick="selectOption(5, 2)">
+            <label class="option-label">
+              <input type="radio" name="q5" value="2">
+              <span class="option-marker">C</span>
+              <span>becomes zero</span>
+            </label>
+          </div>
+          <div class="option" onclick="selectOption(5, 3)">
+            <label class="option-label">
+              <input type="radio" name="q5" value="3">
+              <span class="option-marker">D</span>
+              <span>decreases</span>
+            </label>
+          </div>
+        </div>
+        <button class="check-btn" onclick="checkAnswer(5)">Check Answer</button>
+        <div class="feedback" id="q5-feedback"></div>
+        <div class="attempts" id="q5-attempts"></div>
+      </div>
+      
+      <!-- Q6 -->
+      <div class="question-container" id="q6-container">
+        <p class="question-text"><strong>Q6:</strong> Work is defined as:</p>
+        <div class="options" id="q6-options">
+          <div class="option" onclick="selectOption(6, 0)">
+            <label class="option-label">
+              <input type="radio" name="q6" value="0">
+              <span class="option-marker">A</span>
+              <span>Force multiplied by time</span>
+            </label>
+          </div>
+          <div class="option" onclick="selectOption(6, 1)">
+            <label class="option-label">
+              <input type="radio" name="q6" value="1">
+              <span class="option-marker">B</span>
+              <span>Force multiplied by displacement in the direction of the force</span>
+            </label>
+          </div>
+          <div class="option" onclick="selectOption(6, 2)">
+            <label class="option-label">
+              <input type="radio" name="q6" value="2">
+              <span class="option-marker">C</span>
+              <span>Force divided by displacement</span>
+            </label>
+          </div>
+          <div class="option" onclick="selectOption(6, 3)">
+            <label class="option-label">
+              <input type="radio" name="q6" value="3">
+              <span class="option-marker">D</span>
+              <span>Mass multiplied by velocity</span>
+            </label>
+          </div>
+        </div>
+        <button class="check-btn" onclick="checkAnswer(6)">Check Answer</button>
+        <div class="feedback" id="q6-feedback"></div>
+        <div class="attempts" id="q6-attempts"></div>
+      </div>
+      
+      <!-- Q7 -->
+      <div class="question-container" id="q7-container">
+        <p class="question-text"><strong>Q7:</strong> A nucleus with 12 protons and 12 neutrons has:</p>
+        <div class="options" id="q7-options">
+          <div class="option" onclick="selectOption(7, 0)">
+            <label class="option-label">
+              <input type="radio" name="q7" value="0">
+              <span class="option-marker">A</span>
+              <span>Atomic Number (Z) = 12; Atomic Mass (A) = 24</span>
+            </label>
+          </div>
+          <div class="option" onclick="selectOption(7, 1)">
+            <label class="option-label">
+              <input type="radio" name="q7" value="1">
+              <span class="option-marker">B</span>
+              <span>Atomic Number (Z) = 24; Atomic Mass (A) = 12</span>
+            </label>
+          </div>
+          <div class="option" onclick="selectOption(7, 2)">
+            <label class="option-label">
+              <input type="radio" name="q7" value="2">
+              <span class="option-marker">C</span>
+              <span>Atomic Number (Z) = 24; Atomic Mass (A) = 24</span>
+            </label>
+          </div>
+          <div class="option" onclick="selectOption(7, 3)">
+            <label class="option-label">
+              <input type="radio" name="q7" value="3">
+              <span class="option-marker">D</span>
+              <span>Atomic Number (Z) = 12; Atomic Mass (A) = 12</span>
+            </label>
+          </div>
+        </div>
+        <button class="check-btn" onclick="checkAnswer(7)">Check Answer</button>
+        <div class="feedback" id="q7-feedback"></div>
+        <div class="attempts" id="q7-attempts"></div>
+      </div>
+      
+      <!-- Q8 -->
+      <div class="question-container" id="q8-container">
+        <p class="question-text"><strong>Q8:</strong> A 2 kg object moves at 3 m/s. What is its kinetic energy?</p>
+        <div class="options" id="q8-options">
+          <div class="option" onclick="selectOption(8, 0)">
+            <label class="option-label">
+              <input type="radio" name="q8" value="0">
+              <span class="option-marker">A</span>
+              <span>3 J</span>
+            </label>
+          </div>
+          <div class="option" onclick="selectOption(8, 1)">
+            <label class="option-label">
+              <input type="radio" name="q8" value="1">
+              <span class="option-marker">B</span>
+              <span>6 J</span>
+            </label>
+          </div>
+          <div class="option" onclick="selectOption(8, 2)">
+            <label class="option-label">
+              <input type="radio" name="q8" value="2">
+              <span class="option-marker">C</span>
+              <span>9 J</span>
+            </label>
+          </div>
+          <div class="option" onclick="selectOption(8, 3)">
+            <label class="option-label">
+              <input type="radio" name="q8" value="3">
+              <span class="option-marker">D</span>
+              <span>18 J</span>
+            </label>
+          </div>
+        </div>
+        <button class="check-btn" onclick="checkAnswer(8)">Check Answer</button>
+        <div class="feedback" id="q8-feedback"></div>
+        <div class="attempts" id="q8-attempts"></div>
+      </div>
+    </div>
+    
+    <!-- Section 2: Medium -->
+    <div class="section" id="section2">
+      <h2><span class="section-icon">🟡</span> Medium</h2>
+      
+      <!-- Q9 -->
+      <div class="question-container" id="q9-container">
+        <p class="question-text"><strong>Q9:</strong> In an inelastic collision, kinetic energy is transformed into:</p>
+        <div class="options" id="q9-options">
+          <div class="option" onclick="selectOption(9, 0)">
+            <label class="option-label">
+              <input type="radio" name="q9" value="0">
+              <span class="option-marker">A</span>
+              <span>Potential energy only</span>
+            </label>
+          </div>
+          <div class="option" onclick="selectOption(9, 1)">
+            <label class="option-label">
+              <input type="radio" name="q9" value="1">
+              <span class="option-marker">B</span>
+              <span>Sound, thermal energy, and deformation</span>
+            </label>
+          </div>
+          <div class="option" onclick="selectOption(9, 2)">
+            <label class="option-label">
+              <input type="radio" name="q9" value="2">
+              <span class="option-marker">C</span>
+              <span>Nuclear energy</span>
+            </label>
+          </div>
+          <div class="option" onclick="selectOption(9, 3)">
+            <label class="option-label">
+              <input type="radio" name="q9" value="3">
+              <span class="option-marker">D</span>
+              <span>Electrical energy</span>
+            </label>
+          </div>
+        </div>
+        <button class="check-btn" onclick="checkAnswer(9)">Check Answer</button>
+        <div class="feedback" id="q9-feedback"></div>
+        <div class="attempts" id="q9-attempts"></div>
+      </div>
+      
+      <!-- Q10 -->
+      <div class="question-container" id="q10-container">
+        <p class="question-text"><strong>Q10:</strong> A metal pan is placed on a gas stove, and the water inside eventually boils. Which types of heat transfer occur?</p>
+        <div class="options" id="q10-options">
+          <div class="option" onclick="selectOption(10, 0)">
+            <label class="option-label">
+              <input type="radio" name="q10" value="0">
+              <span class="option-marker">A</span>
+              <span>Conduction only</span>
+            </label>
+          </div>
+          <div class="option" onclick="selectOption(10, 1)">
+            <label class="option-label">
+              <input type="radio" name="q10" value="1">
+              <span class="option-marker">B</span>
+              <span>Conduction and convection only</span>
+            </label>
+          </div>
+          <div class="option" onclick="selectOption(10, 2)">
+            <label class="option-label">
+              <input type="radio" name="q10" value="2">
+              <span class="option-marker">C</span>
+              <span>Radiation only</span>
+            </label>
+          </div>
+          <div class="option" onclick="selectOption(10, 3)">
+            <label class="option-label">
+              <input type="radio" name="q10" value="3">
+              <span class="option-marker">D</span>
+              <span>Conduction, convection, and radiation</span>
+            </label>
+          </div>
+        </div>
+        <button class="check-btn" onclick="checkAnswer(10)">Check Answer</button>
+        <div class="feedback" id="q10-feedback"></div>
+        <div class="attempts" id="q10-attempts"></div>
+      </div>
+      
+      <!-- Q11 -->
+      <div class="question-container" id="q11-container">
+        <p class="question-text"><strong>Q11:</strong> Using the kinetic energy equation KE = ½mv², if the velocity of an object is doubled while mass remains constant, the kinetic energy will:</p>
+        <div class="options" id="q11-options">
+          <div class="option" onclick="selectOption(11, 0)">
+            <label class="option-label">
+              <input type="radio" name="q11" value="0">
+              <span class="option-marker">A</span>
+              <span>Double</span>
+            </label>
+          </div>
+          <div class="option" onclick="selectOption(11, 1)">
+            <label class="option-label">
+              <input type="radio" name="q11" value="1">
+              <span class="option-marker">B</span>
+              <span>Quadruple</span>
+            </label>
+          </div>
+          <div class="option" onclick="selectOption(11, 2)">
+            <label class="option-label">
+              <input type="radio" name="q11" value="2">
+              <span class="option-marker">C</span>
+              <span>Be cut in half</span>
+            </label>
+          </div>
+          <div class="option" onclick="selectOption(11, 3)">
+            <label class="option-label">
+              <input type="radio" name="q11" value="3">
+              <span class="option-marker">D</span>
+              <span>Stay the same</span>
+            </label>
+          </div>
+        </div>
+        <button class="check-btn" onclick="checkAnswer(11)">Check Answer</button>
+        <div class="feedback" id="q11-feedback"></div>
+        <div class="attempts" id="q11-attempts"></div>
+      </div>
+      
+      <!-- Q12 -->
+      <div class="question-container" id="q12-container">
+        <p class="question-text"><strong>Q12:</strong> A 1500 kg car is traveling at 30 m/s. What is the car's momentum?</p>
+        <div class="options" id="q12-options">
+          <div class="option" onclick="selectOption(12, 0)">
+            <label class="option-label">
+              <input type="radio" name="q12" value="0">
+              <span class="option-marker">A</span>
+              <span>50 kg·m/s</span>
+            </label>
+          </div>
+          <div class="option" onclick="selectOption(12, 1)">
+            <label class="option-label">
+              <input type="radio" name="q12" value="1">
+              <span class="option-marker">B</span>
+              <span>1530 kg·m/s</span>
+            </label>
+          </div>
+          <div class="option" onclick="selectOption(12, 2)">
+            <label class="option-label">
+              <input type="radio" name="q12" value="2">
+              <span class="option-marker">C</span>
+              <span>675,000 kg·m/s</span>
+            </label>
+          </div>
+          <div class="option" onclick="selectOption(12, 3)">
+            <label class="option-label">
+              <input type="radio" name="q12" value="3">
+              <span class="option-marker">D</span>
+              <span>45,000 kg·m/s</span>
+            </label>
+          </div>
+        </div>
+        <button class="check-btn" onclick="checkAnswer(12)">Check Answer</button>
+        <div class="feedback" id="q12-feedback"></div>
+        <div class="attempts" id="q12-attempts"></div>
+      </div>
+      
+      <!-- Q13 -->
+      <div class="question-container" id="q13-container">
+        <p class="question-text"><strong>Q13:</strong> A 2.5 kg object is moving at 20 m/s. What is the momentum of the object?</p>
+        <div class="options" id="q13-options">
+          <div class="option" onclick="selectOption(13, 0)">
+            <label class="option-label">
+              <input type="radio" name="q13" value="0">
+              <span class="option-marker">A</span>
+              <span>10 kg·m/s</span>
+            </label>
+          </div>
+          <div class="option" onclick="selectOption(13, 1)">
+            <label class="option-label">
+              <input type="radio" name="q13" value="1">
+              <span class="option-marker">B</span>
+              <span>50 kg·m/s</span>
+            </label>
+          </div>
+          <div class="option" onclick="selectOption(13, 2)">
+            <label class="option-label">
+              <input type="radio" name="q13" value="2">
+              <span class="option-marker">C</span>
+              <span>8.0 kg·m/s</span>
+            </label>
+          </div>
+          <div class="option" onclick="selectOption(13, 3)">
+            <label class="option-label">
+              <input type="radio" name="q13" value="3">
+              <span class="option-marker">D</span>
+              <span>22.5 kg·m/s</span>
+            </label>
+          </div>
+        </div>
+        <button class="check-btn" onclick="checkAnswer(13)">Check Answer</button>
+        <div class="feedback" id="q13-feedback"></div>
+        <div class="attempts" id="q13-attempts"></div>
+      </div>
+      
+      <!-- Q14 -->
+      <div class="question-container" id="q14-container">
+        <p class="question-text"><strong>Q14:</strong> A student pushes a box across a horizontal floor at constant velocity. The applied force is in the direction of motion. What type of work does the applied force do on the box?</p>
+        <div class="options" id="q14-options">
+          <div class="option" onclick="selectOption(14, 0)">
+            <label class="option-label">
+              <input type="radio" name="q14" value="0">
+              <span class="option-marker">A</span>
+              <span>Positive work</span>
+            </label>
+          </div>
+          <div class="option" onclick="selectOption(14, 1)">
+            <label class="option-label">
+              <input type="radio" name="q14" value="1">
+              <span class="option-marker">B</span>
+              <span>Negative work</span>
+            </label>
+          </div>
+          <div class="option" onclick="selectOption(14, 2)">
+            <label class="option-label">
+              <input type="radio" name="q14" value="2">
+              <span class="option-marker">C</span>
+              <span>The work cannot be determined</span>
+            </label>
+          </div>
+          <div class="option" onclick="selectOption(14, 3)">
+            <label class="option-label">
+              <input type="radio" name="q14" value="3">
+              <span class="option-marker">D</span>
+              <span>Zero work</span>
+            </label>
+          </div>
+        </div>
+        <button class="check-btn" onclick="checkAnswer(14)">Check Answer</button>
+        <div class="feedback" id="q14-feedback"></div>
+        <div class="attempts" id="q14-attempts"></div>
+      </div>
+      
+      <!-- Q15 -->
+      <div class="question-container" id="q15-container">
+        <p class="question-text"><strong>Q15:</strong> Which statement correctly compares chemical and nuclear reactions?</p>
+        <div class="options" id="q15-options">
+          <div class="option" onclick="selectOption(15, 0)">
+            <label class="option-label">
+              <input type="radio" name="q15" value="0">
+              <span class="option-marker">A</span>
+              <span>Chemical reactions involve altering nucleons; nuclear involve exchanging electrons.</span>
+            </label>
+          </div>
+          <div class="option" onclick="selectOption(15, 1)">
+            <label class="option-label">
+              <input type="radio" name="q15" value="1">
+              <span class="option-marker">B</span>
+              <span>Chemical reactions involve exchanging electrons; nuclear involve altering nucleons.</span>
+            </label>
+          </div>
+          <div class="option" onclick="selectOption(15, 2)">
+            <label class="option-label">
+              <input type="radio" name="q15" value="2">
+              <span class="option-marker">C</span>
+              <span>Nuclear reactions are driven solely by electrostatic forces.</span>
+            </label>
+          </div>
+          <div class="option" onclick="selectOption(15, 3)">
+            <label class="option-label">
+              <input type="radio" name="q15" value="3">
+              <span class="option-marker">D</span>
+              <span>Both reactions result in a higher energy state than they started.</span>
+            </label>
+          </div>
+        </div>
+        <button class="check-btn" onclick="checkAnswer(15)">Check Answer</button>
+        <div class="feedback" id="q15-feedback"></div>
+        <div class="attempts" id="q15-attempts"></div>
+      </div>
+      
+      <!-- Q16 -->
+      <div class="question-container" id="q16-container">
+        <p class="question-text"><strong>Q16:</strong> The diagram below represents straight wave fronts passing from deep water into shallow water, with a change in speed and direction. Which phenomenon is illustrated in the diagram?</p>
+        <div class="options" id="q16-options">
+          <div class="option" onclick="selectOption(16, 0)">
+            <label class="option-label">
+              <input type="radio" name="q16" value="0">
+              <span class="option-marker">A</span>
+              <span>Refraction</span>
+            </label>
+          </div>
+          <div class="option" onclick="selectOption(16, 1)">
+            <label class="option-label">
+              <input type="radio" name="q16" value="1">
+              <span class="option-marker">B</span>
+              <span>Diffraction</span>
+            </label>
+          </div>
+          <div class="option" onclick="selectOption(16, 2)">
+            <label class="option-label">
+              <input type="radio" name="q16" value="2">
+              <span class="option-marker">C</span>
+              <span>Reflection</span>
+            </label>
+          </div>
+          <div class="option" onclick="selectOption(16, 3)">
+            <label class="option-label">
+              <input type="radio" name="q16" value="3">
+              <span class="option-marker">D</span>
+              <span>Interference</span>
+            </label>
+          </div>
+        </div>
+        <button class="check-btn" onclick="checkAnswer(16)">Check Answer</button>
+        <div class="feedback" id="q16-feedback"></div>
+        <div class="attempts" id="q16-attempts"></div>
+      </div>
+    </div>
+    
+    <!-- Section 3: Hard -->
+    <div class="section" id="section3">
+      <h2><span class="section-icon">🔴</span> Hard</h2>
+      
+      <!-- Q17 -->
+      <div class="question-container" id="q17-container">
+        <p class="question-text"><strong>Q17:</strong> A 100 kg running back moving at 5 m/s is tackled by a 120 kg linebacker moving at 4 m/s in the opposite direction. If they stick together, what is their final velocity?</p>
+        <div class="options" id="q17-options">
+          <div class="option" onclick="selectOption(17, 0)">
+            <label class="option-label">
+              <input type="radio" name="q17" value="0">
+              <span class="option-marker">A</span>
+              <span>0.09 m/s in the running back's original direction</span>
+            </label>
+          </div>
+          <div class="option" onclick="selectOption(17, 1)">
+            <label class="option-label">
+              <input type="radio" name="q17" value="1">
+              <span class="option-marker">B</span>
+              <span>0.45 m/s in the running back's original direction</span>
+            </label>
+          </div>
+          <div class="option" onclick="selectOption(17, 2)">
+            <label class="option-label">
+              <input type="radio" name="q17" value="2">
+              <span class="option-marker">C</span>
+              <span>4.5 m/s in the linebacker's original direction</span>
+            </label>
+          </div>
+          <div class="option" onclick="selectOption(17, 3)">
+            <label class="option-label">
+              <input type="radio" name="q17" value="3">
+              <span class="option-marker">D</span>
+              <span>0.45 m/s in the linebacker's original direction</span>
+            </label>
+          </div>
+        </div>
+        <button class="check-btn" onclick="checkAnswer(17)">Check Answer</button>
+        <div class="feedback" id="q17-feedback"></div>
+        <div class="attempts" id="q17-attempts"></div>
+      </div>
+      
+      <!-- Q18 -->
+      <div class="question-container" id="q18-container">
+        <p class="question-text"><strong>Q18:</strong> An 85 kg fisherman jumps at 4 m/s into a stationary 120 kg rowboat. What is their combined velocity?</p>
+        <div class="options" id="q18-options">
+          <div class="option" onclick="selectOption(18, 0)">
+            <label class="option-label">
+              <input type="radio" name="q18" value="0">
+              <span class="option-marker">A</span>
+              <span>1.7 m/s</span>
+            </label>
+          </div>
+          <div class="option" onclick="selectOption(18, 1)">
+            <label class="option-label">
+              <input type="radio" name="q18" value="1">
+              <span class="option-marker">B</span>
+              <span>2.8 m/s</span>
+            </label>
+          </div>
+          <div class="option" onclick="selectOption(18, 2)">
+            <label class="option-label">
+              <input type="radio" name="q18" value="2">
+              <span class="option-marker">C</span>
+              <span>0.7 m/s</span>
+            </label>
+          </div>
+          <div class="option" onclick="selectOption(18, 3)">
+            <label class="option-label">
+              <input type="radio" name="q18" value="3">
+              <span class="option-marker">D</span>
+              <span>4.0 m/s</span>
+            </label>
+          </div>
+        </div>
+        <button class="check-btn" onclick="checkAnswer(18)">Check Answer</button>
+        <div class="feedback" id="q18-feedback"></div>
+        <div class="attempts" id="q18-attempts"></div>
+      </div>
+      
+      <!-- Q19 -->
+      <div class="question-container" id="q19-container">
+        <p class="question-text"><strong>Q19:</strong> How many kilograms of water at 25°C must come to thermal equilibrium with a 3 kg gold bar at 98°C in order to lower the bar's temperature to 28°C?</p>
+        <div class="options" id="q19-options">
+          <div class="option" onclick="selectOption(19, 0)">
+            <label class="option-label">
+              <input type="radio" name="q19" value="0">
+              <span class="option-marker">A</span>
+              <span>0.72 kg</span>
+            </label>
+          </div>
+          <div class="option" onclick="selectOption(19, 1)">
+            <label class="option-label">
+              <input type="radio" name="q19" value="1">
+              <span class="option-marker">B</span>
+              <span>2.16 kg</span>
+            </label>
+          </div>
+          <div class="option" onclick="selectOption(19, 2)">
+            <label class="option-label">
+              <input type="radio" name="q19" value="2">
+              <span class="option-marker">C</span>
+              <span>0.23 kg</span>
+            </label>
+          </div>
+          <div class="option" onclick="selectOption(19, 3)">
+            <label class="option-label">
+              <input type="radio" name="q19" value="3">
+              <span class="option-marker">D</span>
+              <span>3.02 kg</span>
+            </label>
+          </div>
+        </div>
+        <button class="check-btn" onclick="checkAnswer(19)">Check Answer</button>
+        <div class="feedback" id="q19-feedback"></div>
+        <div class="attempts" id="q19-attempts"></div>
+      </div>
+      
+      <!-- Q20 -->
+      <div class="question-container" id="q20-container">
+        <p class="question-text"><strong>Q20:</strong> Student A hits a hockey puck that reaches a maximum velocity of 8 m/s. Student B hits an identical puck the same displacement but the puck only reaches 4 m/s. How much harder would Student B need to hit the puck to match Student A's velocity?</p>
+        <div class="options" id="q20-options">
+          <div class="option" onclick="selectOption(20, 0)">
+            <label class="option-label">
+              <input type="radio" name="q20" value="0">
+              <span class="option-marker">A</span>
+              <span>Twice as hard</span>
+            </label>
+          </div>
+          <div class="option" onclick="selectOption(20, 1)">
+            <label class="option-label">
+              <input type="radio" name="q20" value="1">
+              <span class="option-marker">B</span>
+              <span>Three times as hard</span>
+            </label>
+          </div>
+          <div class="option" onclick="selectOption(20, 2)">
+            <label class="option-label">
+              <input type="radio" name="q20" value="2">
+              <span class="option-marker">C</span>
+              <span>Four times as hard</span>
+            </label>
+          </div>
+          <div class="option" onclick="selectOption(20, 3)">
+            <label class="option-label">
+              <input type="radio" name="q20" value="3">
+              <span class="option-marker">D</span>
+              <span>Eight times as hard</span>
+            </label>
+          </div>
+        </div>
+        <button class="check-btn" onclick="checkAnswer(20)">Check Answer</button>
+        <div class="feedback" id="q20-feedback"></div>
+        <div class="attempts" id="q20-attempts"></div>
+      </div>
+      
+      <!-- Q21 -->
+      <div class="question-container" id="q21-container">
+        <p class="question-text"><strong>Q21:</strong> A 199.26 g metal specimen is heated to 100°C. It is then dropped into a calorimeter containing 153 g of water with an initial temperature of 6.0°C. The system reaches a final equilibrium temperature of 9.6°C. Identify the metal specimen based on its calculated specific heat capacity.</p>
+        <div class="options" id="q21-options">
+          <div class="option" onclick="selectOption(21, 0)">
+            <label class="option-label">
+              <input type="radio" name="q21" value="0">
+              <span class="option-marker">A</span>
+              <span>Gold</span>
+            </label>
+          </div>
+          <div class="option" onclick="selectOption(21, 1)">
+            <label class="option-label">
+              <input type="radio" name="q21" value="1">
+              <span class="option-marker">B</span>
+              <span>Mercury</span>
+            </label>
+          </div>
+          <div class="option" onclick="selectOption(21, 2)">
+            <label class="option-label">
+              <input type="radio" name="q21" value="2">
+              <span class="option-marker">C</span>
+              <span>Aluminum</span>
+            </label>
+          </div>
+          <div class="option" onclick="selectOption(21, 3)">
+            <label class="option-label">
+              <input type="radio" name="q21" value="3">
+              <span class="option-marker">D</span>
+              <span>Lead</span>
+            </label>
+          </div>
+        </div>
+        <button class="check-btn" onclick="checkAnswer(21)">Check Answer</button>
+        <div class="feedback" id="q21-feedback"></div>
+        <div class="attempts" id="q21-attempts"></div>
+      </div>
+      
+      <!-- Q22 -->
+      <div class="question-container" id="q22-container">
+        <p class="question-text"><strong>Q22:</strong> A 350 kg bumper car traveling at 12 m/s hits a stationary 180 kg bumper car. After the elastic collision, the first car continues at 4.5 m/s. How fast is the second car moving?</p>
+        <div class="options" id="q22-options">
+          <div class="option" onclick="selectOption(22, 0)">
+            <label class="option-label">
+              <input type="radio" name="q22" value="0">
+              <span class="option-marker">A</span>
+              <span>7.5 m/s</span>
+            </label>
+          </div>
+          <div class="option" onclick="selectOption(22, 1)">
+            <label class="option-label">
+              <input type="radio" name="q22" value="1">
+              <span class="option-marker">B</span>
+              <span>12 m/s</span>
+            </label>
+          </div>
+          <div class="option" onclick="selectOption(22, 2)">
+            <label class="option-label">
+              <input type="radio" name="q22" value="2">
+              <span class="option-marker">C</span>
+              <span>23 m/s</span>
+            </label>
+          </div>
+          <div class="option" onclick="selectOption(22, 3)">
+            <label class="option-label">
+              <input type="radio" name="q22" value="3">
+              <span class="option-marker">D</span>
+              <span>14.6 m/s</span>
+            </label>
+          </div>
+        </div>
+        <button class="check-btn" onclick="checkAnswer(22)">Check Answer</button>
+        <div class="feedback" id="q22-feedback"></div>
+        <div class="attempts" id="q22-attempts"></div>
+      </div>
+      
+      <!-- Q23 -->
+      <div class="question-container" id="q23-container">
+        <p class="question-text"><strong>Q23:</strong> Five dogs are running in a park with the following masses and velocities:<br>
+        Dog 1: 5 kg at 4 m/s<br>
+        Dog 2: 10 kg at 2 m/s<br>
+        Dog 3: 8 kg at 3 m/s<br>
+        Dog 4: 4 kg at 5 m/s<br>
+        Dog 5: 6 kg at 4 m/s<br>
+        Which dog has the GREATEST kinetic energy?</p>
+        <div class="options" id="q23-options">
+          <div class="option" onclick="selectOption(23, 0)">
+            <label class="option-label">
+              <input type="radio" name="q23" value="0">
+              <span class="option-marker">A</span>
+              <span>Dog 1</span>
+            </label>
+          </div>
+          <div class="option" onclick="selectOption(23, 1)">
+            <label class="option-label">
+              <input type="radio" name="q23" value="1">
+              <span class="option-marker">B</span>
+              <span>Dog 2</span>
+            </label>
+          </div>
+          <div class="option" onclick="selectOption(23, 2)">
+            <label class="option-label">
+              <input type="radio" name="q23" value="2">
+              <span class="option-marker">C</span>
+              <span>Dog 4</span>
+            </label>
+          </div>
+          <div class="option" onclick="selectOption(23, 3)">
+            <label class="option-label">
+              <input type="radio" name="q23" value="3">
+              <span class="option-marker">D</span>
+              <span>Dog 5</span>
+            </label>
+          </div>
+        </div>
+        <button class="check-btn" onclick="checkAnswer(23)">Check Answer</button>
+        <div class="feedback" id="q23-feedback"></div>
+        <div class="attempts" id="q23-attempts"></div>
+      </div>
+      
+      <!-- Q24 -->
+      <div class="question-container" id="q24-container">
+        <p class="question-text"><strong>Q24:</strong> A straight glass rod appears to bend when placed in a beaker of water. What is the best explanation for this phenomenon?</p>
+        <div class="options" id="q24-options">
+          <div class="option" onclick="selectOption(24, 0)">
+            <label class="option-label">
+              <input type="radio" name="q24" value="0">
+              <span class="option-marker">A</span>
+              <span>The water is warmer than the air.</span>
+            </label>
+          </div>
+          <div class="option" onclick="selectOption(24, 1)">
+            <label class="option-label">
+              <input type="radio" name="q24" value="1">
+              <span class="option-marker">B</span>
+              <span>Light travels faster in water than in air.</span>
+            </label>
+          </div>
+          <div class="option" onclick="selectOption(24, 2)">
+            <label class="option-label">
+              <input type="radio" name="q24" value="2">
+              <span class="option-marker">C</span>
+              <span>Light is reflected at the air-water interface.</span>
+            </label>
+          </div>
+          <div class="option" onclick="selectOption(24, 3)">
+            <label class="option-label">
+              <input type="radio" name="q24" value="3">
+              <span class="option-marker">D</span>
+              <span>Light is refracted as it crosses the air-water interface.</span>
+            </label>
+          </div>
+        </div>
+        <button class="check-btn" onclick="checkAnswer(24)">Check Answer</button>
+        <div class="feedback" id="q24-feedback"></div>
+        <div class="attempts" id="q24-attempts"></div>
+      </div>
+    </div>
+        
+    <!-- Mastery Celebration -->
+    <div id="masteryCelebration">
+      <div class="mastery-content">
+        <h2>🎉 MASTERY ACHIEVED!</h2>
+        <p>You've successfully completed the Spring Final Review!</p>
+        <div class="mastery-stats">
+          <div class="mastery-stat">
+            <div class="mastery-stat-value" id="final-correct">0</div>
+            <div class="mastery-stat-label">Questions Correct</div>
+          </div>
+          <div class="mastery-stat">
+            <div class="mastery-stat-value" id="final-total">24</div>
+            <div class="mastery-stat-label">Total Questions</div>
+          </div>
+        </div>
+        <p class="timestamp" id="timestamp"></p>
+      </div>
+    </div>
+  </div>
+  
+  <script>
+    // Answer key and feedback
+    const answerKey = {
+      1: { correct: 3, feedback: {
+        0: "Not quite. The corona is the sun's outer atmosphere — extremely hot, but not the hottest layer.",
+        1: "Not quite. The photosphere is actually the coolest layer on/in the sun.",
+        2: "Not quite. The radiative zone is hot, but the core is hotter.",
+        3: "Correct! The core is where fusion happens, making it by far the hottest location at around 15 million K."
+      }},
+      2: { correct: 1, feedback: {
+        0: "Not quite. The core is the hottest layer, not the coolest.",
+        1: "Correct! The photosphere is the sun's visible surface and the coolest layer at about 5,500 K.",
+        2: "Not quite. The convective zone sits below the photosphere and is hotter.",
+        3: "Not quite. The chromosphere lies above the photosphere and is hotter than it."
+      }},
+      3: { correct: 0, feedback: {
+        0: "Correct! Elastic collisions are the only type where total kinetic energy is conserved.",
+        1: "Not quite. Inelastic collisions lose KE to sound, heat, and deformation.",
+        2: "Not quite. KE is only conserved in elastic collisions.",
+        3: "Not quite. Perfectly inelastic collisions lose the most kinetic energy."
+      }},
+      4: { correct: 1, feedback: {
+        0: "Not quite. ma is force (Newton's 2nd law), not momentum.",
+        1: "Correct! Momentum equals mass times velocity: p = mv.",
+        2: "Not quite. Fd is work, not momentum.",
+        3: "Not quite. ½mv² is kinetic energy, not momentum."
+      }},
+      5: { correct: 1, feedback: {
+        0: "Not quite. If momentum increased, it wouldn't be 'conserved.'",
+        1: "Correct! With no external force, total momentum of the system does not change.",
+        2: "Not quite. Zero momentum only happens in specific cases, not as a general rule.",
+        3: "Not quite. If momentum decreased, it wouldn't be conserved."
+      }},
+      6: { correct: 1, feedback: {
+        0: "Not quite. Force × time is impulse, not work.",
+        1: "Correct! Work = Force × displacement in the direction of the force (W = Fd cos θ).",
+        2: "Not quite. Force divided by displacement isn't a standard physics quantity.",
+        3: "Not quite. Mass × velocity is momentum, not work."
+      }},
+      7: { correct: 0, feedback: {
+        0: "Correct! Atomic number Z = number of protons = 12. Mass number A = protons + neutrons = 24.",
+        1: "Not quite. You swapped Z and A. Z counts protons only.",
+        2: "Not quite. Z is the number of protons (12), not 24.",
+        3: "Not quite. A includes both protons AND neutrons, so A = 12 + 12 = 24."
+      }},
+      8: { correct: 2, feedback: {
+        0: "Not quite. Check the formula: KE = ½mv².",
+        1: "Not quite. That looks like mv (momentum), not ½mv².",
+        2: "Correct! KE = ½(2)(3)² = ½(2)(9) = 9 J.",
+        3: "Not quite. You may have squared mass instead of velocity."
+      }},
+      9: { correct: 1, feedback: {
+        0: "Not quite. Inelastic collisions don't primarily convert KE to potential energy.",
+        1: "Correct! In inelastic collisions, KE is transformed into sound, thermal energy, and work done to deform objects.",
+        2: "Not quite. Nuclear energy requires nuclear reactions, not mechanical collisions.",
+        3: "Not quite. Electrical energy isn't typically produced in mechanical collisions."
+      }},
+      10: { correct: 3, feedback: {
+        0: "Not quite. Conduction is happening, but it's not the only mode here.",
+        1: "Not quite. Radiation from the gas flame is also a factor.",
+        2: "Not quite. Conduction through the pan and convection in the water also occur.",
+        3: "Correct! All three: radiation from the flame, conduction through the pan, and convection within the water."
+      }},
+      11: { correct: 1, feedback: {
+        0: "Not quite. Remember v is squared in KE = ½mv².",
+        1: "Correct! Doubling v means v² becomes 4×, so KE quadruples.",
+        2: "Not quite. KE increases when v increases.",
+        3: "Not quite. Velocity directly affects KE through v²."
+      }},
+      12: { correct: 3, feedback: {
+        0: "Not quite. Check your multiplication: 1500 × 30.",
+        1: "Not quite. That looks like 1500 + 30, but momentum is mass × velocity.",
+        2: "Not quite. You may have used ½mv² (kinetic energy) instead of mv.",
+        3: "Correct! p = mv = 1500 × 30 = 45,000 kg·m/s."
+      }},
+      13: { correct: 1, feedback: {
+        0: "Not quite. Check your multiplication: 2.5 × 20.",
+        1: "Correct! p = mv = 2.5 × 20 = 50 kg·m/s.",
+        2: "Not quite. That's not 2.5 × 20.",
+        3: "Not quite. You may have used a different formula."
+      }},
+      14: { correct: 0, feedback: {
+        0: "Correct! Force and displacement are in the same direction, so the work is positive.",
+        1: "Not quite. Negative work happens when force opposes motion (like friction).",
+        2: "Not quite. We have all the info we need — force and motion are in the same direction.",
+        3: "Not quite. Zero work would require force perpendicular to motion, or zero displacement."
+      }},
+      15: { correct: 1, feedback: {
+        0: "Not quite. You have it backwards — chemical reactions deal with electrons.",
+        1: "Correct! Chemical reactions exchange/share electrons; nuclear reactions alter the nucleus (nucleons).",
+        2: "Not quite. Nuclear reactions involve the strong nuclear force, not just electrostatics.",
+        3: "Not quite. Both reactions typically end at LOWER energy states (releasing energy)."
+      }},
+      16: { correct: 0, feedback: {
+        0: "Correct! Refraction is the bending of waves as they change speed entering a new medium.",
+        1: "Not quite. Diffraction is bending around obstacles or through openings.",
+        2: "Not quite. Reflection bounces waves off a surface — they don't change medium.",
+        3: "Not quite. Interference happens when waves overlap and combine."
+      }},
+      17: { correct: 0, feedback: {
+        0: "Correct! p_initial = (100)(5) + (120)(-4) = 500 - 480 = 20 kg·m/s. v_f = 20/220 ≈ 0.09 m/s in the running back's direction.",
+        1: "Not quite. Check your conservation of momentum calculation — don't forget the linebacker is moving in the opposite direction (negative).",
+        2: "Not quite. The combined momentum is small because their momenta nearly cancel.",
+        3: "Not quite. The running back has more initial momentum (500 vs 480), so they move in his direction."
+      }},
+      18: { correct: 0, feedback: {
+        0: "Correct! p_i = (85)(4) + (120)(0) = 340 kg·m/s. v_f = 340/(85+120) = 340/205 ≈ 1.7 m/s.",
+        1: "Not quite. Check your total mass — both the fisherman AND the boat move together.",
+        2: "Not quite. Recheck the division: 340 ÷ 205.",
+        3: "Not quite. The fisherman slows down when the boat is added to the system."
+      }},
+      19: { correct: 1, feedback: {
+        0: "Not quite. Recheck the calorimetry equation: m_w·c_w·ΔT_w = m_g·c_g·ΔT_g.",
+        1: "Correct! Gold loses: (3)(129)(70) = 27,090 J. Water gains: m(4186)(3) = 27,090, so m ≈ 2.16 kg.",
+        2: "Not quite. Make sure you're using the correct specific heats (gold = 129, water = 4186 J/kg·°C).",
+        3: "Not quite. Check your ΔT values — gold drops 70°C, water rises 3°C."
+      }},
+      20: { correct: 2, feedback: {
+        0: "Not quite. Remember KE depends on v², not just v.",
+        1: "Not quite. The relationship is quadratic, not linear.",
+        2: "Correct! To double velocity, you need 4× the energy (KE ∝ v²). Same displacement means 4× the work, so 4× the force.",
+        3: "Not quite. v² makes it a factor of 4, not 8."
+      }},
+      21: { correct: 3, feedback: {
+        0: "Not quite. Recalculate c using Q_water = Q_metal: (0.153)(4186)(3.6) = (0.19926)(c)(90.4).",
+        1: "Not quite. Mercury has a different specific heat than the calculated value.",
+        2: "Not quite. Aluminum has a much higher specific heat than what you'd calculate here.",
+        3: "Correct! c ≈ 128 J/kg·°C, which matches lead."
+      }},
+      22: { correct: 3, feedback: {
+        0: "Not quite. Check your conservation of momentum: m₁v₁ᵢ = m₁v₁f + m₂v₂f.",
+        1: "Not quite. The second car wouldn't move at the first car's initial speed.",
+        2: "Not quite. Recheck the algebra.",
+        3: "Correct! (350)(12) = (350)(4.5) + (180)v₂ → 4200 = 1575 + 180v₂ → v₂ ≈ 14.6 m/s."
+      }},
+      23: { correct: 2, feedback: {
+        0: "Not quite. Dog 1: ½(5)(4²) = 40 J. Try checking Dog 4.",
+        1: "Not quite. Dog 2: ½(10)(2²) = 20 J. Velocity matters more because it's squared.",
+        2: "Correct! Dog 4: ½(4)(5²) = 50 J. Highest velocity wins because KE ∝ v².",
+        3: "Not quite. Dog 5: ½(6)(4²) = 48 J. Close, but Dog 4 edges it out."
+      }},
+      24: { correct: 3, feedback: {
+        0: "Not quite. Temperature isn't what causes the apparent bend.",
+        1: "Not quite. Light actually travels SLOWER in water than in air.",
+        2: "Not quite. Reflection would show a mirror-like image, not an apparent bend.",
+        3: "Correct! Light bends (refracts) when it crosses between media with different optical densities."
+      }}
+    };
+    
+    // Section configuration
+    const sectionConfig = {
+      1: { questions: [1, 2, 3, 4, 5, 6, 7, 8], total: 8 },
+      2: { questions: [9, 10, 11, 12, 13, 14, 15, 16], total: 8 },
+      3: { questions: [17, 18, 19, 20, 21, 22, 23, 24], total: 8 }
+    };
+    
+    // Track state
+    const completed = {};
+    const attempts = {};
+    const selected = {};
+    
+    function selectOption(qNum, optionIndex) {
+      if (completed[qNum]) return;
+      
+      const options = document.querySelectorAll(`#q${qNum}-options .option`);
+      options.forEach((opt, idx) => {
+        opt.classList.remove('selected');
+        if (idx === optionIndex) {
+          opt.classList.add('selected');
+        }
+      });
+      selected[qNum] = optionIndex;
+    }
+    
+    function checkAnswer(qNum) {
+      if (completed[qNum]) return;
+      if (selected[qNum] === undefined) {
+        alert('Please select an answer first!');
+        return;
+      }
+      
+      if (!attempts[qNum]) attempts[qNum] = 0;
+      attempts[qNum]++;
+      
+      const correctIdx = answerKey[qNum].correct;
+      const selectedIdx = selected[qNum];
+      const isCorrect = selectedIdx === correctIdx;
+      
+      const feedbackDiv = document.getElementById(`q${qNum}-feedback`);
+      const attemptsDiv = document.getElementById(`q${qNum}-attempts`);
+      const options = document.querySelectorAll(`#q${qNum}-options .option`);
+      const questionDiv = document.getElementById(`q${qNum}-container`);
+      
+      feedbackDiv.className = 'feedback show ' + (isCorrect ? 'correct' : 'incorrect');
+      feedbackDiv.textContent = answerKey[qNum].feedback[selectedIdx];
+      
+      if (isCorrect) {
+        const attemptText = attempts[qNum] === 1 ? 'attempt' : 'attempts';
+        attemptsDiv.textContent = `✓ Completed in ${attempts[qNum]} ${attemptText}`;
+        
+        options[selectedIdx].classList.remove('selected');
+        options[selectedIdx].classList.add('correct');
+        completed[qNum] = true;
+        questionDiv.classList.add('completed');
+        questionDiv.querySelector('.check-btn').disabled = true;
+        
+        updateProgress();
+      } else {
+        attemptsDiv.textContent = `Attempts: ${attempts[qNum]}`;
+        options[selectedIdx].classList.add('incorrect');
+        
+        setTimeout(() => {
+          options[selectedIdx].classList.remove('incorrect', 'selected');
+          selected[qNum] = undefined;
+        }, 1500);
+      }
+    }
+    
+    function updateProgress() {
+      let totalCompleted = 0;
+      const totalQuestions = 24;
+      
+      for (let section = 1; section <= 3; section++) {
+        const config = sectionConfig[section];
+        let sectionCompleted = 0;
+        
+        config.questions.forEach(q => {
+          if (completed[q]) sectionCompleted++;
+        });
+        
+        totalCompleted += sectionCompleted;
+        const pct = Math.round((sectionCompleted / config.total) * 100);
+        
+        document.getElementById(`prog${section}`).textContent = sectionCompleted;
+        document.getElementById(`fill${section}`).style.width = `${pct}%`;
+      }
+      
+      if (totalCompleted === totalQuestions) {
+        document.getElementById('final-correct').textContent = totalCompleted;
+        const now = new Date();
+        document.getElementById('timestamp').textContent = `Completed: ${now.toLocaleDateString()} at ${now.toLocaleTimeString()}`;
+        document.getElementById('masteryCelebration').classList.add('show');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    }
+  </script>
+</body>
+</html>
